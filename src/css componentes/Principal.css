@@ -1,0 +1,455 @@
+/* Estilos para la barra de navegación */
+
+.navegacion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 40px;
+    background-color: #ffffff; /* Color de fondo */
+    color: black; /* Color del texto */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.8); /* Sombra sutil */
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo img {
+    width: 40px;
+    height: 40px; 
+}
+
+.logo .nombre {
+    font-size: 22px;
+    font-weight: bold;
+    color: #6CBF73; /* Color del texto del logo */
+}
+
+.menus-links {
+    list-style: none;
+    display: flex;
+    top: 100%;
+    gap: 30px;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    justify-content: center;
+    background-color: white; /*color de fondo */
+    margin: 0;
+    padding: 0;
+
+}
+.boton {
+    background-color: #51abf5; /* Color de fondo del botón */
+    color: white; /* Color del texto del botón */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.boton:hover {
+    background-color: #a7a2ff; /* Color de fondo al pasar el cursor */
+}
+
+.menus-links li a {
+    text-decoration: none;
+    color: black; /* Color del texto de los enlaces */
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: color 0.3s;
+}
+.menus-links li a:hover {
+    background-color: #f2f2f2; /* Fondo gris claro */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+/* Estilos para el contenido de la pagina */
+
+
+.texto-principal {
+    background-image: url('/public/Imagenes/cultivo.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 45vh;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    text-align: left;
+    position: relative;
+}
+/* Superposición oscura */
+.texto-principal::before {
+   content: "";
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   background: rgba(0.3, 0.3, 0.8, 0.5); /*Ajusta la opacidad  */
+    z-index: 0;
+}
+.contenido-img {
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    margin-left: 60px; 
+}
+.contenido-img h1 {
+    color: white;
+    font-size: 2.8em;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    font-family: 'Times New Roman', Times, serif;
+}
+.contenido-img h3 {
+    color: white;
+    font-size: 1.3em;
+    font-weight: 400;
+    margin-bottom: 30px;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.boton2 {   
+    background-color: #6CBF73; /* Color de fondo del botón */
+    color: white; /* Color del texto del botón */
+    border: none;
+    padding: 15px 40px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+    font-family: 'Times New Roman', Times, serif;
+}
+.boton2:hover {
+    background-color: #79d480; /* Color de fondo al pasar el cursor */
+}
+
+.sabias-que {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background-color: white;
+    gap: 20px;
+    justify-content: space-around;
+}
+.sabias-que img {
+    width: 400px;
+    height:200px;
+    margin-left: 50px;
+    object-fit: cover;  
+    border-radius: 20px;
+    border: 2px solid black;
+}
+.sabias-que p {
+    max-width: 600px;
+    font-size: 2em;
+    color: black    ;
+    line-height: 1.6;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.sobre-nosotros {
+    padding: 60px 20px;
+    text-align: center;
+    background-color: #f9f9f9;
+}
+.sobre-nosotros h1 {
+    font-size: 2.5em;
+    margin-bottom: 40px;
+    margin-top: -20px;
+    color: black;
+    font-family: 'Times New Roman', Times, serif;
+}
+.equipo {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 40px;
+}
+.integrante {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 300px;
+    margin: 20px;
+    border-radius: 20px;
+}
+.integrante img {
+    width: 100px;
+    height: auto;
+    object-fit: cover;
+    margin-bottom: 15x;
+
+}
+
+.integrante h3 {
+    font-size: 1.5em;
+    margin-bottom: -5px;
+    color: #333;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.integrante p {
+    font-size: 1em;
+    color: black;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.integrante1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 300px;
+    margin: 20px;
+    border-radius: 20px;
+}
+.integrante1 img {
+    width: 200px;
+    height: auto;
+    object-fit: cover;
+    margin-bottom: 15x;
+
+}
+.integrante1 h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #333;
+    font-family: 'Times New Roman', Times, serif;
+}
+.integrante1 p {
+    font-size: 1em;
+    color: black;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+}
+.integrante:hover , .integrante1:hover {
+    background-color: #f2f2f2; /* Fondo gris claro */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.sensores {
+    padding: 60px 20px;
+    text-align: center;
+    background-color: white;
+}
+.sensores h1 {
+    font-size: 2.5em;
+    margin-bottom: 40px;
+    margin-top: -20px;
+    color: black;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.sensores-contenido {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 40px;
+}
+
+.sensor-npk {
+    background-color: #f2f2f2 ;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 300px;
+    margin: 20px;
+    border-radius: 20px;
+}
+.sensor-npk img {
+    width: 300px;
+    height: auto;
+    object-fit: cover;
+    margin-bottom: 15x;
+
+}
+.sensor-npk h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #333;
+    font-family: 'Times New Roman', Times, serif;
+}
+.sensor-npk p {
+    font-size: 1em;
+    color: black;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+}
+.sensor-ph {
+    background-color: #f2f2f2 ;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 300px;
+    margin: 20px;
+    border-radius: 20px;
+}
+.sensor-ph img {
+    width: 300px;
+    height: auto;
+    object-fit: cover;
+    margin-bottom: 15x;
+
+}
+.sensor-ph h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #333;
+    font-family: 'Times New Roman', Times, serif;
+}
+.sensor-ph p {
+    font-size: 1em;
+    color: black;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.flotador {
+    background-color: #f2f2f2 ;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 300px;
+    margin: 20px;
+    border-radius: 20px;
+}
+.flotador img {
+    width: 300px;
+    height: auto;
+    object-fit: cover;
+    margin-bottom: 15x;
+
+}   
+.flotador h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #333;
+    font-family: 'Times New Roman', Times, serif;
+}
+.flotador p {
+    font-size: 1em;
+    color: black;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+}
+.sensor-npk:hover, .sensor-ph:hover, .flotador:hover {
+    background-color: #e0e0e0; /* Fondo gris claro */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+.boton3 {   
+    background-color: #6CBF73; /* Color de fondo del botón */
+    color: white; /* Color del texto del botón */
+    border: none;
+    padding: 15px 40px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+    font-family: 'Times New Roman', Times, serif;
+    margin-top: 10px;
+}
+.boton3:hover {
+    background-color: #79d480; /* Color de fondo al pasar el cursor */
+}
+
+.cultivos {
+    padding: 60px 20px;
+    background-color: #f9f9f9;
+}
+.cultivos-contenido {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-top: -30px;
+    gap: 40px;
+}
+.cultivo1 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+}
+.cultivo-texto{
+    flex: 1;
+    text-align: left;
+}
+.cultivo-texto h2 {
+    font-size: 2em;
+    margin-bottom: 40px;
+    margin-top: -20px;
+    color: black;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+}
+.cultivo-texto p {
+    font-size: 1.2em;
+    max-width: 800px;
+    margin: 0 auto;
+    color: black;
+    line-height: 1.6;
+    font-family: 'Times New Roman', Times, serif;
+}
+.botones-cultivo {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+.boton4 {   
+    background-color: #6CBF73; /* Color de fondo del botón */
+    color: white; /* Color del texto del botón */
+    border: none;
+    padding: 15px 40px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+    font-family: 'Times New Roman', Times, serif;
+    margin-top: 40px;
+}
+.boton4:hover {
+    background-color: #79d480; /* Color de fondo al pasar el cursor */
+}
+.cultivo-imagen{
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+.cultivo-imagen img {
+    width: 650px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 5px;
+}
+/*Pie de pagina*/
+.footer{
+    background-color: #6CBF73;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    font-family: 'Times New Roman', Times, serif;
+}
