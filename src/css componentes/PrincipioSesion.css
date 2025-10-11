@@ -1,0 +1,59 @@
+.contenedor-principal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: url('/public/Imagenes/arandanos_fondo.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+.caja-principal {
+    background-color: rgba(0,255,255,0.5);;
+    padding: 80px 50px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 300px;
+}
+
+.bienvenida h1 {
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: -20px;
+    color: white;
+    margin-top: -40px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+.bienvenida img{
+    width: 150px;
+    margin-bottom: -20px;
+}
+.datos {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 25px;
+}
+.datos li {
+    list-style: none;
+    margin: 20px 0;
+}
+.datos a {
+    text-decoration: none;
+    color: white;
+    font-size: 25px;
+    border: 2px solid white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    font-family:'Times New Roman', Times, serif
+}
+
+.datos a:hover {
+    background-color: white;
+    color: #00FFFF;
+}

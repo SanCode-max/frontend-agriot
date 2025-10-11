@@ -1,9 +1,9 @@
 import { click } from '@testing-library/user-event/dist/click';
 import React from 'react'
 import '../css componentes/Principal.css'
+import { Link } from 'react-router-dom';
 
-export default function component() {
-  
+export default function Principal() {
   return (
     <>
     <header>
@@ -19,7 +19,9 @@ export default function component() {
           <li><a href="#">Sensores</a></li>
           <li><a href="#">Cultivos</a></li>
           <li><a href="#">Contacto</a></li>
-          <button className='boton'>Iniciar Sesión</button>
+          <Link to="/Bienvenida">
+            <button className='boton'>Iniciar Sesión</button>
+          </Link>
         </ul>
       </nav>
     </header>
@@ -85,7 +87,6 @@ export default function component() {
               <div className='botones-cultivo'>
                 <button className='boton4'>Acerca del cultivo</button>
               </div>
-              
             </div>
             <div className='cultivo-imagen'>
             <img src="/Imagenes/arbustos.jpg"/>
@@ -96,12 +97,29 @@ export default function component() {
       </section>
     </main>
     <footer className='footer'>
-      <p>© 2025 AgrIoT. Todos los derechos reservados.</p>
+      <div className='pie-contenido'>
+        <div className='que-somos'>
+          <h3>¿Que hacemos?</h3>
+          <p>Nos encargamos de ralizar monitoreos en los cultivos de arandanos 
+          para optimizar la producción, el uso de recursos y garantizar la calidad del producto.</p>
+        </div>
+        <div className='redes'>
+          <h3>Redes Sociales</h3>
+          <div className='iconos'>
+            <a href="#"><img src="/Imagenes/facebook.png"/> Facebook</a>
+            <a href="#"><img src="/Imagenes/instagram.png"/> Instagram</a>
+            <a href="#"><img src="/Imagenes/gorjeo.png"/> Twitter</a>
+          </div>
+        </div>
+        <div className='contacto'>
+          <h3>Contacto</h3>
+          <p>"Convierte tus datos en crecimiento: haz tu cultivo más rentable y sostenible."</p>
+          <p><span>Email:</span> AgrIoTPT@gmail.com</p>
+          <p><span>Teléfono: </span>325483534</p>   
+        </div>   
+      </div>   
     </footer>
-   
     </>
-    
-
   );
 }
 

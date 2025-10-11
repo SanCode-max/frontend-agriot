@@ -1,16 +1,23 @@
 
 import './App.css';
-import Component from './Componentes/Principal';
+import react from 'react';
+import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import Principal from './Componentes/Principal';
+import PrincipioSesion from './Componentes/PrincipioSesion';
+import Sesion from './Componentes/InicioSesion';
+import Registro from './Componentes/Registro';
 
 function MyApp() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          <Component />
-        </p>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route path='/' element={<Principal/>}/>
+        <Route path='/Bienvenida' element={<PrincipioSesion/>}/>
+        <Route path='/login' element={<Sesion/>}/>
+        <Route path='/registro' element={<Registro/>}/>
+      </Routes>
+    </Router>
+    
   );
 }
 
