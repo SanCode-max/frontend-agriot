@@ -66,9 +66,7 @@ export default function Registro() {
             <div className='texto'>
                <p>
                 ¿Ya tienes cuenta?{""}
-                <span style={{marginLeft: "10px"}}> 
-                    <Link to="/login">Iniciar sesión</Link>
-                </span>  
+                <Link to="/login">Iniciar sesión</Link>
                </p>
                 
             </div>
