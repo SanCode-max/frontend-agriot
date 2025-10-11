@@ -1,0 +1,107 @@
+.contenedor-principal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: url('/public/Imagenes/arandanos_fondo.jpg');
+    font-family: Arial, sans-serif;
+}
+.caja {
+    background-color: white;
+    padding: 60px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    text-align: center;
+}
+.caja h1 {
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #00FFFF; 
+    margin-top: -40px;
+    text-align: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+.formulario {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 25px;
+}
+.formulario input {
+    background: #F2F2F2;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 20px;
+    font-size: 20px;
+    border: none;
+    font-size: 16px;
+    box-sizing: border-box;
+    outline: none;
+}
+.contenedor-contraseña {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.contenedor-contraseña input {
+    width: 100%;
+    padding-right: 40px; /* Espacio para el icono */
+}
+
+.ojo {
+    position: absolute;
+    right: 15px;
+    cursor: pointer;
+    color: #888;
+    user-select: none;
+    transition: color 0.3s;
+}
+.ojo:hover {
+    color: #00CCCC;
+}
+.formulario .registro {
+    background-color: #51abf5;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+    text-align: center;
+}
+.formulario .registro:hover {
+    background-color: #00CCCC;
+}
+
+.texto {
+    margin-top: 30px;
+    text-align: center;
+}
+.texto p {
+    font-size: 16px;
+}
+.texto a {
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+}
+.texto a:hover {
+    text-decoration: underline;
+}
+.mensaje {
+    font-size: 14px;
+    margin-top: 10px;
+    font-weight: bold;
+    transition: opacity 0.5s ease;   
+}
+.mensaje.error {
+    color: red;
+}
+.mensaje.exito {
+    color: green;
+}
