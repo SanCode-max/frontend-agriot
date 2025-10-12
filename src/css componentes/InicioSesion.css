@@ -1,0 +1,83 @@
+.contenedor-principal-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: url('/public/Imagenes/arandanos_fondo.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+.caja-login {
+    background-color: white;
+    padding: 70px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    text-align: center;
+}
+.caja-login h1 {
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #00FFFF; 
+    margin-top: -40px;
+    text-align: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+.formulario-login {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 25px;
+}
+.formulario-login input {
+    background: #F2F2F2;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 20px;
+    font-size: 20px;
+    border: none;
+    font-size: 16px;
+    box-sizing: border-box;
+    outline: none;
+}
+.formulario-login input:focus {
+    border: 2px solid #00FFFF;
+    background: white;
+}
+.sesion {
+    background-color: #51abf5;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+    text-align: center;
+}
+.sesion:hover {
+    background-color: #00CCCC;
+}
+.texto-login {
+    margin-top: 30px;
+    text-align: center;
+}
+.texto-login p {
+    font-size: 16px;
+    color: black;
+}
+.texto-login a {
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 20px;
+    font-family: 'Times New Roman', Times, serif;
+}
+.texto-login a:hover {
+   text-decoration: underline;
+}

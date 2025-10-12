@@ -76,6 +76,10 @@
 .formulario .registro:hover {
     background-color: #00CCCC;
 }
+.formulario input:focus {
+    border: 2px solid #00FFFF;
+    background: white;
+}
 
 .texto {
     margin-top: 30px;
@@ -107,3 +111,4 @@
 .mensaje.exito {
     color: green;
 }
+

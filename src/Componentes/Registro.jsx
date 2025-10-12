@@ -2,44 +2,79 @@ import React from 'react'
 import '../css componentes/Registro.css'
 import { Link } from 'react-router-dom'
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-let Click;
+
 export default function Registro() {
     const [Nombre, setNombre] = React.useState('');
     const [Apellido, setApellido] = React.useState('');
     const [Correo, setCorreo] = React.useState('');
+    const [Telefono, setTelefono] = React.useState('');
     const [Contraseña, setContraseña] = React.useState('');
     const [Mensaje, setMensaje] = React.useState('');
     const [TipoMensaje, setTipoMensaje] = React.useState('');
     const [Mostrar, setMostrar] = React.useState(false);
     const [VerContraseña, setVerContraseña] = React.useState(false);
 
-    const Click = (e) => {
+    const Click = async (e) => {
         e.preventDefault();
 
-        if (!Nombre || !Apellido || !Correo || !Contraseña) {
+        if (!Nombre || !Apellido || !Telefono || !Correo || !Contraseña) {
             setMensaje(' ⚠️ Por favor, complete todos los campos.');
             setTipoMensaje('error');
             setMostrar(true);
-        } else if (!/\S+@\S+\.\S+/.test(Correo)) {
+            setTimeout (() => setMostrar(false),4000)
+            return;
+        }else if (!/\S+@\S+\.\S+/.test(Correo)) {
             setMensaje('⚠️ Por favor, ingrese un correo electrónico válido.');
             setTipoMensaje('error');
             setMostrar(true);
-        }else if (Contraseña.length < 6 || !/[#$%&/()=?.]/.test(Contraseña)) {
-            setMensaje('⚠️ La contraseña debe tener al menos 6 caracteres o caracteres especiales /[#$%&/()=?]/.');
+            setTimeout (() => setMostrar(false),4000)
+            return;
+        }else if (Contraseña.length < 8 ||
+             !/[#$%&/()=?.]/.test(Contraseña) ||
+              !/[a-z]/.test(Contraseña) || 
+              !/[A-Z]/.test(Contraseña) || 
+              !/[0-9]/.test(Contraseña)) {
+            setMensaje('⚠️ La contraseña debe tener al menos 8 caracteres, una mayuscula, un numero o caracteres especiales /[#$%&/()=?]/.');
             setTipoMensaje('error');
             setMostrar(true);
-        }else {
-            setMensaje(`¡Registro exitoso ${Nombre}!`);
-            setTipoMensaje('exito');
-            //Limpiar los campos del formulario
-            setNombre('');
-            setApellido('');
-            setCorreo('');
-            setContraseña('');
+            setTimeout (() => setMostrar(false),4000)
+            return;
         }
-        setTimeout (() => {
-            setMostrar(false);
-        }, 4000)
+
+        try {
+            const response = await fetch ("http://127.0.0.1:8000/registro", {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+               },
+               body: JSON.stringify({
+                    nombre:Nombre,
+                    apellido:Apellido,
+                    correo:Correo,
+                    telefono:Telefono,
+                    contraseña:Contraseña,
+               }),                
+            });
+            const data = await response.json();
+
+            if (response.ok){
+                setMensaje(data.Mensaje || "Usuario registrado correctamente");
+                setTipoMensaje("exito");
+                setNombre("");
+                setApellido("");
+                setCorreo("");
+                setTelefono("");
+                setContraseña("");
+            }else {
+                setMensaje(`Error: ${data.detail}`)
+                setTipoMensaje("error")
+            }
+        } catch (error) {
+            setMensaje("No se pudo conectar con el servidor");
+            setTipoMensaje("error");
+            setMostrar(true);
+            setTimeout (() => setMostrar(false),4000)
+        }
     };
   return (
     <main className='contenedor-principal'>
@@ -49,6 +84,7 @@ export default function Registro() {
                 <form>
                     <input type="text" placeholder='Nombres' value={Nombre} onChange={(e) => setNombre(e.target.value)}/>
                     <input type="text" placeholder='Apellidos' value={Apellido} onChange={(e) => setApellido(e.target.value)}/>
+                    <input type='number' placeholder='Telefono' value={Telefono} onChange={(e) => setTelefono(e.target.value)}/>
                     <input type="email" placeholder='Correo' value={Correo} onChange={(e) => setCorreo(e.target.value)}/>
                     <div className='contenedor-contraseña'>
                         <input type= {VerContraseña ? "text" : "password"}  placeholder='Contraseña' value={Contraseña} onChange={(e)=> setContraseña(e.target.value)}/>
