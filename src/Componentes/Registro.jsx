@@ -50,9 +50,9 @@ export default function Registro() {
                body: JSON.stringify({
                     nombre:Nombre,
                     apellido:Apellido,
-                    correo:Correo,
                     telefono:Telefono,
-                    contraseña:Contraseña,
+                    correo:Correo,
+                    password:Contraseña,
                }),                
             });
             const data = await response.json();
