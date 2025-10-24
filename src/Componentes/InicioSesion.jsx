@@ -12,13 +12,47 @@ export default function InicioSesion() {
     const [VerContraseña, setVerContraseña] = React.useState(false);
 
 
-    const loginClick = (e) => {
+    const loginClick = async (e) => {
         e.preventDefault();
+
         if (!Correo || !Contraseña){
             setMensaje(' ⚠️ Por favor, complete todos los campos.');
             setTipoMensaje('error');
             setMostrar(true)
             setTimeout (() => setMostrar(false), 4000)
+            return;
+        }
+
+        try {
+            const respuesta = await fetch ("http://127.0.0.1:8000/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json"},
+                body: JSON.stringify({
+                    correo: Correo,
+                    password: Contraseña
+                })
+            });
+
+            const data = await respuesta.json();
+
+            if (!respuesta.ok) {
+                throw new Error(data.detail || "Error al iniciar sesión");
+            }
+            setMensaje(`Bienvenido, ${data.usuario.nombre}`)
+            setTipoMensaje("exito")
+            setMostrar(true);
+
+            //Mantener al usuario con la sesion activa
+            localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+            //Redirigir despues de inactividad
+            setTimeout(() => {window.location.href = "/"; },2000);
+        }catch (error) {
+            setMensaje(`${error.message}`);
+            setTipoMensaje("error");
+            setMensaje(true);
+            setTimeout(() => setMostrar(false), 4000);
+
         }
     }
 
