@@ -58,16 +58,20 @@ export default function Registro() {
             const data = await response.json();
 
             if (response.ok){
-                setMensaje(data.Mensaje || "Usuario registrado correctamente");
+                setMensaje(data.mensaje || "Usuario registrado correctamente");
                 setTipoMensaje("exito");
                 setNombre("");
                 setApellido("");
                 setCorreo("");
                 setTelefono("");
                 setContraseña("");
+                setMostrar(true);
+                setTimeout (() => setMostrar(false), 4000);
             }else {
-                setMensaje(`Error: ${data.detail}`)
+                setMensaje(data.detail || "Ocurrió un error en el registro");
                 setTipoMensaje("error")
+                setMostrar(true);
+                setTimeout (() => setMostrar(false), 4000);
             }
         } catch (error) {
             setMensaje("No se pudo conectar con el servidor");

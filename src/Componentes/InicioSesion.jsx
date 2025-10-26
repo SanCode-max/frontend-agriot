@@ -30,27 +30,37 @@ export default function InicioSesion() {
                 body: JSON.stringify({
                     correo: Correo,
                     password: Contraseña
-                })
+                }),
             });
 
             const data = await respuesta.json();
 
-            if (!respuesta.ok) {
-                throw new Error(data.detail || "Error al iniciar sesión");
+            if (respuesta.ok) {
+                setMensaje(data.mensaje || "Inicio de sesión exitoso");
+                setTipoMensaje("exito");
+                setMostrar(true);
+                setTimeout (() => setMostrar(false), 4000)
+
+                //Redirigir a la pagina de inicio
+                setTimeout(() => {window.location.href = "/Inicio"; },1000);
+            }else {
+                setMensaje(data.detail || "Error al iniciar sesión");
+                setTipoMensaje("error");
+                setMostrar(true);
+                setTimeout (() => setMostrar(false), 4000)
             }
-            setMensaje(`Bienvenido, ${data.usuario.nombre}`)
+
+            /*setMensaje(`Bienvenido ${data.usuario.nombre}`)
             setTipoMensaje("exito")
-            setMostrar(true);
+            setMostrar(true);*/
 
             //Mantener al usuario con la sesion activa
             localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
-            //Redirigir despues de inactividad
-            setTimeout(() => {window.location.href = "/"; },2000);
         }catch (error) {
             setMensaje(`${error.message}`);
             setTipoMensaje("error");
-            setMensaje(true);
+            setMostrar(true);
             setTimeout(() => setMostrar(false), 4000);
 
         }

@@ -7,6 +7,7 @@ import PrincipioSesion from './Componentes/PrincipioSesion';
 import Sesion from './Componentes/InicioSesion';
 import Registro from './Componentes/Registro';
 import  Restaurar from './Componentes/RestaurarContraseña';
+import Inicio from './Componentes/Inicio';
 
 function MyApp() {
   return (
@@ -17,6 +18,7 @@ function MyApp() {
         <Route path='/login' element={<Sesion/>}/>
         <Route path='/registro' element={<Registro/>}/>
         <Route path='/Restauracion' element= {<Restaurar/>}/>
+        <Route path='/Inicio' element={<Inicio/>}/>
       </Routes>
     </Router>
     
