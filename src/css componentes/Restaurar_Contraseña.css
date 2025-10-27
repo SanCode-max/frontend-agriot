@@ -43,6 +43,47 @@
     background: white;
 }
 
+.EnviaCorreo {
+    background-color: #51abf5;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+    text-align: center;
+}
+.EnviaCorreo:hover{
+    background-color: #00CCCC;
+}
+
+
+
+/*Adiciones diseño del componente Campos_Reestablecimiento*/
+.contenedor_nueva_contraseña, .contenedor_confirmacion_contraseña {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.contenedor_nueva_contraseña input, .contenedor_confirmacion_contraseña input {
+    width: 100%;
+    padding-right: 40px; /* Espacio para el icono */
+}
+
+.ojo {
+    position: absolute;
+    right: 15px;
+    cursor: pointer;
+    color: #888;
+    user-select: none;
+    transition: color 0.3s;
+}
+.ojo:hover {
+    color: #00CCCC;
+}
+
 .RestaurarC {
     background-color: #51abf5;
     color: white;

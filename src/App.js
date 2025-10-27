@@ -6,8 +6,9 @@ import Principal from './Componentes/Principal';
 import PrincipioSesion from './Componentes/PrincipioSesion';
 import Sesion from './Componentes/InicioSesion';
 import Registro from './Componentes/Registro';
-import  Restaurar from './Componentes/RestaurarContraseña_correo';
+import  Restaurar from './Componentes/RestaurarContraseña';
 import Inicio from './Componentes/Inicio';
+import Campos from './Componentes/Campos_reestablecimiento';
 
 function MyApp() {
   return (
@@ -19,6 +20,7 @@ function MyApp() {
         <Route path='/registro' element={<Registro/>}/>
         <Route path='/Restauracion' element= {<Restaurar/>}/>
         <Route path='/Inicio' element={<Inicio/>}/>
+        <Route path='/Nueva_contraseña' element={<Campos/>}/>
       </Routes>
     </Router>
     
