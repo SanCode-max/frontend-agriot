@@ -7,19 +7,41 @@ export default function RestaurarContraseña() {
   const [TipoMensaje, setTipoMensaje] = React.useState('');
   const [Mostrar, setMostrar] = React.useState(false);
 
-  const restaurarClick = (e) => {
+  const restaurarClick = async (e) => {
     e.preventDefault();
 
     if (!Correo){
       setMensaje(' ⚠️ Por favor, cescribe el correo electronico');
       setTipoMensaje('error');
+      setMostrar(true);
+      setTimeout (() => setMostrar(false),4000)
+      return;
     }else if (!/\S+@\S+\.\S+/.test(Correo)){
       setMensaje('⚠️ Por favor, ingrese un correo electrónico válido.');
       setTipoMensaje('error');
+      setMostrar(true);
+      setTimeout (() => setMostrar(false),4000)
+      return;
     }
-    setMostrar(true);
-    setTimeout (() => setMostrar(false),4000)
-  }
+
+    try{
+      const response = await fetch("http://127.0.0.1:8000/request_password", {
+        method: "POST",
+        headers: {"Content.Type": "application/json"},
+        body: JSON.stringify({Correo}),
+      });
+      const data = await response.json();
+      setMensaje(data.detail);
+      setTipoMensaje("exito");
+      setMostrar(true);
+      setTimeout (() => setMostrar(false),4000);
+    } catch (error){
+      setMensaje("No se pudo conectar con el servidor");
+      setTipoMensaje("error");
+      setMostrar(true);
+      setTimeout (() => setMostrar(false),4000);
+    }
+  };
   return (
     <main className='contenedor-principal'>
       <div className='caja_recuperacion'>

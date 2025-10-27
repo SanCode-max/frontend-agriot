@@ -6,7 +6,7 @@ import Principal from './Componentes/Principal';
 import PrincipioSesion from './Componentes/PrincipioSesion';
 import Sesion from './Componentes/InicioSesion';
 import Registro from './Componentes/Registro';
-import  Restaurar from './Componentes/RestaurarContraseña';
+import  Restaurar from './Componentes/RestaurarContraseña_correo';
 import Inicio from './Componentes/Inicio';
 
 function MyApp() {
