@@ -1,0 +1,105 @@
+.bienvenida-usuario {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 40px;
+    background-color: rgb(254, 206, 117);
+    color: black;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+    font-family: 'Times New Roman', Times, serif;
+}
+
+/* Sección del menú */
+.menu {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.menu button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    z-index: 10; /* 🔥 asegura que reciba clics */
+}
+
+
+.menu button:hover {
+    transform: scale(1.1);
+}
+
+.menu img {
+    width: 30px;
+    height: 30px;
+}
+
+/* Título de bienvenida */
+.menu h2 {
+    margin: 0;
+    font-size: 34px;
+    font-weight: bold;
+}
+
+.sesion-datos {
+    list-style: none;
+    display: flex;
+    top: 100%;
+    gap: 30px;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    justify-content: right;
+    background-color: none;
+    margin: 0;
+    padding: 0;
+    margin-top: -50px;
+}
+
+.icon {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.sesion-datos li a {
+    text-decoration: none;
+    color: black; /* Color del texto de los enlaces */
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: color 0.3s;
+}
+
+.sesion-datos li a:hover {
+    background-color: rgb(252, 198, 98);  /* Fondo gris claro */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+/*Boton de cerrar Sesión*/
+.cerrar-sesion {
+  background: none;
+  border: none;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 20px;
+    transition: color 0.3s;
+}
+
+.cerrar-sesion:hover {
+    background-color: rgb(252, 198, 98);  /* Fondo gris claro */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}

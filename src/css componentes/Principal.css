@@ -437,8 +437,9 @@
     justify-content: flex-end;
 }
 .cultivo-imagen img {
-    width: 650px;
-    height: auto;
+    width: 100%;
+    max-width: 850px;
+    height: 400px;
     object-fit: cover;
     border-radius: 5px;
 }

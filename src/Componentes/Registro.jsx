@@ -67,6 +67,7 @@ export default function Registro() {
                 setContraseña("");
                 setMostrar(true);
                 setTimeout (() => setMostrar(false), 4000);
+                setTimeout(() => {window.location.href = "/login"; },1000);
             }else {
                 setMensaje(data.detail || "Ocurrió un error en el registro");
                 setTipoMensaje("error")

@@ -89,7 +89,7 @@ export default function Principal() {
               </div>
             </div>
             <div className='cultivo-imagen'>
-            <img src="/Imagenes/arbustos.jpg"/>
+            <img src="/Imagenes/laguaca.webp"/>
             </div>
           </div>
         </div>
