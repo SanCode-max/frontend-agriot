@@ -83,7 +83,7 @@ export default function Principal() {
           <div className='cultivo1'>
             <div className='cultivo-texto'>
               <h2>FINCA LA HUACA</h2>
-              <p>En la finca “La Guaca”, ubicada en la vereda Soaga, municipio de Ubaté (Cundinamarca), se desarrolla un cultivo de arándanos compuesto por aproximadamente 50 arbustos. El sistema productivo implementa riego por goteo, lo que garantiza un suministro eficiente y controlado de agua. Además, el cultivo se encuentra protegido con un plástico de cobertura, medida destinada a mitigar los efectos de los cambios climáticos y preservar la calidad de la producción.</p>
+              <p>En la finca “La Guaca”, ubicada en la vereda Soaga, municipio de Ubaté (Cundinamarca), se desarrolla un cultivo de arándanos compuesto por aproximadamente 200 arbustos. El sistema productivo implementa riego por goteo, lo que garantiza un suministro eficiente y controlado de agua. Además, el cultivo se encuentra protegido con un plástico de cobertura, medida destinada a mitigar los efectos de los cambios climáticos y preservar la calidad de la producción.</p>
               <div className='botones-cultivo'>
                 <button className='boton4'>Acerca del cultivo</button>
               </div>

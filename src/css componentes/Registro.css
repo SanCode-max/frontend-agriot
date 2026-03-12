@@ -27,6 +27,7 @@
     flex-direction: column;
     align-items: stretch;
     margin-top: 25px;
+    background: none;
 }
 .formulario input {
     display: block;

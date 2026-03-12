@@ -103,3 +103,93 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     transform: translateY(-2px);
 }
+
+/*Barra lateral*/
+/* FONDO OSCURO */
+
+.overlay{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100vh;
+    background:rgba(0,0,0,0.4);
+    z-index:5;
+}
+
+/* SIDEBAR */
+
+/* SIDEBAR */
+
+.sidebar{
+    position: fixed;
+    top:0;
+    left:-270px;
+    width:270px;
+    height:100vh;
+    background: linear-gradient(180deg,#0f2027,#203a43,#2c5364);
+    color:white;
+    transition:0.4s;
+    z-index:10;
+    box-shadow:10px 0 30px rgba(0,0,0,0.4);
+}
+
+.sidebar.activo{
+    left:0;
+}
+
+/* PERFIL */
+
+.perfil{
+    text-align:center;
+    padding:40px 20px;
+}
+
+.perfil img{
+    width:95px;
+    height:95px;
+    border-radius:50%;
+    border:4px solid white;
+    box-shadow:0 10px 20px rgba(0,0,0,0.4);
+}
+
+/* MENU */
+
+.barra-menu{
+    list-style:none;
+    padding:0;
+    margin-top:20px;
+}
+
+.barra-menu li{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:16px 30px;
+    cursor:pointer;
+    transition:0.25s;
+    font-size:16px;
+}
+
+.barra-menu li:hover{
+    background:rgba(255,255,255,0.1);
+    transform:translateX(5px);
+}
+
+/* ICONOS */
+
+.icon{
+    font-size:18px;
+    transition:0.2s;
+}
+
+.barra-menu li:hover .icon{
+    transform:scale(1.2);
+}
+
+/* ACTIVO */
+
+.barra-menu li.activo{
+    background:rgba(255,255,255,0.2);
+    border-left:4px solid white;
+}

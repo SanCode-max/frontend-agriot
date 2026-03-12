@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "../css componentes/Inicio.css";
 import { FaUser, FaRightFromBracket } from "react-icons/fa6";
-import InicioSesion from "./InicioSesion";
+import { FaHome, FaCalculator, FaCalendar, FaMapMarkerAlt, FaChartBar } from "react-icons/fa";
 
 
 export default function Inicio() {
+  const [activo, setActivo] = useState("home");
+  const [menuAbierto, setMenuAbierto] = useState(false);
   const handleClick = () => {
-    alert("Botón de imagen clickeado");
+    setMenuAbierto(!menuAbierto);
   };
 
   const [nombre, setNombre] = useState("");
@@ -34,26 +36,57 @@ export default function Inicio() {
   };
 
   return (
-    <header>
-      <nav id="menu" className="bienvenida-usuario">
-        <div className="menu">
-          <button onClick={handleClick}>
-            <img src="/Imagenes/menu.png" alt="Menú" />
+    <>
+      <header>
+        <nav id="menu" className="bienvenida-usuario">
+          <div className="menu">
+            <button onClick={handleClick}>
+              <img src="/Imagenes/menu.png" alt="Menú" />
+              
+            </button>
+            <h2>Bienvenido {nombre ? nombre : "..."}</h2>
+          </div>
+        </nav>
+        <ul className="sesion-datos">
+          <li>
+            <a href="#">
+              <FaUser className="icon" /> Información personal
+            </a>
+          </li>
+          <button className="cerrar-sesion" onClick={handleCerrarSesion}>
+              <FaRightFromBracket className="icon" /> Cerrar Sesión
           </button>
-          <h2>Bienvenido {nombre ? nombre : "..."}</h2>
+        </ul>
+      </header>
+      {menuAbierto && (
+        <div className="overlay" onClick={() => setMenuAbierto(false)}></div>
+      )}
+      <div className= {`sidebar ${menuAbierto ? "activo" : ""}`}> 
+        <div className="perfil">
+          <img src="/Imagenes/perfil.png" alt="Perfil" />
+          <h3>{nombre ? nombre : "..."}</h3>
+          <p>UsuarioQ@hotmail.com</p>
         </div>
-      </nav>
 
-      <ul className="sesion-datos">
-        <li>
-          <a href="#">
-            <FaUser className="icon" /> Información personal
-          </a>
-        </li>
-        <button className="cerrar-sesion" onClick={handleCerrarSesion}>
-            <FaRightFromBracket className="icon" /> Cerrar Sesión
-        </button>
-      </ul>
-    </header>
+        <ul className="barra-menu">
+          <li className={activo === "home" ? "activo" : ""}
+          onClick={()=>setActivo("home")} >
+            <FaHome className="icono"/> Home </li>
+          <li className={activo === "calculadora" ? "activo" : ""}
+          onClick={()=>setActivo("calculadora")}>
+            <FaCalculator className="icono"/> Calculadora</li>
+          <li className={activo === "calendario" ? "activo" : ""}
+          onClick={()=>setActivo("calendario")}>
+            <FaCalendar className="icono"/> Calendario</li>
+          <li className={activo === "ubicacion" ? "activo" : ""}
+          onClick={()=>setActivo("ubicacion")}>
+            <FaMapMarkerAlt className="icono"/> Ubicación</li>
+          <li className={activo === "estadisticas" ? "activo" : ""}
+          onClick={()=>setActivo("estadisticas")}>
+            <FaChartBar className="icono"/> Estadísticas generales</li>
+
+        </ul>
+      </div>
+    </>
   );
 }
