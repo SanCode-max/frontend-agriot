@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import "../css componentes/Inicio.css";
 import { FaUser, FaRightFromBracket } from "react-icons/fa6";
 import { FaHome, FaCalculator, FaCalendar, FaMapMarkerAlt, FaChartBar, FaBell, FaPlusCircle } from "react-icons/fa";
-
+import Calculadora from "./Calculadora";
 
 export default function Inicio() {
-  const [activo, setActivo] = useState("home");
+  const [activo, setActivo] = useState("home", "calculadora");
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [cultivos, setCultivos] = useState([]);
@@ -87,6 +87,7 @@ export default function Inicio() {
       if (response.ok){
 
         const nuevoCultivo = {
+          id: data.id,
           nombre: nombreCultivo,
           fechaSiembra: fechaSiembra,
           fechaCosecha: fechaCosecha,
@@ -163,6 +164,8 @@ export default function Inicio() {
     return Math.round(progreso);
   }
 
+
+
   return (
     <>
       <header>
@@ -235,7 +238,7 @@ export default function Inicio() {
                     <p>Estado: {cultivo.estado}</p>
                     <p>Ubicación: {cultivo.ubicacion}</p>
                     <button onClick={() => eliminarCultivo(cultivo.id)}>Eliminar</button> 
-                    <div className="barra-prograso">
+                    <div className="barra-progreso">
                       <div className="progreso" style={{ width: `${progreso}%` }}></div>
                     </div>
                     <span>{progreso}% crecimiento</span>
@@ -243,6 +246,12 @@ export default function Inicio() {
                 )
               })}
               </div>
+          </div>
+        )}
+        {activo === "calculadora" && (
+          <div className="contenido-calculadora">
+            <h1>Calculadora de Cultivos</h1>
+            <Calculadora />
           </div>
         )}
       </main>
@@ -260,12 +269,11 @@ export default function Inicio() {
           <li className={activo === "home" ? "activo" : ""}
           onClick={()=>setActivo("home")} >
             <FaHome className="icono"/> Home </li>
-          <li className={activo === "calculadora" ? "activo" : ""}
-          onClick={()=>setActivo("calculadora")}>
-            <FaCalculator className="icono"/> Calculadora</li>
-          <li className={activo === "calendario" ? "activo" : ""}
-          onClick={()=>setActivo("calendario")}>
-            <FaCalendar className="icono"/> Calendario</li>
+          <li
+            className={activo === "calculadora" ? "activo" : ""}
+            onClick={() => setActivo("calculadora")}>
+            <FaCalculator className="icono"/> Calculadora
+          </li>
           <li className={activo === "ubicacion" ? "activo" : ""}
           onClick={()=>setActivo("ubicacion")}>
             <FaMapMarkerAlt className="icono"/> Ubicación</li>
@@ -275,7 +283,6 @@ export default function Inicio() {
           <li className={activo === "estadisticas" ? "activo" : ""}
           onClick={()=>setActivo("estadisticas")}>
             <FaChartBar className="icono"/> Estadísticas generales</li>
-
         </ul>
       </div>
     </>

@@ -8,7 +8,7 @@ export default function PrincipioSesion() {
         <div className='caja-principal'>
             <div className='bienvenida'>
                 <h1>BIENVENIDO</h1>
-                <img src="/Imagenes/logo_fondo.png"/>
+                <img src="/Imagenes/logo_fondo.png" alt='logo'/>
                 <div className='datos'>
                     <Link to="/registro">Registrarse</Link>
                     <Link to="/login">Iniciar Sesión</Link>
