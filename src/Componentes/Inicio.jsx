@@ -3,6 +3,7 @@ import "../css componentes/Inicio.css";
 import { FaUser, FaRightFromBracket } from "react-icons/fa6";
 import { FaHome, FaCalculator, FaCalendar, FaMapMarkerAlt, FaChartBar, FaBell, FaPlusCircle } from "react-icons/fa";
 import Calculadora from "./Calculadora";
+import Perfil from "./PerfilUsuario";
 
 export default function Inicio() {
   const [activo, setActivo] = useState("home", "calculadora");
@@ -252,6 +253,13 @@ export default function Inicio() {
           <div className="contenido-calculadora">
             <h1>Calculadora de Cultivos</h1>
             <Calculadora />
+          </div>
+        )}
+
+        {activo === "informacion" && (
+          <div className="contenido-informacion">
+            <h1>Información Personal</h1>
+            <Perfil/> 
           </div>
         )}
       </main>
