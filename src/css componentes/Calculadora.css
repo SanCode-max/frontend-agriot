@@ -1,54 +1,133 @@
-.calculadora{
-  margin-top:15px;
-  padding:15px;
-  background:#f4f1ea;
-  border-radius:10px;
+/* CONTENEDOR GENERAL */
+.contenedor-calculadora {
+  display: flex;
+  gap: 80px; /* Un poco más de espacio mejora la estética */
+  width: 100%;
+  padding: 40px 20px;
+  justify-content: center; /* Centra ambos paneles en la pantalla */
+  align-items: flex-start;
+  box-sizing: border-box; 
 }
 
-.pantalla{
-  width:100%;
-  padding:10px;
-  font-size:18px;
-  margin-bottom:10px;
-  border:none;
-  border-radius:5px;
+/* PANEL CALCULADORA */
+.calculadora {
+  flex: 0 1 320px; /* No crece, puede encogerse, base de 320px */
+  max-width: 320px; /* El secreto para que se vea delgada */
+  padding: 25px;
+  background: linear-gradient(135deg, #d9c6a5, #f4f1ea);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
 }
 
-.botones{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:8px;
+.calculadora h2 {
+  margin-bottom: 20px;
+  color: #4E342E;
+  font-size: 1.2rem;
+  text-align: center;
 }
 
-.botones button{
-  padding:10px;
-  border:none;
-  border-radius:6px;
-  background:#2F5D50;
-  color:white;
-  cursor:pointer;
-  font-size:16px;
+/* PANTALLA */
+.pantalla {
+  width: 100%;
+  padding: 20px;
+  font-size: 28px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.08);
+  text-align: right;
+  box-sizing: border-box;
 }
 
-.botones button:hover{
-  background:#3E7C59;
+/* BOTONES */
+.botones {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
 
-.panel-calculadora{
-  max-height:0;
-  overflow:hidden;
-  transition:all 0.4s ease;
-  padding:0 15px;
+.botones button {
+  aspect-ratio: 1 / 1; /* Hace que los botones sean perfectamente cuadrados */
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  background: #6D4C41;
+  color: white;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  transition: all 0.2s ease;
 }
 
-.panel-calculadora.mostrar{
-  max-height:400px;
-  margin-top:10px;
+.botones button:hover {
+  background: #8D6E63;
+  transform: translateY(-2px);
 }
 
-.panel-calculadora .calculadora{
-  background:#f4f1ea;
-  border-radius:10px;
-  padding:15px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.2);
+.borrar {
+  grid-column: span 4;
+  aspect-ratio: auto !important; /* El botón de borrar no debe ser cuadrado */
+  height: 50px;
+  background: #A1887F !important;
+  margin-top: 5px;
+}
+
+/* HISTORIAL */
+.historial {
+  margin-top: 25px;
+  background: rgba(255,255,255,0.4);
+  padding: 15px;
+  border-radius: 12px;
+  max-height: 120px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+}
+
+/* PANEL DE NOTAS */
+.notas-panel {
+  flex: 0 1 450px; /* El bloc de notas puede ser un poco más ancho que la calculadora */
+  max-width: 450px;
+  background: linear-gradient(135deg, #c8b08a, #e8dcc5);
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+.notas-panel h2 {
+  margin-bottom: 20px;
+  color: #4E342E;
+  font-size: 1.2rem;
+}
+
+.notas-panel textarea {
+  width: 100%;
+  height: 440px; /* Ajustado para alinear visualmente con la altura de la calculadora */
+  border: none;
+  border-radius: 12px;
+  padding: 20px;
+  resize: none;
+  font-size: 16px;
+  line-height: 1.5;
+  background: #ffffff;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.08);
+  box-sizing: border-box;
+}
+
+/* RESPONSIVE */
+@media(max-width: 800px){
+  .contenedor-calculadora {
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .calculadora, .notas-panel {
+    width: 100%;
+    max-width: 100%; /* En móviles sí conviene que usen el ancho disponible */
+  }
+
+  .notas-panel textarea {
+    height: 300px;
+  }
 }
