@@ -230,10 +230,14 @@ h2 {
 .modal-editar {
   background: white;
   width: 90%;
-  max-width: 500px;
-  padding: 35px;
+  max-width: 420px;
+  max-height: 85vh;
+  padding: 30px;
   border-radius: 20px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-shadow: var(--sombra);
   animation: aparecerModal 0.3s ease;
 }
@@ -281,8 +285,15 @@ h2 {
 .modal-editar form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 15px;
+  overflow-y: auto;
+  padding-right: 8px;
 }
+
+.modal-editar form::-webkit-scrollbar {
+  width: 5px;
+}
+
 
 .modal-editar input {
   padding: 14px 15px;
@@ -397,6 +408,11 @@ h2 {
   .perfil-header {
     flex-direction: column;
     text-align: center;
+  }
+
+  .ubicacion-auto {
+    flex-direction: column; /* El botón de GPS se pone abajo del input en móviles */
+    gap: 8px;
   }
 
   .perfil-container {
