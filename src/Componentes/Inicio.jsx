@@ -6,7 +6,7 @@ import Calculadora from "./Calculadora";
 import Perfil from "./PerfilUsuario";
 
 export default function Inicio() {
-  const [activo, setActivo] = useState("home", "calculadora");
+  const [activo, setActivo] = useState("home");
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [cultivos, setCultivos] = useState([]);
@@ -15,16 +15,50 @@ export default function Inicio() {
   const [fechaCosecha, setFechaCosecha] = React.useState('');
   const [estado, setEstado] = React.useState('');
   const [ubicacion, setUbicacion] = React.useState('');
+  const [observaciones, setObservaciones] = React.useState('');
   const [mensaje, setMensaje] = React.useState('');
   const [tipoMensaje, setTipoMensaje] = React.useState('');
   const [mostrar, setMostrar] = React.useState(false);
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
+  const [foto, setFoto] = useState("");
+  const [sugerenciasUbicacion, setSugerenciasUbicacion] = useState([]);
+  const [latitudCultivo, setLatitudCultivo] = useState("");
+  const [longitudCultivo, setLongitudCultivo] = useState("");
 
   const handleClick = () => {
     setMenuAbierto(!menuAbierto);
   };
-  
+
+  const buscarUbicacion = async (texto) => {
+    setUbicacion(texto);
+
+    if (texto.length < 3) {
+      setSugerenciasUbicacion([]);
+      return;
+    }
+    if (!latitudCultivo || !longitudCultivo) {
+      setMensaje("⚠️ Selecciona una ubicación válida de la lista.");
+      setTipoMensaje("error");
+      setMostrar(true);
+      setTimeout(() => setMostrar(false), 4000);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${texto}, Colombia&addressdetails=1&limit=5`
+      );
+
+      const data = await response.json();
+
+      setSugerenciasUbicacion(data);
+
+    } catch (error) {
+      console.error("Error buscando ubicación:", error);
+    }
+  };
+
   useEffect(() => {
     const usuarioString = localStorage.getItem("usuario");
     const usuario = usuarioString ? JSON.parse(usuarioString) : null;
@@ -41,6 +75,16 @@ export default function Inicio() {
         .catch((error) => {
           console.error("Error al obtener los cultivos:", error);
         });
+      fetch(`http://127.0.0.1:8000/perfil/${usuario.correo}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setCorreo(usuario.correo);
+        setNombre(data.nombre);
+        setFoto(data.foto || "");
+      })
+      .catch((error) => {
+        console.error("Error al obtener perfil:", error);
+      });
 
     } else {
       window.location.href = "/";
@@ -60,7 +104,7 @@ export default function Inicio() {
   const hadleGuardarCultivo = async (e) => {
     e.preventDefault();
     const usuario = JSON.parse(localStorage.getItem("usuario"));
-    if (!nombreCultivo || !fechaSiembra || !fechaCosecha || !estado || !ubicacion ) {
+    if (!nombreCultivo || !fechaSiembra || !ubicacion || !observaciones ) {
       setMensaje(' ⚠️ Por favor, complete todos los campos.');
       setTipoMensaje('error');
       setMostrar(true);
@@ -80,7 +124,10 @@ export default function Inicio() {
           fechaSiembra: fechaSiembra,
           fechaCosecha: fechaCosecha,
           estado: estado,
-          ubicacion: ubicacion
+          ubicacion: ubicacion,
+          observaciones: observaciones,
+          latitud: latitudCultivo,
+          longitud: longitudCultivo
         }),                
       });
       const data = await response.json();
@@ -93,7 +140,8 @@ export default function Inicio() {
           fechaSiembra: fechaSiembra,
           fechaCosecha: fechaCosecha,
           estado: estado,
-          ubicacion: ubicacion
+          ubicacion: ubicacion,
+          observaciones: observaciones
         }
         setMensaje(data.mensaje || "Cultivo registrado correctamente");
         setTipoMensaje("exito");
@@ -104,6 +152,7 @@ export default function Inicio() {
         setFechaCosecha('');
         setEstado('');
         setUbicacion('');
+        setObservaciones('');
         setMostrar(true);
         setTimeout (() => setMostrar(false), 4000);
       }else {
@@ -149,10 +198,13 @@ export default function Inicio() {
   };
 
   function calcularProgreso(siembra, cosecha) {
+    if (!cosecha) return 0;
 
     const hoy = new Date();
     const fechaSiembra = new Date(siembra);
     const fechaCosecha = new Date(cosecha);
+
+    if (isNaN(fechaCosecha)) return 0;
 
     const total = fechaCosecha - fechaSiembra;
     const transcurrido = hoy - fechaSiembra;
@@ -201,24 +253,63 @@ export default function Inicio() {
                 <div className="formulario-overlay">
                   <div className= "formulario-contenedor">
                     <h2>Agregar Nuevo Cultivo</h2>
-                    <input type="text" placeholder="Nombre del cultivo" value={nombreCultivo} onChange={(e) => setNombreCultivo(e.target.value)} required/>
-                    <input type="date" placeholder="Fecha de siembra" value={fechaSiembra} onChange={(e) => setFechaSiembra(e.target.value)} required/>
-                    <input type="date" placeholder="Fecha de cosecha" value={fechaCosecha} onChange={(e) => setFechaCosecha(e.target.value)} required />
+                    <input type="text" placeholder="Nombre del cultivo *" value={nombreCultivo} onChange={(e) => setNombreCultivo(e.target.value)} required/>
+                    <h1>Fecha de siembra *</h1>
+                    <input type="date" placeholder="Fecha de siembra *" value={fechaSiembra} onChange={(e) => setFechaSiembra(e.target.value)} required/>
+                    <h1>Fecha estimada de cosecha (Opcional)</h1>
+                    <input type="date" value={fechaCosecha} onChange={(e) => setFechaCosecha(e.target.value)} />
                     <select value={estado} onChange={(e) => setEstado(e.target.value)} required>
                       <option value="">Seleccionar estado</option>
-                      <option value="siembra">Siembra</option>
-                      <option value="crecimiento">Crecimiento</option>
-                      <option value="cosecha">Cosecha</option>
+                      <option value="Sembrado">Siembra</option>
+                      <option value="Crecimiento">Crecimiento</option>
+                      <option value="Cosechado">Cosecha</option>
+                      <option value="produccion">Producción</option>
+                      <option value="problema">Problema/secado</option>
                     </select>
-                    <input type="text" placeholder="Ubicación del cultivo" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} required />
+                    <div className="ubicacion-autocomplete">
+                      <input
+                        type="text"
+                        placeholder="Ubicación del cultivo"
+                        value={ubicacion}
+                        onChange={(e) => buscarUbicacion(e.target.value)}
+                      />
+                      {sugerenciasUbicacion.length > 0 && (
+                        <ul className="lista-sugerencias">
+                          {sugerenciasUbicacion.map((lugar, index) => (
+                            <li
+                              key={index}
+                              onClick={() => {
+                                setUbicacion(lugar.display_name);
+                                setLatitudCultivo(lugar.lat);
+                                setLongitudCultivo(lugar.lon);
+                                setSugerenciasUbicacion([]);
+                              }}
+                            >
+                              {lugar.display_name}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+
+                    <textarea
+                      placeholder="Observaciones"
+                      value={observaciones}
+                      onChange={(e) => setObservaciones(e.target.value)}
+                    />
                     <div className="botones-formulario">
-                      <button onClick={hadleGuardarCultivo }>Guardar Cultivo</button>
+                      <button type="button" onClick={hadleGuardarCultivo }>Guardar Cultivo</button>
                       {mostrar && (
                         <div className={`mensaje ${tipoMensaje}`}>
                           {mensaje}
                         </div>
                       )}
-                      <button onClick={() => setMostrarFormulario(false)}>Cancelar</button>
+                      <button onClick={() => {
+                        setMostrarFormulario(false);
+                        setSugerenciasUbicacion([]);
+                      }}>
+                        Cancelar
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -229,7 +320,7 @@ export default function Inicio() {
               {cultivos.map((cultivo, index) => {
                 const progreso = calcularProgreso(
                 cultivo.fechaSiembra,
-                cultivo.fechaCosecha
+                cultivo.fechaCosecha  
                 );
                 return (
                   <div key={cultivo.id} className="tarjeta-cultivo">
@@ -238,6 +329,7 @@ export default function Inicio() {
                     <p>Cosecha: {cultivo.fechaCosecha}</p>
                     <p>Estado: {cultivo.estado}</p>
                     <p>Ubicación: {cultivo.ubicacion}</p>
+                    <p>Observaciones: {cultivo.observaciones}</p>
                     <button onClick={() => eliminarCultivo(cultivo.id)}>Eliminar</button> 
                     <div className="barra-progreso">
                       <div className="progreso" style={{ width: `${progreso}%` }}></div>
@@ -268,7 +360,7 @@ export default function Inicio() {
       )}
       <div className= {`sidebar ${menuAbierto ? "activo" : ""}`}> 
         <div className="perfil">
-          <img src="/Imagenes/perfil.png" alt="Perfil" />
+          <img src={foto ? `${foto}?t=${new Date().getTime()}` : "/avatar-placeholder.jpg"} alt="Foto de perfil"/>
           <h3>{nombre ? nombre : "..."}</h3>
           <p>{correo ? correo : "..."}</p>
         </div>

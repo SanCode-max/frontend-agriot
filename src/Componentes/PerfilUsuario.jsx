@@ -299,18 +299,29 @@ const PerfilUsuario = () => {
                 value={profesion}
                 onChange={(e) => setProfesion(e.target.value)}
               />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setFotoArchivo(e.target.files[0])}
+              <div className="contenedor-foto-upload">
+                <label htmlFor="input-foto" className="btn-archivo-personalizado">
+                    {fotoArchivo ? "Cambiar imagen seleccionada" : "Seleccionar foto de perfil"}
+                </label>
+                <input
+                    id="input-foto"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setFotoArchivo(e.target.files[0])}
+                    style={{ display: 'none' }} // Oculta el "Choose File" en inglés
                 />
+                
                 {fotoArchivo && (
-                <img
-                    src={URL.createObjectURL(fotoArchivo)}
-                    alt="Vista previa"
-                    className="preview-foto"
-                />
+                    <div className="vista-previa-container">
+                    <img
+                        src={URL.createObjectURL(fotoArchivo)}
+                        alt="Vista previa"
+                        className="preview-foto"
+                    />
+                    <p className="nombre-archivo-txt">{fotoArchivo.name}</p>
+                    </div>
                 )}
+                </div>
 
               {mensaje && (
                 <div className={`mensaje ${tipoMensaje}`}>

@@ -244,6 +244,14 @@ body{
     gap:10px;
 }
 
+.formulario-contenedor h1{
+    margin:0;
+    font-size:12px;
+    font-weight:800;
+    text-align:left;
+    color:#1f2937;
+}
+
 .formulario-contenedor h2{
     margin:0;
     font-size:24px;
@@ -256,6 +264,41 @@ body{
     border:1px solid #ccc;
     border-radius:6px;
     font-size:14px;
+}
+
+/* Diseño de ubicacion*/
+.ubicacion-autocomplete {
+  position: relative;
+  width: 100%;
+}
+.ubicacion-autocomplete input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+.lista-sugerencias {
+  position: absolute;
+  width: 100%;
+  background: white;
+  border: 1px solid #ddd;
+  max-height: 200px;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+  margin-top: 5px;
+  border-radius: 8px;
+  z-index: 999;
+}
+
+.lista-sugerencias li {
+  padding: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.lista-sugerencias li:hover {
+  background: #f4f4f4;
 }
 
 .botones-formulario{
