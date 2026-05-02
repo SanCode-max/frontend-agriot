@@ -4,6 +4,7 @@ import { FaUser, FaRightFromBracket } from "react-icons/fa6";
 import { FaHome, FaCalculator, FaCalendar, FaMapMarkerAlt, FaChartBar, FaBell, FaPlusCircle } from "react-icons/fa";
 import Calculadora from "./Calculadora";
 import Perfil from "./PerfilUsuario";
+import MapaCultivos from "./MapaCultivos";
 
 export default function Inicio() {
   const [activo, setActivo] = useState("home");
@@ -37,13 +38,7 @@ export default function Inicio() {
       setSugerenciasUbicacion([]);
       return;
     }
-    if (!latitudCultivo || !longitudCultivo) {
-      setMensaje("⚠️ Selecciona una ubicación válida de la lista.");
-      setTipoMensaje("error");
-      setMostrar(true);
-      setTimeout(() => setMostrar(false), 4000);
-      return;
-    }
+  
 
     try {
       const response = await fetch(
@@ -51,7 +46,7 @@ export default function Inicio() {
       );
 
       const data = await response.json();
-
+      console.log("Resultados:", data);
       setSugerenciasUbicacion(data);
 
     } catch (error) {
@@ -263,7 +258,6 @@ export default function Inicio() {
                       <option value="Sembrado">Siembra</option>
                       <option value="Crecimiento">Crecimiento</option>
                       <option value="Cosechado">Cosecha</option>
-                      <option value="produccion">Producción</option>
                       <option value="problema">Problema/secado</option>
                     </select>
                     <div className="ubicacion-autocomplete">
@@ -304,7 +298,7 @@ export default function Inicio() {
                           {mensaje}
                         </div>
                       )}
-                      <button onClick={() => {
+                      <button type="button" onClick={() => {
                         setMostrarFormulario(false);
                         setSugerenciasUbicacion([]);
                       }}>
@@ -352,6 +346,21 @@ export default function Inicio() {
           <div className="contenido-informacion">
             <h1>Información Personal</h1>
             <Perfil/> 
+          </div>
+        )}
+
+        {activo === "ubicacion" && (
+          <div className="contenido-ubicacion">
+            <h1>Mapa de Cultivos</h1>
+
+            <div className="leyenda-mapa">
+              <span>🟢 Crecimiento</span>
+              <span>🟡 Cosecha</span>
+              <span>🔴 Problema / Secado</span>
+              <span>🔵 Sembrado</span>
+            </div>
+
+            <MapaCultivos />
           </div>
         )}
       </main>
