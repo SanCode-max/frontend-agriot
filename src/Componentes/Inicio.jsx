@@ -54,6 +54,40 @@ export default function Inicio() {
     }
   };
 
+  //Cerrar sesion automaticamente despues de 5 minutos de inactividad
+  useEffect(() => {
+    let temporizador;
+
+    const cerrarSesionPorInactividad = () => {
+      localStorage.removeItem("usuario");
+      alert("Sesión cerrada por inactividad");
+      window.location.href = "/";
+    };
+
+    const reiniciarTemporizador = () => {
+      clearTimeout(temporizador);
+      temporizador = setTimeout(cerrarSesionPorInactividad, 300000); // 5 minutos
+    };
+
+    // Eventos que detectan actividad
+    window.addEventListener("mousemove", reiniciarTemporizador);
+    window.addEventListener("keydown", reiniciarTemporizador);
+    window.addEventListener("click", reiniciarTemporizador);
+    window.addEventListener("scroll", reiniciarTemporizador);
+
+    // Iniciar conteo al cargar
+    reiniciarTemporizador();
+
+    return () => {
+      clearTimeout(temporizador);
+
+      window.removeEventListener("mousemove", reiniciarTemporizador);
+      window.removeEventListener("keydown", reiniciarTemporizador);
+      window.removeEventListener("click", reiniciarTemporizador);
+      window.removeEventListener("scroll", reiniciarTemporizador);
+    };
+  }, []);
+
   useEffect(() => {
     const usuarioString = localStorage.getItem("usuario");
     const usuario = usuarioString ? JSON.parse(usuarioString) : null;

@@ -14,6 +14,12 @@ export default function Registro() {
     const [Mostrar, setMostrar] = React.useState(false);
     const [VerContraseña, setVerContraseña] = React.useState(false);
 
+    const manejarCambioTelefono = (e) => {
+  const valor = e.target.value;
+  // Esta expresión regular (\D) elimina cualquier cosa que NO sea un número
+  const soloNumeros = valor.replace(/\D/g, ""); 
+    setTelefono(soloNumeros);
+    };
     const Click = async (e) => {
         e.preventDefault();
 
@@ -89,7 +95,7 @@ export default function Registro() {
                 <form>
                     <input type="text" placeholder='Nombres' value={Nombre} onChange={(e) => setNombre(e.target.value)}/>
                     <input type="text" placeholder='Apellidos' value={Apellido} onChange={(e) => setApellido(e.target.value)}/>
-                    <input type='number' placeholder='Telefono' value={Telefono} onChange={(e) => setTelefono(e.target.value)}/>
+                    <input type='tel' placeholder='Telefono' value={Telefono} onChange={manejarCambioTelefono} maxLength={10}/> 
                     <input type="email" placeholder='Correo' value={Correo} onChange={(e) => setCorreo(e.target.value)}/>
                     <div className='contenedor-contraseña'>
                         <input type= {VerContraseña ? "text" : "password"}  placeholder='Contraseña' value={Contraseña} onChange={(e)=> setContraseña(e.target.value)}/>
