@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import '../css componentes/Restaurar_Contraseña.css';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate, useSearchParams } from 'react-router-dom';

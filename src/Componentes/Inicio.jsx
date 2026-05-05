@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../css componentes/Inicio.css";
 import { FaUser, FaRightFromBracket } from "react-icons/fa6";
-import { FaHome, FaCalculator, FaCalendar, FaMapMarkerAlt, FaChartBar, FaBell, FaPlusCircle } from "react-icons/fa";
+import { FaHome, FaCalculator, FaMapMarkerAlt, FaChartBar, FaBell, FaPlusCircle } from "react-icons/fa";
 import Calculadora from "./Calculadora";
 import Perfil from "./PerfilUsuario";
 import MapaCultivos from "./MapaCultivos";
@@ -89,7 +89,7 @@ export default function Inicio() {
       window.removeEventListener("click", reiniciarTemporizador);
       window.removeEventListener("scroll", reiniciarTemporizador);
     };
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const usuarioString = localStorage.getItem("usuario");
@@ -121,7 +121,7 @@ export default function Inicio() {
     } else {
       navigate("/");
     }
-  }, []);
+  }, [navigate]);
 
   const handleCerrarSesion = () => {
     localStorage.removeItem("usuario");

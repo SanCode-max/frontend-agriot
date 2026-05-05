@@ -8,23 +8,23 @@ export default function Principal() {
     <header>
       <nav id='menu' className='navegacion'>
         <div className='logo'>
-          <img src="/Imagenes/LOGO.png"/>
+          <img src="/Imagenes/LOGO.png" alt="Logo AgrIoT" />
           <span className='nombre'>AGRIOT</span>
         </div>      
        
         <ul className='menus-links'>
-          <li><a href="#">Inicio</a></li>
-          <li><a href="#">Sobre nosotros</a></li>
-          <li><a href="#">Sensores</a></li>
-          <li><a href="#">Cultivos</a></li>
-          <li><a href="#">Contacto</a></li>
+          <li><a href="#inicio">Inicio</a></li>
+          <li><a href="#sobre-nosotros">Sobre nosotros</a></li>
+          <li><a href="#sensores">Sensores</a></li>
+          <li><a href="#cultivos">Cultivos</a></li>
+          <li><a href="#contacto">Contacto</a></li>
           <Link to="/Bienvenida">
             <button className='boton'>Iniciar Sesión</button>
           </Link>
         </ul>
       </nav>
     </header>
-    <main className='contenido-principal'>
+    <main id="inicio" className='contenido-principal'>
       <section className='texto-principal'>
         <div className='contenido-img'>
           <h1>AgrIoT: Innovación en Agricultura Inteligente</h1>
@@ -37,47 +37,47 @@ export default function Principal() {
       </section>
       <section className='sabias-que'>
           <div className='img'>
-            <img src="/Imagenes/arandanos.png"/>
+            <img src="/Imagenes/arandanos.png" alt="Cultivo de arándanos" />
           </div>
           <p>¿Sabías que la agricultura de precisión puede aumentar la productividad de los cultivos hasta en un 30%?</p>
       </section>
-      <section className='sobre-nosotros'>
+      <section id="sobre-nosotros" className='sobre-nosotros'>
         <h1>EQUIPO DE TRABAJO</h1>
         <div className='equipo'>
           <div className='integrante'>
-            <img src="/Imagenes/paula.png"/>
+            <img src="/Imagenes/paula.png" alt="Foto de Paula Andrea Albornoz Santana" />
             <h3>Paula Andrea Albornoz Santana</h3>
             <p>Estudiante de Ingeniería de Sistemas y Computación</p>
           </div>
           <div className='integrante1'>
-              <img src="/Imagenes/santy.png"/>
+              <img src="/Imagenes/santy.png" alt="Foto de David Santiago Torres Nieto" />
               <h3>David Santiago Torres Nieto</h3>
               <p>Estudiante de Ingeniería de Sistemas y Computación</p>
           </div>
         </div>
       </section>
-      <section className='sensores'>
+      <section id="sensores" className='sensores'>
         <h1>SENSORES UTILIZADOS</h1>
         <div className='sensores-contenido'>
           <div className='sensor-npk'>
             <h2>NPK</h2>
-            <img src="/Imagenes/npk.png"/>
+            <img src="/Imagenes/npk.png" alt="Ilustración del sensor NPK" />
             <p>El sensor NPK mide los niveles de nitrógeno (N), fósforo (P) y potasio (K) en el suelo.</p>
           </div>
           <div className='sensor-ph'>
             <h2>PH</h2>
-            <img src="/Imagenes/ph.png"/>
+            <img src="/Imagenes/ph.png" alt="Ilustración del sensor de pH" />
             <p>El sensor de pH mide la acidez o alcalinidad del suelo, lo cual es crucial para la salud de las plantas.</p>
           </div>  
           <div className='flotador'>
             <h2>Flotador</h2> 
-            <img src="/Imagenes/flotador.png"/>
+            <img src="/Imagenes/flotador.png" alt="Ilustración del sensor flotador" />
             <p>Es el encargado de detectar el nivel del de liquido dentro de un tanque o recipiente</p>
           </div>
         </div>
         <button className='boton3'>Conocer más</button>
       </section>
-      <section className='cultivos'>
+      <section id="cultivos" className='cultivos'>
         <div className='cultivos-contenido'>
           <div className='cultivo1'>
             <div className='cultivo-texto'>
@@ -88,14 +88,14 @@ export default function Principal() {
               </div>
             </div>
             <div className='cultivo-imagen'>
-            <img src="/Imagenes/laguaca.webp"/>
+            <img src="/Imagenes/laguaca.webp" alt="Vista del cultivo en la finca La Huaca" />
             </div>
           </div>
         </div>
 
       </section>
     </main>
-    <footer className='footer'>
+    <footer id="contacto" className='footer'>
       <div className='pie-contenido'>
         <div className='que-somos'>
           <h3>¿Que hacemos?</h3>
@@ -105,9 +105,15 @@ export default function Principal() {
         <div className='redes'>
           <h3>Redes Sociales</h3>
           <div className='iconos'>
-            <a href="#"><img src="/Imagenes/facebook.png"/> Facebook</a>
-            <a href="#"><img src="/Imagenes/instagram.png"/> Instagram</a>
-            <a href="#"><img src="/Imagenes/gorjeo.png"/> Twitter</a>
+            <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
+              <img src="/Imagenes/facebook.png" alt="" /> Facebook
+            </a>
+            <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
+              <img src="/Imagenes/instagram.png" alt="" /> Instagram
+            </a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+              <img src="/Imagenes/gorjeo.png" alt="" /> Twitter
+            </a>
           </div>
         </div>
         <div className='contacto'>

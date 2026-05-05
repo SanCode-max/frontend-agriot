@@ -1,5 +1,3 @@
-
-import react from 'react';
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Principal from './Componentes/Principal';
 import PrincipioSesion from './Componentes/PrincipioSesion';

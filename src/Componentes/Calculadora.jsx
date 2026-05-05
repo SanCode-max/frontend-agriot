@@ -20,6 +20,12 @@ export default function Calculadora() {
 
   const calcular = () => {
     try {
+      // Evaluación acotada: solo números y operadores básicos (evita código arbitrario).
+      if (!/^[\d+\-*/().\s]+$/.test(pantalla)) {
+        setPantalla("Error");
+        return;
+      }
+      // eslint-disable-next-line no-new-func -- expresión validada arriba; alternativa sería un parser completo
       const resultado = Function('"use strict";return (' + pantalla + ')')();
       setHistorial([...historial, `${pantalla} = ${resultado}`]);
       setPantalla(resultado.toString());
