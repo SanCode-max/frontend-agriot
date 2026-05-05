@@ -1,26 +1,44 @@
-import React from 'react'
+import React, { useState } from 'react'
 import '../css componentes/Principal.css'
 import { Link } from 'react-router-dom';
 
 export default function Principal() {
+  const [menuAbierto, setMenuAbierto] = useState(false);
+
+  const cerrarMenu = () => setMenuAbierto(false);
+
   return (
     <>
     <header>
-      <nav id='menu' className='navegacion'>
-        <div className='logo'>
-          <img src="/Imagenes/LOGO.png" alt="Logo AgrIoT" />
-          <span className='nombre'>AGRIOT</span>
-        </div>      
-       
-        <ul className='menus-links'>
-          <li><a href="#inicio">Inicio</a></li>
-          <li><a href="#sobre-nosotros">Sobre nosotros</a></li>
-          <li><a href="#sensores">Sensores</a></li>
-          <li><a href="#cultivos">Cultivos</a></li>
-          <li><a href="#contacto">Contacto</a></li>
-          <Link to="/Bienvenida">
-            <button className='boton'>Iniciar Sesión</button>
-          </Link>
+      <nav id='menu' className={`navegacion ${menuAbierto ? 'navegacion--abierta' : ''}`}>
+        <div className="navegacion__barra">
+          <div className='logo'>
+            <img src="/Imagenes/LOGO.png" alt="Logo AgrIoT" />
+            <span className='nombre'>AGRIOT</span>
+          </div>
+          <button
+            type="button"
+            className="nav-toggle"
+            aria-expanded={menuAbierto}
+            aria-controls="menus-principal"
+            aria-label={menuAbierto ? 'Cerrar menú' : 'Abrir menú'}
+            onClick={() => setMenuAbierto((v) => !v)}
+          >
+            <span className="nav-toggle__bar" aria-hidden />
+            <span className="nav-toggle__bar" aria-hidden />
+            <span className="nav-toggle__bar" aria-hidden />
+          </button>
+        </div>
+
+        <ul id="menus-principal" className='menus-links'>
+          <li><a href="#inicio" onClick={cerrarMenu}>Inicio</a></li>
+          <li><a href="#sobre-nosotros" onClick={cerrarMenu}>Sobre nosotros</a></li>
+          <li><a href="#sensores" onClick={cerrarMenu}>Sensores</a></li>
+          <li><a href="#cultivos" onClick={cerrarMenu}>Cultivos</a></li>
+          <li><a href="#contacto" onClick={cerrarMenu}>Contacto</a></li>
+          <li className="menus-links__cta">
+            <Link className='boton' to="/Bienvenida" onClick={cerrarMenu}>Iniciar Sesión</Link>
+          </li>
         </ul>
       </nav>
     </header>

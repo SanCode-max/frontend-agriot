@@ -100,3 +100,24 @@
 .RestaurarC:hover{
     background-color: #00CCCC;
 }
+
+@media (max-width: 768px) {
+    .caja_recuperacion {
+        width: min(100%, 380px);
+        padding: 48px 20px;
+        box-sizing: border-box;
+    }
+
+    .caja_recuperacion h1 {
+        font-size: clamp(1.35rem, 5vw, 2rem);
+    }
+}
+
+/* Pantallas de login / recuperación que comparten .contenedor-principal */
+@media (max-width: 768px) {
+    main.contenedor-principal {
+        min-height: 100vh;
+        height: auto;
+        padding: 24px 16px;
+    }
+}

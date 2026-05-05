@@ -119,3 +119,22 @@
     color: green;
 }
 
+@media (max-width: 768px) {
+    .contenedor-principal {
+        min-height: 100vh;
+        height: auto;
+        padding: 24px 16px;
+        background-attachment: scroll;
+    }
+
+    .caja {
+        width: min(100%, 380px);
+        padding: 40px 20px;
+        box-sizing: border-box;
+    }
+
+    .caja h1 {
+        font-size: clamp(1.5rem, 6vw, 2.5rem);
+    }
+}
+

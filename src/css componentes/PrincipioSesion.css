@@ -57,3 +57,22 @@
     background-color: white;
     color: #00FFFF;
 }
+
+@media (max-width: 768px) {
+    .contenedor-principal {
+        min-height: 100vh;
+        height: auto;
+        padding: 24px 16px;
+        background-attachment: scroll;
+    }
+
+    .caja-principal {
+        width: min(100%, 340px);
+        padding: 48px 24px;
+        box-sizing: border-box;
+    }
+
+    .datos a {
+        font-size: clamp(1rem, 4.5vw, 25px);
+    }
+}

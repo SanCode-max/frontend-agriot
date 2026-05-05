@@ -56,6 +56,12 @@
     background-color: #a7a2ff; /* Color de fondo al pasar el cursor */
 }
 
+a.boton {
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+}
+
 .menus-links li a {
     text-decoration: none;
     color: black; /* Color del texto de los enlaces */
@@ -535,4 +541,221 @@
 .contacto p span {
   font-weight: bold;
   margin-right: 10px;
+}
+
+/* ---------- Barra superior + menú móvil ---------- */
+.navegacion__barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 1 auto;
+    gap: 12px;
+    min-width: 0;
+}
+
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: rgba(108, 191, 115, 0.15);
+    cursor: pointer;
+}
+
+.nav-toggle__bar {
+    display: block;
+    width: 22px;
+    height: 3px;
+    margin: 0 auto;
+    background: #2d2d2d;
+    border-radius: 2px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.navegacion--abierta .nav-toggle__bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+.navegacion--abierta .nav-toggle__bar:nth-child(2) {
+    opacity: 0;
+}
+.navegacion--abierta .nav-toggle__bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+.menus-links__cta {
+    display: flex;
+    align-items: center;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 992px) {
+    .navegacion {
+        padding: 10px 20px;
+    }
+
+    .contenido-img {
+        margin-left: 24px;
+        max-width: min(600px, calc(100% - 32px));
+    }
+
+    .contenido-img h1 {
+        font-size: clamp(1.5rem, 4vw + 0.5rem, 2.5rem);
+    }
+
+    .contenido-img h3 {
+        font-size: clamp(1rem, 2vw + 0.5rem, 1.25rem);
+    }
+
+    .sabias-que {
+        flex-direction: column;
+        text-align: center;
+        gap: 24px;
+        padding: 32px 16px;
+    }
+
+    .sabias-que .img img {
+        width: 100%;
+        max-width: min(400px, 100%);
+        height: auto;
+        margin-left: 0;
+    }
+
+    .sabias-que p {
+        font-size: clamp(1.1rem, 2.5vw, 2em);
+    }
+
+    .cultivo1 {
+        flex-direction: column;
+        gap: 24px;
+        align-items: stretch;
+    }
+
+    .cultivo-imagen {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .cultivo-imagen img {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        max-height: none;
+    }
+
+    .pie-contenido {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .que-somos,
+    .redes,
+    .contacto {
+        max-width: 100%;
+        align-items: center;
+    }
+
+    .iconos {
+        width: auto;
+        justify-content: center;
+    }
+
+    .sensor-npk img,
+    .sensor-ph img,
+    .flotador img {
+        max-width: 100%;
+        width: min(300px, 100%);
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: flex;
+    }
+
+    .navegacion {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+    }
+
+    .navegacion__barra {
+        width: 100%;
+    }
+
+    .menus-links {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        gap: 0;
+        padding: 8px 0 12px;
+    }
+
+    .navegacion--abierta .menus-links {
+        display: flex;
+    }
+
+    .menus-links li {
+        width: 100%;
+    }
+
+    .menus-links li a {
+        width: 100%;
+        justify-content: center;
+        border-radius: 12px;
+    }
+
+    .menus-links__cta {
+        justify-content: center;
+        margin-top: 8px;
+    }
+
+    .menus-links__cta .boton {
+        width: 100%;
+    }
+
+    .texto-principal {
+        min-height: 50vh;
+        height: auto;
+    }
+
+    .contenido-img {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+    .sobre-nosotros h1,
+    .sensores h1 {
+        font-size: clamp(1.5rem, 5vw, 2.5em);
+    }
+
+    .cultivo-texto h2 {
+        font-size: clamp(1.35rem, 4vw, 2em);
+    }
+
+    .cultivo-texto p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .navegacion {
+        padding: 8px 12px;
+    }
+
+    .logo .nombre {
+        font-size: 1.1rem;
+    }
+
+    .boton2,
+    .boton3,
+    .boton4 {
+        width: 100%;
+        max-width: 320px;
+    }
 }

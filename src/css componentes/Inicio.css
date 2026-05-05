@@ -4,14 +4,26 @@ body{
     margin:0;
 }
 
+.cabecera-app {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
 
 /* BARRA SUPERIOR */
 .bienvenida-usuario {
     display:flex;
     z-index: 1001;
-    justify-content:space-between;
+    justify-content:flex-start;
     align-items:center;
-    padding:14px 40px;
+    flex: 1;
+    min-width: 0;
+    padding:14px clamp(12px, 4vw, 40px);
     background: linear-gradient(135deg,#1F7A63,#2F5D50);
     color:white;
     box-shadow:0 6px 20px rgba(0,0,0,0.25);
@@ -52,9 +64,12 @@ body{
 /* Título de bienvenida */
 .menu h2{
     margin:0;
-    font-size:30px;
+    font-size: clamp(1rem, 4vw, 30px);
     font-weight:600;
     letter-spacing:0.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .sesion-datos {
@@ -63,12 +78,12 @@ body{
     top: 100%;
     gap: 30px;
     border-radius: 0.5rem;
-    padding: 0.5rem;
-    justify-content: right;
+    padding: 0;
+    justify-content: flex-end;
+    align-items: center;
     background-color: none;
     margin: 0;
-    padding: 0;
-    margin-top: -50px;
+    margin-top: 0;
 }
 
 .icon {
@@ -415,5 +430,83 @@ body{
 
 .tarjeta-cultivo button:hover{
     background:#dc2626;
+}
+
+.sesion-datos li {
+    list-style: none;
+}
+
+.contenido-calculadora,
+.contenido-informacion {
+    padding: clamp(16px, 4vw, 40px);
+    box-sizing: border-box;
+}
+
+.contenido-ubicacion {
+    padding: clamp(12px, 3vw, 24px);
+    box-sizing: border-box;
+}
+
+.mapa-cultivos-root {
+    height: 80vh;
+    min-height: 280px;
+    width: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+/* ---------- Responsive (app logueada) ---------- */
+@media (max-width: 768px) {
+    .cabecera-app {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .bienvenida-usuario {
+        width: 100%;
+    }
+
+    .sesion-datos {
+        width: 100%;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 0 clamp(8px, 3vw, 16px) 10px;
+    }
+
+    .menu h2 {
+        white-space: normal;
+        line-height: 1.25;
+    }
+
+    .contenido-home {
+        padding: 16px;
+    }
+
+    .formulario-contenedor {
+        width: min(100%, 360px);
+        max-height: 90vh;
+        overflow-y: auto;
+        margin: 12px;
+    }
+
+    .lista-cultivos {
+        grid-template-columns: 1fr;
+    }
+
+    .mapa-cultivos-root {
+        height: min(70vh, 520px);
+    }
+}
+
+@media (max-width: 480px) {
+    .cerrar-sesion {
+        font-size: 14px;
+        padding: 8px 10px;
+    }
+
+    .agregar-cultivo {
+        width: 100%;
+        justify-content: center;
+    }
 }
 

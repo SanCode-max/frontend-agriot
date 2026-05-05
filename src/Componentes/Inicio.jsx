@@ -253,11 +253,11 @@ export default function Inicio() {
 
   return (
     <>
-      <header>
+      <header className="cabecera-app">
         <nav id="menu" className="bienvenida-usuario">
           <div className="menu">
-            <button onClick={handleClick}>
-              <img src="/Imagenes/menu.png" alt="Menú" />
+            <button type="button" onClick={handleClick} aria-label="Abrir menú lateral">
+              <img src="/Imagenes/menu.png" alt="" />
             </button>
             <h2>Bienvenido {nombre ? nombre : "..."}</h2>
           </div>
@@ -268,9 +268,11 @@ export default function Inicio() {
               <FaBell className="icon" />
             </button>
           </li>
-          <button className="cerrar-sesion" onClick={handleCerrarSesion}>
+          <li>
+            <button type="button" className="cerrar-sesion" onClick={handleCerrarSesion}>
               <FaRightFromBracket className="icon" /> Cerrar Sesión
-          </button>
+            </button>
+          </li>
         </ul>
       </header>
 

@@ -82,14 +82,7 @@ export default function MapaCultivos() {
   }, []);
 
   return (
-    <div
-      style={{
-        height: "80vh",
-        width: "100%",
-        borderRadius: "15px",
-        overflow: "hidden",
-      }}
-    >
+    <div className="mapa-cultivos-root">
       <MapContainer
         center={[4.5709, -74.2973]} // Colombia inicial
         zoom={6}
