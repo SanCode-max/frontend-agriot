@@ -1,10 +1,12 @@
 import React, {useState} from 'react';
 import '../css componentes/Restaurar_Contraseña.css';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { apiFetch } from '../services/apiClient';
 
 export default function Campos_reestablecimiento() {
     const [params] = useSearchParams();
+    const navigate = useNavigate();
     const token = params.get('token');
     const [Ncontraseña, setNcontraseña] = React.useState('');
     const [Ccontraseña, setCcontraseña] = React.useState('');
@@ -42,7 +44,7 @@ export default function Campos_reestablecimiento() {
         }
 
         try {
-            const response = await fetch ("http://127.0.0.1:8000/reset_password",{
+            const response = await apiFetch("/reset_password",{
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -62,7 +64,7 @@ export default function Campos_reestablecimiento() {
                 setTimeout (() => setMostrar(false),4000)
                 setNcontraseña("");
                 setCcontraseña("");
-                setTimeout(() => {window.location.href = "/login"; },2000);
+                setTimeout(() => { navigate("/login"); },2000);
             } else {
                 setMensaje(data.detail || "Error al reestablecer la contraseña");
                 setTipoMensaje("error");

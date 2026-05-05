@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { apiFetch } from "../services/apiClient";
 
 // Crear iconos por color
 const crearIcono = (color) =>
@@ -69,7 +70,7 @@ export default function MapaCultivos() {
     const usuario = JSON.parse(localStorage.getItem("usuario"));
 
     if (usuario?.correo) {
-      fetch(`http://127.0.0.1:8000/cultivos/${usuario.correo}`)
+      apiFetch(`/cultivos/${usuario.correo}`)
         .then((response) => response.json())
         .then((data) => {
           setCultivos(data.cultivos || []);

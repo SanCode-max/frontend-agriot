@@ -1,5 +1,6 @@
   import React from 'react'
   import '../css componentes/Restaurar_Contraseña.css'
+  import { apiFetch } from '../services/apiClient';
 
   export default function RestaurarContraseña() {
     const [Correo, setCorreo] = React.useState('');
@@ -25,7 +26,7 @@
       }
 
       try{
-        const response = await fetch("http://127.0.0.1:8000/request_password", {
+        const response = await apiFetch("/request_password", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify({correo: Correo}),

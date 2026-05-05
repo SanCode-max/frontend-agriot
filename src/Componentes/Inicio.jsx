@@ -5,8 +5,11 @@ import { FaHome, FaCalculator, FaCalendar, FaMapMarkerAlt, FaChartBar, FaBell, F
 import Calculadora from "./Calculadora";
 import Perfil from "./PerfilUsuario";
 import MapaCultivos from "./MapaCultivos";
+import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../services/apiClient";
 
 export default function Inicio() {
+  const navigate = useNavigate();
   const [activo, setActivo] = useState("home");
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -61,7 +64,7 @@ export default function Inicio() {
     const cerrarSesionPorInactividad = () => {
       localStorage.removeItem("usuario");
       alert("Sesión cerrada por inactividad");
-      window.location.href = "/";
+      navigate("/");
     };
 
     const reiniciarTemporizador = () => {
@@ -94,7 +97,7 @@ export default function Inicio() {
 
     if (usuario && usuario.correo) {
 
-      fetch(`http://127.0.0.1:8000/cultivos/${usuario.correo}`)
+      apiFetch(`/cultivos/${usuario.correo}`)
         .then((response) => response.json())
         .then((data) => {
           setCorreo(usuario.correo);
@@ -104,7 +107,7 @@ export default function Inicio() {
         .catch((error) => {
           console.error("Error al obtener los cultivos:", error);
         });
-      fetch(`http://127.0.0.1:8000/perfil/${usuario.correo}`)
+      apiFetch(`/perfil/${usuario.correo}`)
       .then((response) => response.json())
       .then((data) => {
         setCorreo(usuario.correo);
@@ -116,13 +119,13 @@ export default function Inicio() {
       });
 
     } else {
-      window.location.href = "/";
+      navigate("/");
     }
   }, []);
 
   const handleCerrarSesion = () => {
     localStorage.removeItem("usuario");
-    window.location.href = "/";
+    navigate("/");
   };
   const handleAgregarCultivo = () => {
     setMostrarFormulario(true);
@@ -142,7 +145,7 @@ export default function Inicio() {
     }
 
     try {
-      const response = await fetch ("http://127.0.0.1:8000/cultivos", {
+      const response = await apiFetch("/cultivos", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -206,8 +209,8 @@ export default function Inicio() {
 
   try {
 
-    const response = await fetch(
-      `http://127.0.0.1:8000/cultivos/${usuario.correo}/${id}`,
+    const response = await apiFetch(
+      `/cultivos/${usuario.correo}/${id}`,
       {
         method: "DELETE"
       }
@@ -261,9 +264,9 @@ export default function Inicio() {
         </nav>
         <ul className="sesion-datos">
           <li>
-            <a href="#">
+            <button type="button" aria-label="Notificaciones">
               <FaBell className="icon" />
-            </a>
+            </button>
           </li>
           <button className="cerrar-sesion" onClick={handleCerrarSesion}>
               <FaRightFromBracket className="icon" /> Cerrar Sesión

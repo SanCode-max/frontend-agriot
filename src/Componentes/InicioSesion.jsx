@@ -1,9 +1,11 @@
 import React from 'react'
 import '../css componentes/InicioSesion.css'
 import {FaEye, FaEyeSlash} from "react-icons/fa"
-import { click } from '@testing-library/user-event/dist/click';
+import { Link, useNavigate } from 'react-router-dom';
+import { apiFetch } from '../services/apiClient';
 
 export default function InicioSesion() {
+    const navigate = useNavigate();
     const [Correo, setCorreo] = React.useState('');
     const [Contraseña, setContraseña] = React.useState('');
     const [Mensaje, setMensaje] = React.useState('');
@@ -24,7 +26,7 @@ export default function InicioSesion() {
         }
 
         try {
-            const respuesta = await fetch ("http://127.0.0.1:8000/login", {
+            const respuesta = await apiFetch("/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json"},
                 body: JSON.stringify({
@@ -42,7 +44,7 @@ export default function InicioSesion() {
                 setTimeout (() => setMostrar(false), 4000)
 
                 //Redirigir a la pagina de inicio
-                setTimeout(() => {window.location.href = "/Inicio"; },1000);
+                setTimeout(() => { navigate("/Inicio"); },1000);
             }else {
                 setMensaje(data.detail || "Error al iniciar sesión");
                 setTipoMensaje("error");
@@ -89,9 +91,9 @@ export default function InicioSesion() {
             <div className='texto-login'>
                <p>
                 ¿No tienes cuenta?{""}
-                <a href="/registro">Registrarse</a> <br/>
+                <Link to="/registro">Registrarse</Link> <br/>
                </p>
-                <a href='/Restauracion'>¿Olvidaste la contraseña?</a>
+                <Link to='/Restauracion'>¿Olvidaste la contraseña?</Link>
             </div>
         </div>
     </main>

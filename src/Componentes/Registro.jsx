@@ -1,9 +1,11 @@
 import React from 'react'
 import '../css componentes/Registro.css'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { apiFetch } from '../services/apiClient';
 
 export default function Registro() {
+    const navigate = useNavigate();
     const [Nombre, setNombre] = React.useState('');
     const [Apellido, setApellido] = React.useState('');
     const [Correo, setCorreo] = React.useState('');
@@ -48,7 +50,7 @@ export default function Registro() {
         }
 
         try {
-            const response = await fetch ("http://127.0.0.1:8000/registro", {
+            const response = await apiFetch("/registro", {
                 method: "POST",
                 headers: {
                 "Content-Type": "application/json",
@@ -73,7 +75,7 @@ export default function Registro() {
                 setContraseña("");
                 setMostrar(true);
                 setTimeout (() => setMostrar(false), 4000);
-                setTimeout(() => {window.location.href = "/login"; },1000);
+                setTimeout(() => { navigate("/login"); },1000);
             }else {
                 setMensaje(data.detail || "Ocurrió un error en el registro");
                 setTipoMensaje("error")

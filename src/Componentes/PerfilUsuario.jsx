@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import '../css componentes/perfilUsuario.css';
 import { Mail, Phone, MapPin, Edit3, X, LocateFixed } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { apiFetch } from '../services/apiClient';
 
 const PerfilUsuario = () => {
+  const navigate = useNavigate();
   const [perfil, setPerfil] = useState(null);
   const [modoEdicion, setModoEdicion] = useState(false);
 
@@ -24,11 +27,11 @@ const PerfilUsuario = () => {
     const usuario = JSON.parse(localStorage.getItem("usuario"));
 
     if (!usuario || !usuario.correo) {
-      window.location.href = "/";
+      navigate("/");
       return;
     }
 
-    fetch(`http://127.0.0.1:8000/perfil/${usuario.correo}`)
+    apiFetch(`/perfil/${usuario.correo}`)
       .then(res => {
         if (!res.ok) throw new Error("Error cargando perfil");
         return res.json();
@@ -45,7 +48,7 @@ const PerfilUsuario = () => {
       })
       .catch(err => console.error(err));
 
-  }, []);
+  }, [navigate]);
 
   // OBTENER UBICACIÓN AUTOMÁTICA
   const obtenerUbicacionActual = () => {
@@ -108,8 +111,8 @@ const PerfilUsuario = () => {
         const formData = new FormData();
         formData.append("foto", fotoArchivo);
 
-        const subidaFoto = await fetch(
-            `http://127.0.0.1:8000/perfil/foto/${perfil.correo}`,
+        const subidaFoto = await apiFetch(
+            `/perfil/foto/${perfil.correo}`,
             {
             method: "POST",
             body: formData
@@ -127,7 +130,7 @@ const PerfilUsuario = () => {
         }
 
         // ACTUALIZAR DATOS
-        const response = await fetch(`http://127.0.0.1:8000/perfil/${perfil.correo}`, {
+        const response = await apiFetch(`/perfil/${perfil.correo}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
