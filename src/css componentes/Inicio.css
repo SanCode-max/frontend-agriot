@@ -102,15 +102,42 @@ body{
     background:rgba(255,255,255,0.2);
 }
 
-.cerrar-sesion{
-    background:none;
-    border:none;
-    color:white;
-    padding:8px 16px;
-    border-radius:20px;
-    font-weight:600;
-    cursor:pointer;
-    transition:0.2s;
+
+.cerrar-sesion {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap; 
+}
+
+
+@media (max-width: 600px) {
+    .cerrar-sesion {
+        padding: 8px; 
+        gap: 0;
+    }
+
+    .cerrar-sesion span:not(.icon) {
+        display: none;
+    }
+    
+    .cerrar-sesion .icon {
+        margin: 0;
+        font-size: 20px; 
+    }
+
+    .menu h2 {
+        font-size: 1rem; 
+    }
 }
 
 .cerrar-sesion:hover{
