@@ -264,7 +264,7 @@ export default function Inicio() {
         </nav>
         <ul className="sesion-datos">
           <li>
-            <button type="button" aria-label="Notificaciones">
+            <button type="button" className="btn-notificacion" aria-label="Notificaciones">
               <FaBell className="icon" />
             </button>
           </li>
