@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import ChatWidget from './components/ChatWidget';
 import Principal from './Componentes/Principal';
 import PrincipioSesion from './Componentes/PrincipioSesion';
 import Sesion from './Componentes/InicioSesion';
@@ -10,6 +11,7 @@ import Campos from './Componentes/Campos_reestablecimiento';
 function MyApp() {
   return (
     <Router>
+      <ChatWidget />
       <Routes>
         <Route path='/' element={<Principal/>}/>
         <Route path='/Bienvenida' element={<PrincipioSesion/>}/>

@@ -1,0 +1,262 @@
+/**
+ * ChatWidget.css
+ * Floating multilingual chat widget for the Knowledge Management project.
+ * Communicates with the backend via POST /api/chat.
+ * Displays a Persona Transhumana welcome message on first load.
+ * Supports Spanish and English responses automatically.
+ */
+
+.km-chat-root {
+  --km-chat-accent: #6cbf73;
+  --km-chat-accent-2: #51abf5;
+  --km-chat-surface: #ffffff;
+  --km-chat-border: rgba(0, 0, 0, 0.12);
+  --km-chat-text: #1a1a1a;
+  --km-chat-muted: #5c5c5c;
+  --km-chat-bot-bg: #f0f4f8;
+  --km-chat-user-bg: #51abf5;
+  --km-chat-user-text: #ffffff;
+  --km-chat-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.km-chat-toggle {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--km-chat-accent-2);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: var(--km-chat-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.km-chat-toggle:hover {
+  transform: scale(1.05);
+  background: #3d9ae8;
+}
+
+.km-chat-toggle:focus-visible {
+  outline: 3px solid var(--km-chat-accent);
+  outline-offset: 2px;
+}
+
+.km-chat-root[data-open="true"] .km-chat-toggle {
+  background: var(--km-chat-accent);
+}
+
+.km-chat-toggle-icon {
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 300;
+}
+
+.km-chat-bubble-svg {
+  width: 26px;
+  height: 26px;
+  fill: currentColor;
+}
+
+.km-chat-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 96px;
+  width: 380px;
+  height: 520px;
+  max-height: calc(100vh - 120px);
+  background: var(--km-chat-surface);
+  border-radius: 12px;
+  box-shadow: var(--km-chat-shadow);
+  border: 1px solid var(--km-chat-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.km-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--km-chat-border);
+  background: linear-gradient(
+    135deg,
+    rgba(108, 191, 115, 0.12),
+    rgba(81, 171, 245, 0.1)
+  );
+}
+
+.km-chat-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--km-chat-text);
+}
+
+.km-chat-close {
+  border: none;
+  background: transparent;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--km-chat-muted);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.km-chat-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--km-chat-text);
+}
+
+.km-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.km-chat-row {
+  display: flex;
+  width: 100%;
+}
+
+.km-chat-row-bot {
+  justify-content: flex-start;
+}
+
+.km-chat-row-user {
+  justify-content: flex-end;
+}
+
+.km-chat-bubble {
+  max-width: 85%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.km-chat-bubble-bot {
+  background: var(--km-chat-bot-bg);
+  color: var(--km-chat-text);
+  border-bottom-left-radius: 4px;
+}
+
+.km-chat-bubble-user {
+  background: var(--km-chat-user-bg);
+  color: var(--km-chat-user-text);
+  border-bottom-right-radius: 4px;
+}
+
+.km-chat-loading-bubble {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 56px;
+}
+
+.km-chat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--km-chat-muted);
+  opacity: 0.3;
+  animation: km-chat-dot-fade 1.2s ease-in-out infinite;
+}
+
+.km-chat-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.km-chat-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.km-chat-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes km-chat-dot-fade {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.km-chat-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--km-chat-border);
+  background: #fafafa;
+}
+
+.km-chat-input {
+  flex: 1;
+  border: 1px solid var(--km-chat-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.km-chat-input:focus {
+  border-color: var(--km-chat-accent-2);
+  box-shadow: 0 0 0 2px rgba(81, 171, 245, 0.2);
+}
+
+.km-chat-send {
+  border: none;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  background: var(--km-chat-accent-2);
+  color: #fff;
+  transition: background 0.2s;
+}
+
+.km-chat-send:hover:not(:disabled) {
+  background: #3d9ae8;
+}
+
+.km-chat-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 479px) {
+  .km-chat-panel {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .km-chat-toggle {
+    right: 16px;
+    bottom: 16px;
+  }
+}
