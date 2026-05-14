@@ -146,7 +146,12 @@ export default function ChatWidget() {
         }
         return next;
       });
-    } catch {
+    } catch (error) {
+      console.error("[ChatWidget] Error al enviar mensaje:", error);
+      const errorMsg = error.message?.includes("Failed to fetch")
+        ? "No se pudo conectar con el servidor. Verifica tu conexión."
+        : "Error al procesar tu mensaje. Intenta de nuevo.";
+      
       setMessages((prev) => {
         const idx = prev.findIndex((m) => m.id === loadingId);
         if (idx === -1) return prev;
@@ -154,7 +159,7 @@ export default function ChatWidget() {
           ...prev.slice(0, idx),
           {
             role: "model",
-            content: "No se pudo conectar con el asistente. Intenta de nuevo.",
+            content: errorMsg,
             id: genId(),
           },
           ...prev.slice(idx + 1),
