@@ -8,7 +8,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./ChatWidget.css";
-import { buildApiUrl } from "../services/apiClient";
+import { apiFetch } from '../services/apiClient';
 
 const WELCOME_ES =
   "Soy LIBRE, AUTÓNOMO Y RESPONSABLE a través del diálogo y la construcción, como ideal regulativo; me dirijo, controlo y dicto mis propias leyes. ¿En qué puedo ayudarte hoy?";
@@ -51,12 +51,6 @@ function isLikelyEnglishReply(text) {
   return isLikelyEnglish(t);
 }
 
-function getChatEndpoint() {
-  if (process.env.NODE_ENV === "development") {
-    return "/api/chat";
-  }
-  return buildApiUrl("/api/chat");
-}
 
 function toHistoryPayload(list) {
   return list
@@ -124,7 +118,7 @@ export default function ChatWidget() {
     setMessages([...working, userMsg, loadingMsg]);
 
     try {
-      const response = await fetch(getChatEndpoint(), {
+      const response = await apiFetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
