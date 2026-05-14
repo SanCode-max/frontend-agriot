@@ -7,8 +7,9 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import "./ChatWidget.css";
-import { apiFetch } from '../services/apiClient';
+import { apiFetch } from "../services/apiClient";
 
 const WELCOME_ES =
   "Soy LIBRE, AUTÓNOMO Y RESPONSABLE a través del diálogo y la construcción, como ideal regulativo; me dirijo, controlo y dicto mis propias leyes. ¿En qué puedo ayudarte hoy?";
@@ -172,7 +173,7 @@ export default function ChatWidget() {
     }
   };
 
-  return (
+  const widget = (
     <div className="km-chat-root" data-open={open ? "true" : "false"}>
       <button
         type="button"
@@ -274,4 +275,10 @@ export default function ChatWidget() {
       )}
     </div>
   );
+
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(widget, document.body);
 }
