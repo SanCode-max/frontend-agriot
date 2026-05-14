@@ -269,8 +269,12 @@ export default function Inicio() {
             </button>
           </li>
           <li>
-            <button class="cerrar-sesion" onclick="tuFuncionDeCierre()">
-              <span class="icon">logout</span>
+            <button
+              type="button"
+              className="cerrar-sesion"
+              onClick={handleCerrarSesion}
+            >
+              <FaRightFromBracket className="icon" aria-hidden />
               <span>Cerrar Sesión</span>
             </button>
           </li>

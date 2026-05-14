@@ -1,5 +1,4 @@
-// En Vercel, asegúrate de configurar la variable REACT_APP_API_BASE_URL
-// En desarrollo, React proxy usa http://localhost:3000 (ver setupProxy.js)
+
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://backend-agriot.onrender.com";
 
 export const buildApiUrl = (path) => {
