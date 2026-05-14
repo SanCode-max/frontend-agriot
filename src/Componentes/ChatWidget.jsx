@@ -8,7 +8,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import "./ChatWidget.css";
+import "../css componentes/ChatWidget.css";
 import { apiFetch } from "../services/apiClient";
 
 const WELCOME_ES =
