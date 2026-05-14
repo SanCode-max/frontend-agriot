@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
-import ChatWidget from './Componentes/ChatWidget';
+import ChatWidget from './Componentes/ChatWidget.jsx';
 import Principal from './Componentes/Principal';
 import PrincipioSesion from './Componentes/PrincipioSesion';
 import Sesion from './Componentes/InicioSesion';
