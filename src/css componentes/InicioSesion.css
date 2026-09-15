@@ -1,147 +1,313 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* --- CONTENEDOR Y OVERLAY GENERAL --- */
 .contenedor-principal-login {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    width: 100vw;
     background-image: url('/public/Imagenes/arandanos_fondo.jpg');
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
-}
-.caja-login {
-    background-color: white;
-    padding: 70px 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 350px;
-    text-align: center;
-}
-.caja-login h1 {
-    font-size: 40px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #00FFFF; 
-    margin-top: -40px;
-    text-align: center;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-}
-.formulario-login {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    margin-top: 25px;
-}
-.formulario-login input {
-    display: block;
-    background: #F2F2F2;
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 20px;
-    font-size: 20px;
-    border: none;
-    font-size: 16px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    overflow: hidden;
+    padding: 20px;
     box-sizing: border-box;
-    outline: none;
-}
-.formulario-login input:focus {
-    border: 2px solid #00FFFF;
-    background: white;
 }
 
-.contraseña-login {
+.overlay-fondo-login {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        circle at center,
+        rgba(15, 23, 42, 0.65) 0%,
+        rgba(15, 23, 42, 0.88) 100%
+    );
+    z-index: 1;
+}
+
+/* Botón flotante superior de volver */
+.btn-volver-login {
+    position: absolute;
+    top: 28px;
+    left: 28px;
+    z-index: 10;
+    color: #e2e8f0;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-volver-login:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    transform: translateX(-3px);
+}
+
+/* --- TARJETA DE LOGIN (GLASSMORPHISM) --- */
+.caja-login {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 420px;
+    background: rgba(15, 23, 42, 0.68);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 28px;
+    padding: 48px 36px;
+    box-shadow: 
+        0 20px 50px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-sizing: border-box;
+    animation: fadeInCard 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInCard {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Header del Formulario */
+.header-card-login {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.badge-login {
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.25) 0%, rgba(2, 132, 199, 0.25) 100%);
+    border: 1px solid rgba(76, 175, 80, 0.4);
+    color: #86efac;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 5px 14px;
+    border-radius: 50px;
+    margin-bottom: 14px;
+}
+
+.header-card-login h1 {
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+}
+
+.header-card-login p {
+    color: #94a3b8;
+    font-size: 0.88rem;
+    margin: 0;
+}
+
+/* --- FORMULARIO Y CAMPOS DE ENTRADA --- */
+.formulario-login {
+    width: 100%;
+}
+
+.group-input-login {
     position: relative;
     display: flex;
     align-items: center;
+    margin-bottom: 18px;
 }
 
-.contraseña-login input {
+.icon-input-left {
+    position: absolute;
+    left: 18px;
+    color: #64748b;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.group-input-login input {
     width: 100%;
-    padding-right: 40px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    padding: 14px 16px 14px 48px;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.group-input-login input::placeholder {
+    color: #64748b;
+}
+
+.group-input-login input:focus {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #4caf50;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.25);
+}
+
+.group-input-login:focus-within .icon-input-left {
+    color: #86efac;
+}
+
+/* Icono Ojo Contraseña */
+.contraseña-login input {
+    padding-right: 48px;
 }
 
 .ojo-login {
     position: absolute;
-    right: 15px;
+    right: 18px;
     cursor: pointer;
-    color: #888;
-    user-select: none;
-    transition: color 0.3s;
-}
-.ojo-login:hover {
-    color: #00CCCC;
+    color: #64748b;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s ease;
+    z-index: 2;
 }
 
-.sesion {
-    background-color: #51abf5;
-    color: white;
-    border: none;
-    padding: 10px;
-    font-size: 18px;
-    border-radius: 5px;
+.ojo-login:hover {
+    color: #38bdf8;
+}
+
+/* Enlace Olvidó contraseña */
+.olvido-password-wrapper {
+    text-align: right;
+    margin-bottom: 24px;
+    margin-top: -6px;
+}
+
+.link-olvido {
+    color: #38bdf8;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.link-olvido:hover {
+    color: #7dd3fc;
+    text-decoration: underline;
+}
+
+/* Botón Submit */
+.btn-sesion-submit {
+    width: 100%;
+    background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 50px;
     cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.3s;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.35);
+}
+
+.btn-sesion-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(76, 175, 80, 0.5);
+    background: linear-gradient(135deg, #66bb6a 0%, #388e3c 100%);
+}
+
+.btn-sesion-submit:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* Notificación Toast */
+.mensaje-toast {
+    margin-top: 18px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    animation: fadeInToast 0.4s ease;
+}
+
+@keyframes fadeInToast {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.mensaje-toast.error {
+    background: rgba(239, 68, 68, 0.18);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+.mensaje-toast.exito {
+    background: rgba(34, 197, 94, 0.18);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: #86efac;
+}
+
+/* Footer Card */
+.texto-login-footer {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     text-align: center;
 }
-.sesion:hover {
-    background-color: #00CCCC;
-}
-.texto-login {
-    margin-top: 30px;
-    text-align: center;
-    display: flex;           /* convierte en flex container */
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    gap: 20px;  
-}
-.texto-login p {    
-    font-size: 16px;
-    color: black;
+
+.texto-login-footer p {
+    font-size: 0.88rem;
+    color: #94a3b8;
     margin: 0;
 }
-.texto-login a {
-    color: black;
+
+.link-registro {
+    color: #38bdf8;
     text-decoration: none;
-    font-weight: bold;
-    margin-left: 20px;
-    font-family: 'Times New Roman', Times, serif;
+    font-weight: 700;
+    margin-left: 4px;
+    transition: color 0.2s ease;
 }
 
-.texto-login a:hover {
-   text-decoration: underline;
+.link-registro:hover {
+    color: #7dd3fc;
+    text-decoration: underline;
 }
 
-.mensaje {
-    font-size: 14px;
-    margin-top: 10px;
-    font-weight: bold;
-    transition: opacity 0.5s ease;   
-}
-.mensaje.error {
-    color: red;
-}
-.mensaje.exito {
-    color: green;
-}
-
-@media (max-width: 768px) {
-    .contenedor-principal-login {
-        min-height: 100vh;
-        height: auto;
-        padding: 24px 16px;
-        background-attachment: scroll;
-    }
-
+/* --- RESPONSIVE MÓVIL --- */
+@media (max-width: 480px) {
     .caja-login {
-        width: min(100%, 380px);
-        padding: 48px 20px;
-        box-sizing: border-box;
+        padding: 36px 24px;
+        border-radius: 20px;
     }
 
-    .caja-login h1 {
-        font-size: clamp(1.5rem, 6vw, 2.5rem);
+    .btn-volver-login {
+        top: 16px;
+        left: 16px;
+        padding: 8px 16px;
+        font-size: 0.82rem;
+    }
+
+    .header-card-login h1 {
+        font-size: 1.75rem;
     }
 }

@@ -1,123 +1,357 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* --- CONTENEDOR Y OVERLAY GENERAL --- */
+.contenedor-principal-restaurar {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100vw;
+  background-image: url('/public/Imagenes/arandanos_fondo.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow: hidden;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.overlay-fondo-restaurar {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(15, 23, 42, 0.65) 0%,
+    rgba(15, 23, 42, 0.88) 100%
+  );
+  z-index: 1;
+}
+
+/* Botón flotante superior */
+.btn-volver-restaurar {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  z-index: 10;
+  color: #e2e8f0;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-volver-restaurar:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  transform: translateX(-3px);
+}
+
+/* --- TARJETA DE RECUPERACIÓN (GLASSMORPHISM) --- */
 .caja_recuperacion {
-    background-color: white;
-    padding: 70px 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 350px;
-    text-align: center;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  background: rgba(15, 23, 42, 0.68);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 28px;
+  padding: 44px 36px;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-sizing: border-box;
+  text-align: center;
+  animation: fadeInCard 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.caja_recuperacion h1{
-    font-size: 40px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: black; 
-    margin-top: -40px;
-    text-align: center;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+@keyframes fadeInCard {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-.apartado{
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    margin-top: 25px;
+/* Header del Formulario e Icono */
+.header-card-restaurar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 28px;
 }
 
-.apartado input{
-    display: block;
-    background: #F2F2F2;
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 20px;
-    font-size: 20px;
-    border: none;
-    font-size: 16px;
-    box-sizing: border-box;
-    outline: none;
+.icon-badge-restaurar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(2, 132, 199, 0.15);
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  margin-bottom: 16px;
+  box-shadow: 0 0 20px rgba(2, 132, 199, 0.2);
 }
 
-.apartado input:focus{
-    border: 2px solid #00FFFF;
-    background: white;
+.badge-restaurar {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.25) 0%, rgba(2, 132, 199, 0.25) 100%);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  color: #86efac;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 5px 14px;
+  border-radius: 50px;
+  margin-bottom: 12px;
 }
 
-.EnviaCorreo {
-    background-color: #51abf5;
-    color: white;
-    border: none;
-    padding: 10px;
-    font-size: 18px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.3s;
-    text-align: center;
-}
-.EnviaCorreo:hover{
-    background-color: #00CCCC;
+.header-card-restaurar h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.5px;
 }
 
-
-
-/*Adiciones diseño del componente Campos_Reestablecimiento*/
-.contenedor_nueva_contraseña, .contenedor_confirmacion_contraseña {
-    position: relative;
-    display: flex;
-    align-items: center;
+.header-card-restaurar p {
+  color: #94a3b8;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin: 0;
 }
-.contenedor_nueva_contraseña input, .contenedor_confirmacion_contraseña input {
-    width: 100%;
-    padding-right: 40px; /* Espacio para el icono */
+
+/* --- FORMULARIO Y CAMPOS DE ENTRADA --- */
+.formulario-restaurar {
+  width: 100%;
+}
+
+.group-input-restaurar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.icon-input-left {
+  position: absolute;
+  left: 18px;
+  color: #64748b;
+  font-size: 1.05rem;
+  transition: color 0.3s ease;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.group-input-restaurar input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  padding: 14px 16px 14px 48px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.group-input-restaurar input::placeholder {
+  color: #64748b;
+}
+
+.group-input-restaurar input:focus {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #4caf50;
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.25);
+}
+
+.group-input-restaurar:focus-within .icon-input-left {
+  color: #86efac;
+}
+
+/* Botón Submit */
+.btn-restaurar-submit {
+  width: 100%;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 14px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.35);
+}
+
+.btn-restaurar-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(2, 132, 199, 0.5);
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+}
+
+.btn-restaurar-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Notificación Toast */
+.mensaje-toast {
+  margin-top: 18px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  animation: fadeInToast 0.4s ease;
+}
+
+@keyframes fadeInToast {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mensaje-toast.error {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.mensaje-toast.exito {
+  background: rgba(34, 197, 94, 0.18);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #86efac;
+}
+
+/* Footer Card */
+.texto-restaurar-footer {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.texto-restaurar-footer p {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.link-login {
+  color: #38bdf8;
+  text-decoration: none;
+  font-weight: 700;
+  margin-left: 4px;
+  transition: color 0.2s ease;
+}
+
+.link-login:hover {
+  color: #7dd3fc;
+  text-decoration: underline;
+}
+
+/* --- CLASES ADICIONALES PARA RESTABLECER CLAVE --- */
+.contenedor_nueva_contraseña, 
+.contenedor_confirmacion_contraseña {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.contenedor_nueva_contraseña input, 
+.contenedor_confirmacion_contraseña input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  padding: 13px 48px 13px 16px;
+  color: #ffffff;
+  font-size: 0.92rem;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.contenedor_nueva_contraseña input:focus, 
+.contenedor_confirmacion_contraseña input:focus {
+  border-color: #4caf50;
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.25);
 }
 
 .ojo {
-    position: absolute;
-    right: 15px;
-    cursor: pointer;
-    color: #888;
-    user-select: none;
-    transition: color 0.3s;
+  position: absolute;
+  right: 18px;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+  z-index: 2;
 }
+
 .ojo:hover {
-    color: #00CCCC;
+  color: #38bdf8;
 }
 
 .RestaurarC {
-    background-color: #51abf5;
-    color: white;
-    border: none;
-    padding: 10px;
-    font-size: 18px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.3s;
-    text-align: center;
+  width: 100%;
+  background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.35);
+  margin-top: 8px;
 }
 
-.RestaurarC:hover{
-    background-color: #00CCCC;
+.RestaurarC:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(76, 175, 80, 0.5);
+  background: linear-gradient(135deg, #66bb6a 0%, #388e3c 100%);
 }
 
-@media (max-width: 768px) {
-    .caja_recuperacion {
-        width: min(100%, 380px);
-        padding: 48px 20px;
-        box-sizing: border-box;
-    }
+/* --- RESPONSIVE MÓVIL --- */
+@media (max-width: 480px) {
+  .caja_recuperacion {
+    padding: 36px 20px;
+    border-radius: 20px;
+  }
 
-    .caja_recuperacion h1 {
-        font-size: clamp(1.35rem, 5vw, 2rem);
-    }
-}
+  .btn-volver-restaurar {
+    top: 16px;
+    left: 16px;
+    padding: 8px 16px;
+    font-size: 0.82rem;
+  }
 
-/* Pantallas de login / recuperación que comparten .contenedor-principal */
-@media (max-width: 768px) {
-    main.contenedor-principal {
-        min-height: 100vh;
-        height: auto;
-        padding: 24px 16px;
-    }
+  .header-card-restaurar h1 {
+    font-size: 1.5rem;
+  }
 }
