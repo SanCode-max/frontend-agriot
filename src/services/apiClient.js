@@ -10,7 +10,7 @@ export const buildApiUrl = (path) => {
 
 export const apiFetch = (path, options) => {
   const url = buildApiUrl(path);
-  console.log("[API] Requesting:", url); // Debug: ver qué URL se usa
+  console.log("[API] Requesting:", url); 
   return fetch(url, {
     ...options,
     headers: {
