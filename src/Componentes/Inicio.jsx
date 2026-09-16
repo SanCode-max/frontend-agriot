@@ -273,7 +273,7 @@ export default function Inicio() {
       <aside className={`sidebar-main ${menuAbierto ? "sidebar-open" : ""}`}>
         <div className="sidebar-header">
           <FaSeedling className="logo-icon" />
-          <span className="logo-text">Agri<span className="accent">Bot</span></span>
+          <span className="logo-text">Agr<span className="accent">iot</span></span>
         </div>
 
         <div className="sidebar-profile">

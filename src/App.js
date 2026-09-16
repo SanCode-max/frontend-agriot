@@ -19,7 +19,7 @@ function MyApp() {
         <Route path='/registro' element={<Registro/>}/>
         <Route path='/Restauracion' element= {<Restaurar/>}/>
         <Route path='/Inicio' element={<Inicio/>}/>
-        <Route path='/Nueva_contraseña' element={<Campos/>}/>
+        <Route path='/restablecer-password' element={<Campos/>}/>
       </Routes>
     </Router>
     
