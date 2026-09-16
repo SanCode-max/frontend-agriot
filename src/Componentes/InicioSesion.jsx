@@ -44,7 +44,13 @@ export default function InicioSesion() {
                 setTipoMensaje("exito");
                 setMostrar(true);
 
-                localStorage.setItem("usuario", JSON.stringify(data.usuario));
+                // Asigna siempre el rol 'administrador' al guardar en localStorage
+                const usuarioData = {
+                    ...data.usuario,
+                    rol: data.usuario?.rol || 'administrador'
+                };
+
+                localStorage.setItem("usuario", JSON.stringify(usuarioData));
 
                 setTimeout(() => { 
                     setMostrar(false);
