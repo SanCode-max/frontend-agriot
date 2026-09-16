@@ -16,6 +16,7 @@ export default function Registro() {
     const [Mostrar, setMostrar] = useState(false);
     const [VerContraseña, setVerContraseña] = useState(false);
     const [Cargando, setCargando] = useState(false);
+    const [Rol, setRol] = useState('usuario');
 
     const manejarCambioTelefono = (e) => {
         const valor = e.target.value;
@@ -80,6 +81,7 @@ export default function Registro() {
                     telefono: Telefono,
                     correo: Correo,
                     password: Contraseña,
+                    rol: Rol,
                 }),                
             });
             const data = await response.json();
@@ -208,6 +210,34 @@ export default function Registro() {
                                 </span>
                             </div>
                         )}
+
+                        {/* Selector de Rol */}
+                        <div className="group-input-registro selector-rol-container">
+                            <label className="label-rol">Tipo de Cuenta:</label>
+                            <div className="opciones-rol">
+                                <label className={`opcion-rol ${Rol === 'usuario' ? 'activa' : ''}`}>
+                                    <input 
+                                        type="radio" 
+                                        name="rol" 
+                                        value="usuario" 
+                                        checked={Rol === 'usuario'} 
+                                        onChange={(e) => setRol(e.target.value)} 
+                                    />
+                                    <span>Usuario</span>
+                                </label>
+
+                                <label className={`opcion-rol ${Rol === 'administrador' ? 'activa' : ''}`}>
+                                    <input 
+                                        type="radio" 
+                                        name="rol" 
+                                        value="administrador" 
+                                        checked={Rol === 'administrador'} 
+                                        onChange={(e) => setRol(e.target.value)} 
+                                    />
+                                    <span>Administrador</span>
+                                </label>
+                            </div>
+                        </div>
 
                         <button type="submit" className='btn-registro-submit' disabled={Cargando}>
                             {Cargando ? "Registrando..." : "Registrarse"}

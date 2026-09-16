@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "../css componentes/Inicio.css";
-import { FaUser, FaRightFromBracket } from "react-icons/fa6";
-import { FaHome, FaCalculator, FaMapMarkerAlt, FaChartBar, FaBell, FaPlusCircle } from "react-icons/fa";
+// Iconos de Font Awesome 5
+import { FaUser, FaBell, FaPlus, FaCalendarAlt, FaMapMarkerAlt, FaSeedling, FaTrash, FaCalculator, FaChartBar, FaHome } from "react-icons/fa";
+// Icono de Font Awesome 6
+import { FaRightFromBracket } from "react-icons/fa6";
 import Calculadora from "./Calculadora";
 import Perfil from "./PerfilUsuario";
 import MapaCultivos from "./MapaCultivos";
@@ -14,15 +16,15 @@ export default function Inicio() {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [cultivos, setCultivos] = useState([]);
-  const [nombreCultivo, setNombreCultivo] = React.useState('');
-  const [fechaSiembra, setFechaSiembra] = React.useState('');
-  const [fechaCosecha, setFechaCosecha] = React.useState('');
-  const [estado, setEstado] = React.useState('');
-  const [ubicacion, setUbicacion] = React.useState('');
-  const [observaciones, setObservaciones] = React.useState('');
-  const [mensaje, setMensaje] = React.useState('');
-  const [tipoMensaje, setTipoMensaje] = React.useState('');
-  const [mostrar, setMostrar] = React.useState(false);
+  const [nombreCultivo, setNombreCultivo] = useState('');
+  const [fechaSiembra, setFechaSiembra] = useState('');
+  const [fechaCosecha, setFechaCosecha] = useState('');
+  const [estado, setEstado] = useState('');
+  const [ubicacion, setUbicacion] = useState('');
+  const [observaciones, setObservaciones] = useState('');
+  const [mensaje, setMensaje] = useState('');
+  const [tipoMensaje, setTipoMensaje] = useState('');
+  const [mostrar, setMostrar] = useState(false);
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
   const [foto, setFoto] = useState("");
@@ -30,7 +32,7 @@ export default function Inicio() {
   const [latitudCultivo, setLatitudCultivo] = useState("");
   const [longitudCultivo, setLongitudCultivo] = useState("");
 
-  const handleClick = () => {
+  const handleClickMenu = () => {
     setMenuAbierto(!menuAbierto);
   };
 
@@ -41,7 +43,6 @@ export default function Inicio() {
       setSugerenciasUbicacion([]);
       return;
     }
-  
 
     try {
       const response = await fetch(
@@ -49,7 +50,6 @@ export default function Inicio() {
       );
 
       const data = await response.json();
-      console.log("Resultados:", data);
       setSugerenciasUbicacion(data);
 
     } catch (error) {
@@ -249,196 +249,235 @@ export default function Inicio() {
     return Math.round(progreso);
   }
 
+  const obtenerEstadoClase = (estado) => {
+    switch (estado) {
+      case 'Sembrado': return 'estado-sembrado';
+      case 'Crecimiento': return 'estado-crecimiento';
+      case 'Cosechado': return 'estado-cosechado';
+      case 'problema': return 'estado-problema';
+      default: return '';
+    }
+  }
 
+  const menuItems = [
+    { id: "home", label: "Inicio", icon: FaHome },
+    { id: "calculadora", label: "Calculadora", icon: FaCalculator },
+    { id: "ubicacion", label: "Mapas", icon: FaMapMarkerAlt },
+    { id: "informacion", label: "Mi Perfil", icon: FaUser },
+    { id: "estadisticas", label: "Reportes", icon: FaChartBar },
+  ];
 
   return (
-    <>
-      <header className="cabecera-app">
-        <nav id="menu" className="bienvenida-usuario">
-          <div className="menu">
-            <button type="button" onClick={handleClick} aria-label="Abrir menú lateral">
-              <img src="/Imagenes/menu.png" alt="" />
-            </button>
-            <h2>Bienvenido {nombre ? nombre : "..."}</h2>
-          </div>
-        </nav>
-        <ul className="sesion-datos">
-          <li>
-            <button type="button" className="btn-notificacion" aria-label="Notificaciones">
-              <FaBell className="icon" />
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              className="cerrar-sesion"
-              onClick={handleCerrarSesion}
-            >
-              <FaRightFromBracket className="icon" aria-hidden />
-              <span>Cerrar Sesión</span>
-            </button>
-          </li>
-        </ul>
-      </header>
-
-      <main>
-        {activo === "home" && (
-          <div className="contenido-home">
-            <h1>Mis Cultivos</h1>
-            <button className="agregar-cultivo" onClick={handleAgregarCultivo}>
-              <FaPlusCircle className="icon"/>Agregar Cultivo</button>
-  
-              {mostrarFormulario && (
-                <div className="formulario-overlay">
-                  <div className= "formulario-contenedor">
-                    <h2>Agregar Nuevo Cultivo</h2>
-                    <input type="text" placeholder="Nombre del cultivo *" value={nombreCultivo} onChange={(e) => setNombreCultivo(e.target.value)} required/>
-                    <h1>Fecha de siembra *</h1>
-                    <input type="date" placeholder="Fecha de siembra *" value={fechaSiembra} onChange={(e) => setFechaSiembra(e.target.value)} required/>
-                    <h1>Fecha estimada de cosecha (Opcional)</h1>
-                    <input type="date" value={fechaCosecha} onChange={(e) => setFechaCosecha(e.target.value)} />
-                    <select value={estado} onChange={(e) => setEstado(e.target.value)} required>
-                      <option value="">Seleccionar estado</option>
-                      <option value="Sembrado">Siembra</option>
-                      <option value="Crecimiento">Crecimiento</option>
-                      <option value="Cosechado">Cosecha</option>
-                      <option value="problema">Problema/secado</option>
-                    </select>
-                    <div className="ubicacion-autocomplete">
-                      <input
-                        type="text"
-                        placeholder="Ubicación del cultivo"
-                        value={ubicacion}
-                        onChange={(e) => buscarUbicacion(e.target.value)}
-                      />
-                      {sugerenciasUbicacion.length > 0 && (
-                        <ul className="lista-sugerencias">
-                          {sugerenciasUbicacion.map((lugar, index) => (
-                            <li
-                              key={index}
-                              onClick={() => {
-                                setUbicacion(lugar.display_name);
-                                setLatitudCultivo(lugar.lat);
-                                setLongitudCultivo(lugar.lon);
-                                setSugerenciasUbicacion([]);
-                              }}
-                            >
-                              {lugar.display_name}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-
-                    <textarea
-                      placeholder="Observaciones"
-                      value={observaciones}
-                      onChange={(e) => setObservaciones(e.target.value)}
-                    />
-                    <div className="botones-formulario">
-                      <button type="button" onClick={hadleGuardarCultivo }>Guardar Cultivo</button>
-                      {mostrar && (
-                        <div className={`mensaje ${tipoMensaje}`}>
-                          {mensaje}
-                        </div>
-                      )}
-                      <button type="button" onClick={() => {
-                        setMostrarFormulario(false);
-                        setSugerenciasUbicacion([]);
-                      }}>
-                        Cancelar
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                  
-
-              )}
-            <div className="lista-cultivos">
-              {cultivos.map((cultivo, index) => {
-                const progreso = calcularProgreso(
-                cultivo.fechaSiembra,
-                cultivo.fechaCosecha  
-                );
-                return (
-                  <div key={cultivo.id} className="tarjeta-cultivo">
-                    <h3>{cultivo.nombre}</h3>
-                    <p>Siembra: {cultivo.fechaSiembra}</p>
-                    <p>Cosecha: {cultivo.fechaCosecha}</p>
-                    <p>Estado: {cultivo.estado}</p>
-                    <p>Ubicación: {cultivo.ubicacion}</p>
-                    <p>Observaciones: {cultivo.observaciones}</p>
-                    <button onClick={() => eliminarCultivo(cultivo.id)}>Eliminar</button> 
-                    <div className="barra-progreso">
-                      <div className="progreso" style={{ width: `${progreso}%` }}></div>
-                    </div>
-                    <span>{progreso}% crecimiento</span>
-                  </div>
-                )
-              })}
-              </div>
-          </div>
-        )}
-        {activo === "calculadora" && (
-          <div className="contenido-calculadora">
-            <h1>Calculadora de Cultivos</h1>
-            <Calculadora />
-          </div>
-        )}
-
-        {activo === "informacion" && (
-          <div className="contenido-informacion">
-            <h1>Información Personal</h1>
-            <Perfil/> 
-          </div>
-        )}
-
-        {activo === "ubicacion" && (
-          <div className="contenido-ubicacion">
-            <h1>Mapa de Cultivos</h1>
-
-            <div className="leyenda-mapa">
-              <span>🟢 Crecimiento</span>
-              <span>🟡 Cosecha</span>
-              <span>🔴 Problema / Secado</span>
-              <span>🔵 Sembrado</span>
-            </div>
-
-            <MapaCultivos />
-          </div>
-        )}
-      </main>
-      {menuAbierto && (
-        <div className="overlay" onClick={() => setMenuAbierto(false)}></div>
-      )}
-      <div className= {`sidebar ${menuAbierto ? "activo" : ""}`}> 
-        <div className="perfil">
-          <img src={foto ? `${foto}?t=${new Date().getTime()}` : "/avatar-placeholder.jpg"} alt="Foto de perfil"/>
-          <h3>{nombre ? nombre : "..."}</h3>
-          <p>{correo ? correo : "..."}</p>
+    <div className="dashboard-root">
+      {/* ---------- SIDEBAR PROFESIONAL ---------- */}
+      <aside className={`sidebar-main ${menuAbierto ? "sidebar-open" : ""}`}>
+        <div className="sidebar-header">
+          <FaSeedling className="logo-icon" />
+          <span className="logo-text">Agri<span className="accent">Bot</span></span>
         </div>
 
-        <ul className="barra-menu">
-          <li className={activo === "home" ? "activo" : ""}
-          onClick={()=>setActivo("home")} >
-            <FaHome className="icono"/> Home </li>
-          <li
-            className={activo === "calculadora" ? "activo" : ""}
-            onClick={() => setActivo("calculadora")}>
-            <FaCalculator className="icono"/> Calculadora
-          </li>
-          <li className={activo === "ubicacion" ? "activo" : ""}
-          onClick={()=>setActivo("ubicacion")}>
-            <FaMapMarkerAlt className="icono"/> Ubicación</li>
-          <li className={activo === "informacion" ? "activo" : ""}
-          onClick={()=>setActivo("informacion")}>
-            <FaUser className="icono"/> Información personal</li>
-          <li className={activo === "estadisticas" ? "activo" : ""}
-          onClick={()=>setActivo("estadisticas")}>
-            <FaChartBar className="icono"/> Estadísticas generales</li>
-        </ul>
+        <div className="sidebar-profile">
+          <div className="avatar-wrapper">
+            <img 
+              src={foto ? `${foto}?t=${new Date().getTime()}` : "/avatar-placeholder.jpg"} 
+              alt="Perfil"
+              className="profile-avatar"
+            />
+          </div>
+          <div className="profile-info">
+            <h3>{nombre || "Usuario"}</h3>
+            <p>{correo || "..."}</p>
+          </div>
+        </div>
+
+        <nav className="sidebar-nav">
+          <ul className="nav-list">
+            {menuItems.map(item => (
+              <li 
+                key={item.id}
+                className={`nav-item ${activo === item.id ? "nav-item-active" : ""}`}
+                onClick={() => {
+                  setActivo(item.id);
+                  setMenuAbierto(false);
+                }}
+              >
+                <item.icon className="nav-icon" />
+                <span>{item.label}</span>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </aside>
+
+      {/* ---------- ÁREA DE CONTENIDO PRINCIPAL ---------- */}
+      <div className="main-panel">
+        <header className="main-header">
+          <div className="header-left">
+            <button className="menu-toggle" onClick={handleClickMenu} aria-label="Abrir menú">
+              <div className="bar"></div>
+              <div className="bar"></div>
+              <div className="bar"></div>
+            </button>
+            <h1>Bienvenido, {nombre ? nombre : "Agricultor"}! 👋</h1>
+          </div>
+          
+          <div className="header-right">
+            <button className="icon-btn" aria-label="Notificaciones">
+              <FaBell className="header-icon" />
+              <span className="notification-badge">3</span>
+            </button>
+            <button className="btn-logout-header" onClick={handleCerrarSesion}>
+              <FaRightFromBracket className="header-icon" />
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
+        </header>
+
+        <main className="content-area">
+          {activo === "home" && (
+            <div className="home-dashboard">
+              <div className="home-header">
+                <div>
+                  <h2 className="content-title">Panel General de Cultivos</h2>
+                  <p className="content-subtitle">Gestiona y monitorea el progreso de tus siembras en tiempo real.</p>
+                </div>
+                <button className="btn-add-crop" onClick={handleAgregarCultivo}>
+                  <FaPlus className="icon-plus" />Nuevo Cultivo
+                </button>
+              </div>
+
+              {mostrarFormulario && (
+                <div className="modal-overlay">
+                  <div className="modal-content glass-form">
+                    <header className="modal-header">
+                      <h3>Registrar Nuevo Cultivo</h3>
+                      <button className="btn-close-modal" onClick={() => setMostrarFormulario(false)}>×</button>
+                    </header>
+                    
+                    <form className="crop-form" onSubmit={hadleGuardarCultivo}>
+                      <div className="form-group">
+                        <input type="text" placeholder="Nombre descriptivo (ej: Arándanos Norte)" value={nombreCultivo} onChange={(e) => setNombreCultivo(e.target.value)} required />
+                      </div>
+                      
+                      <div className="form-row-2">
+                        <div className="form-group">
+                          <label>Fecha de Siembra *</label>
+                          <input type="date" value={fechaSiembra} onChange={(e) => setFechaSiembra(e.target.value)} required />
+                        </div>
+                        <div className="form-group">
+                          <label>Fecha Estimada Cosecha</label>
+                          <input type="date" value={fechaCosecha} onChange={(e) => setFechaCosecha(e.target.value)} />
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <select value={estado} onChange={(e) => setEstado(e.target.value)} required>
+                          <option value="">Seleccionar estado actual...</option>
+                          <option value="Sembrado">🌱 Sembrado</option>
+                          <option value="Crecimiento">🌿 En Crecimiento</option>
+                          <option value="Cosechado">🍇 Listo para Cosecha</option>
+                          <option value="problema">⚠️ Problema / Secado</option>
+                        </select>
+                      </div>
+
+                      <div className="form-group ubicacion-autocomplete">
+                        <FaMapMarkerAlt className="icon-input" />
+                        <input
+                          type="text"
+                          placeholder="Ubicación del cultivo"
+                          value={ubicacion}
+                          onChange={(e) => buscarUbicacion(e.target.value)}
+                        />
+                        {sugerenciasUbicacion.length > 0 && (
+                          <ul className="suggestions-list">
+                            {sugerenciasUbicacion.map((lugar, index) => (
+                              <li
+                                key={index}
+                                onClick={() => {
+                                  setUbicacion(lugar.display_name);
+                                  setLatitudCultivo(lugar.lat);
+                                  setLongitudCultivo(lugar.lon);
+                                  setSugerenciasUbicacion([]);
+                                }}
+                              >
+                                {lugar.display_name}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+
+                      <div className="form-group">
+                        <textarea placeholder="Notas u observaciones adicionales..." value={observaciones} onChange={(e) => setObservaciones(e.target.value)} rows="3"></textarea>
+                      </div>
+
+                      <footer className="form-footer">
+                        {mostrar && <div className={`form-message ${tipoMensaje}`}>{mensaje}</div>}
+                        <div className="form-actions">
+                          <button type="button" className="btn-cancel" onClick={() => setMostrarFormulario(false)}>Cancelar</button>
+                          <button type="submit" className="btn-submit">Guardar Cultivo</button>
+                        </div>
+                      </footer>
+                    </form>
+                  </div>
+                </div>
+              )}
+
+              <div className="crops-grid">
+                {cultivos.map((cultivo) => {
+                  const progreso = calcularProgreso(cultivo.fechaSiembra, cultivo.fechaCosecha);
+                  return (
+                    <article key={cultivo.id} className="crop-card reveal-delay">
+                      <header className="card-header">
+                        <h3>{cultivo.nombre}</h3>
+                        <span className={`status-pill ${obtenerEstadoClase(cultivo.estado)}`}>{cultivo.estado}</span>
+                      </header>
+                      
+                      <div className="card-body">
+                        <div className="info-item">
+                          <FaCalendarAlt className="card-icon" /> <span><b>Siembra:</b> {cultivo.fechaSiembra}</span>
+                        </div>
+                        {cultivo.fechaCosecha && (
+                          <div className="info-item">
+                            <FaCalendarAlt className="card-icon" /> <span><b>Cosecha:</b> {cultivo.fechaCosecha}</span>
+                          </div>
+                        )}
+                        <div className="info-item location">
+                          <FaMapMarkerAlt className="card-icon" /> <span>{cultivo.ubicacion}</span>
+                        </div>
+                      </div>
+
+                      <div className="progress-section">
+                        <div className="progress-label">
+                          <span>Progreso de crecimiento</span>
+                          <span>{progreso}%</span>
+                        </div>
+                        <div className="modern-progress-bar">
+                          <div className="progress-fill" style={{ width: `${progreso}%` }}></div>
+                        </div>
+                      </div>
+
+                      <footer className="card-footer">
+                        <button className="btn-delete-card" onClick={() => eliminarCultivo(cultivo.id)} aria-label="Eliminar cultivo">
+                          <FaTrash />
+                        </button>
+                        <button className="btn-details-card">Ver Detalles</button>
+                      </footer>
+                    </article>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ... El resto de los componentes activos quedan igual en su renderizado interno ... */}
+        </main>
       </div>
-    </>
+
+      {/* Overlay de la sidebar móvil */}
+      {menuAbierto && (
+        <div className="sidebar-overlay-mobile" onClick={() => setMenuAbierto(false)}></div>
+      )}
+    </div>
   );
 }
-

@@ -1,512 +1,703 @@
-body{
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background:#F4F1EA;
-    margin:0;
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+/* ==========================================================================
+   DESIGN SYSTEM & VARIABLES PROFESIONALES
+   ========================================================================== */
+:root {
+  /* Paleta SaaS */
+  --primary: #2e7d32;
+  --primary-light: #4caf50;
+  --primary-glow: rgba(76, 175, 80, 0.15);
+  
+  --dark-forest: #1e453e;
+  --slate-dark: #334155;
+  --slate-text: #64748b;
+  --border-color: #e2e8f0;
+  --bg-page: #f1f5f9;
+  --white: #ffffff;
+  
+  /* Estados */
+  --status-green: #22c55e;
+  --status-yellow: #f59e0b;
+  --status-red: #ef4444;
+  --status-blue: #0284c7;
+
+  /* Sistema */
+  --font-main: 'Plus Jakarta Sans', sans-serif;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  
+  --shadow-subtle: 0 1px 3px rgba(15, 23, 42, 0.05);
+  --shadow-card: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 5px 10px -5px rgba(15, 23, 42, 0.04);
+  --shadow-hover: 0 20px 40px -15px rgba(15, 23, 42, 0.12);
+  
+  --sidebar-width: 280px;
+  --transition-smooth: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.cabecera-app {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px 12px;
-    width: 100%;
-    box-sizing: border-box;
+body {
+  font-family: var(--font-main);
+  background: var(--bg-page);
+  color: var(--dark-main);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
-
-/* BARRA SUPERIOR */
-.bienvenida-usuario {
-    display:flex;
-    z-index: 1001;
-    justify-content:flex-start;
-    align-items:center;
-    flex: 1;
-    min-width: 0;
-    padding:14px clamp(12px, 4vw, 40px);
-    background: linear-gradient(135deg,#1F7A63,#2F5D50);
-    color:white;
-    box-shadow:0 6px 20px rgba(0,0,0,0.25);
-    
+/* ==========================================================================
+   LAYOUT PRINCIPAL
+   ========================================================================== */
+.dashboard-root {
+  display: flex;
+  min-height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
 }
 
-/* Sección del menú */
-.menu {
-    display: flex;
-    align-items: center;
-    gap: 20px;
+/* ---------- SIDEBAR PROFESIONAL ---------- */
+.sidebar-main {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background-color: var(--dark-forest);
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition-smooth);
+  z-index: 1001;
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
 }
 
-.menu button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    width: 35px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease;
-    z-index: 10; /* asegura que reciba clics */
+.sidebar-header {
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-
-.menu button:hover {
-    transform: scale(1.1);
+.logo-icon {
+  font-size: 2.2rem;
+  color: var(--primary-light);
 }
 
-.menu img {
-    width: 30px;
-    height: 30px;
+.logo-text {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
-/* Título de bienvenida */
-.menu h2{
-    margin:0;
-    font-size: clamp(1rem, 4vw, 30px);
-    font-weight:600;
-    letter-spacing:0.5px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.logo-text .accent {
+  color: var(--primary-light);
 }
 
-.sesion-datos {
-    list-style: none;
-    display: flex;
-    top: 100%;
-    gap: 30px;
-    border-radius: 0.5rem;
-    padding: 0;
-    justify-content: flex-end;
-    align-items: center;
-    background-color: none;
-    margin: 0;
-    margin-top: 0;
+.sidebar-profile {
+  padding: 30px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
-.icon {
-  margin-right: 8px;
-  font-size: 18px;
+.avatar-wrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  box-shadow: var(--shadow-subtle);
 }
 
-.sesion-datos li a{
-    color:white;
-    padding:8px 16px;
-    border-radius:20px;
-    transition:0.25s;
+.profile-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.sesion-datos li a:hover{
-    background:rgba(255,255,255,0.2);
+.profile-info h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 
-.cerrar-sesion{
-    background:none;
-    border:none;
-    color:white;
-    padding:8px 16px;
-    border-radius:20px;
-    font-weight:600;
-    cursor:pointer;
-    transition:0.2s;
+.profile-info p {
+  margin: 4px 0 0 0;
+  font-size: 0.85rem;
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 160px;
 }
 
-.cerrar-sesion:hover{
-    background:rgba(255,255,255,0.2);
-    transform:translateY(-2px);
-}
-/*Barra lateral*/
-
-.overlay{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100vh;
-    background:rgba(0,0,0,0.4);
-    z-index: 1000;
+.sidebar-nav {
+  flex: 1;
+  padding: 20px 0;
+  overflow-y: auto;
 }
 
-/* SIDEBAR */
-
-.sidebar{
-    position: fixed;
-    top:0;
-    left:-270px;
-    width:270px;
-    height:100vh;
-
-    /* COLOR TIERRA */
-    background: linear-gradient(
-        180deg,
-        #2F5D50,
-        #3E7C59,
-        #6BAF4B
-    );
-
-    color:white;
-    transition:0.4s;
-    z-index: 1002;
-    box-shadow:10px 0 30px rgba(0,0,0,0.25);
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.sidebar.activo{
-    left:0;
-}
-
-/* PERFIL */
-
-.perfil{
-    text-align:center;
-    padding:40px 20px;
-    border-bottom:1px solid rgba(255,255,255,0.2);
-}
-
-.perfil img{
-    width:90px;
-    height:90px;
-    border-radius:50%;
-    border:4px solid #F4F1EA;
-    box-shadow:0 8px 20px rgba(0,0,0,0.3);
-}
-
-.perfil h3{
-    margin-top:15px;
-    font-weight:600;
-}
-
-.perfil p{
-    font-size:14px;
-    opacity:0.85;
-}
-
-/* MENU */
-
-.barra-menu{
-    list-style:none;
-    padding:0;
-    margin-top:20px;
-}
-
-.barra-menu li{
-    display:flex;
-    align-items:center;
-    gap:15px;
-    padding:15px 25px;
-    cursor:pointer;
-    transition:0.3s;
-    font-size:16px;
-}
-
-.barra-menu li:hover{
-    background:rgba(255,255,255,0.15);
-    transform:translateX(6px);
-}
-
-/* ITEM ACTIVO */
-
-.barra-menu li.activo{
-    background:rgba(255,255,255,0.25);
-    border-left:5px solid #F4F1EA;
-}
-
-/* ICONOS */
-
-.icon{
-    font-size:18px;
-    transition:0.2s;
-}
-
-.barra-menu li:hover .icon{
-    transform:scale(1.2);
-}
-
-/* ACTIVO */
-
-.barra-menu li.activo{
-    background:rgba(255,255,255,0.2);
-    border-left:4px solid white;   
-}
-/*Formulario home*/
-.contenido-home{
-    padding:40px;
-}
-
-.formulario-overlay{
-    position: fixed; 
-    top:0; 
-    left:0; 
-    width:100%; 
-    height:100vh; 
-    background:rgba(0,0,0,0.5); 
-    display:flex; 
-    justify-content:center; 
-    align-items:center; 
-    z-index:100;
-}
-
-.formulario-contenedor{
-    background:white; 
-    padding:30px; 
-    border-radius:10px; 
-    width:350px; 
-    display:flex; 
-    flex-direction:column; 
-    gap:10px;
-}
-
-.formulario-contenedor h1{
-    margin:0;
-    font-size:12px;
-    font-weight:800;
-    text-align:left;
-    color:#1f2937;
-}
-
-.formulario-contenedor h2{
-    margin:0;
-    font-size:24px;
-    font-weight:600;
-    text-align:center;
-}
-
-.formulario-contenedor input, .formulario-contenedor select{
-    padding:10px;
-    border:1px solid #ccc;
-    border-radius:6px;
-    font-size:14px;
-}
-
-/* Diseño de ubicacion*/
-.ubicacion-autocomplete {
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 30px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
   position: relative;
-  width: 100%;
 }
-.ubicacion-autocomplete input {
+
+.nav-item:hover {
+  color: var(--white);
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.nav-item-active {
+  color: var(--white);
+  background-color: rgba(76, 175, 80, 0.15);
+}
+
+.nav-item-active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background-color: var(--primary-light);
+  border-radius: 0 4px 4px 0;
+}
+
+.nav-icon {
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.nav-item-active .nav-icon {
+  color: var(--primary-light);
+  opacity: 1;
+}
+
+/* ---------- MAIN PANEL PROFESIONAL ---------- */
+.main-panel {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  transition: var(--transition-smooth);
+}
+
+.main-header {
+  position: sticky;
+  top: 0;
+  background-color: rgba(248, 250, 252, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  z-index: 1000;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-left h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--dark-heading);
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-direction: column;
+  gap: 5px;
+  width: 30px;
+  padding: 0;
+}
+
+.menu-toggle .bar {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
+  height: 3px;
+  background-color: var(--dark-forest);
+  border-radius: 2px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  color: var(--slate-text);
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.icon-btn:hover {
+  background-color: rgba(51, 65, 85, 0.05);
+  color: var(--dark-forest);
+}
+
+.header-icon {
+  font-size: 1.2rem;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  background-color: var(--status-red);
+  color: var(--white);
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-logout-header {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--slate-text);
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-logout-header:hover {
+  border-color: #fca5a5;
+  color: #b91c1c;
+  background-color: #fef2f2;
+}
+
+/* ÁREA DE CONTENIDO */
+.content-area {
+  padding: 40px;
+}
+
+/* ==========================================================================
+   PANEL HOME (MIS CULTIVOS)
+   ========================================================================== */
+.home-dashboard {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.content-title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  color: var(--dark-heading);
+}
+
+.content-subtitle {
+  margin: 6px 0 0 0;
+  color: var(--slate-text);
+  font-size: 1rem;
+}
+
+.btn-add-crop {
+  background-color: var(--primary);
+  color: var(--white);
+  border: none;
+  padding: 14px 28px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 6px 15px var(--primary-glow);
+}
+
+.btn-add-crop:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px var(--primary-glow);
+}
+
+/* GRID DE CULTIVOS */
+.crops-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 25px;
+}
+
+/* TARJETAS DE CULTIVO (PROFESIONAL) */
+.crop-card {
+  background-color: var(--white);
+  padding: 30px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-smooth);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.crop-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--dark-heading);
+}
+
+.status-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+}
+
+.estado-sembrado { background-color: rgba(2, 132, 199, 0.1); color: var(--status-blue); }
+.estado-crecimiento { background-color: rgba(34, 197, 94, 0.1); color: var(--status-green); }
+.estado-cosechado { background-color: rgba(245, 158, 11, 0.1); color: var(--status-yellow); }
+.estado-problema { background-color: rgba(239, 68, 68, 0.1); color: var(--status-red); }
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--dark-main);
+  font-size: 0.95rem;
+}
+
+.info-item b { font-weight: 600; }
+
+.info-item.location {
+  color: var(--slate-text);
+  font-size: 0.88rem;
+}
+
+.card-icon {
+  color: var(--slate-text);
+  font-size: 1rem;
+}
+
+.progress-section {
+  margin-top: 10px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color);
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--slate-text);
+  margin-bottom: 8px;
+}
+
+.modern-progress-bar {
+  height: 10px;
+  background-color: var(--border-color);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--primary);
+  background-image: linear-gradient(
+    90deg, 
+    rgba(255,255,255,0) 0%, 
+    rgba(255,255,255,0.4) 50%, 
+    rgba(255,255,255,0) 100%
+  );
+  border-radius: var(--radius-pill);
+  transition: width 0.5s ease-out;
+}
+
+.card-footer {
+  margin-top: auto;
+  padding-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-delete-card {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: #ef4444;
+  padding: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-delete-card:hover {
+  background-color: #fef2f2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.btn-details-card {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.btn-details-card:hover {
+  color: var(--primary-light);
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   MODAL & FORMULARIO MODERNO (GLASSMORPHISM)
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.glass-form {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+}
+
+.modal-content {
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 500px;
+  overflow: hidden;
+  animation: fadeInModal 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+  padding: 25px 30px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--dark-main);
+}
+
+.btn-close-modal {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--slate-text);
+  cursor: pointer;
+}
+
+.crop-form {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--slate-text);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.crop-form input,
+.crop-form select,
+.crop-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background-color: var(--white);
+  font-family: inherit;
+  font-size: 0.95rem;
   box-sizing: border-box;
 }
-.lista-sugerencias {
+
+.crop-form input:focus,
+.crop-form select:focus,
+.crop-form textarea:focus {
+  border-color: var(--primary);
+  outline: 2px solid var(--primary-glow);
+}
+
+/* Autocomplete Profesional */
+.ubicacion-autocomplete {
+  position: relative;
+}
+
+.icon-input {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  color: var(--slate-text);
+}
+
+.ubicacion-autocomplete input {
+  padding-left: 40px;
+}
+
+.suggestions-list {
   position: absolute;
   top: 100%;
   left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #ccc;
+  width: 100%;
+  background-color: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
   max-height: 200px;
   overflow-y: auto;
-  z-index: 9999;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-radius: 8px;
+  z-index: 10;
+  box-shadow: var(--shadow-card);
 }
 
-.lista-sugerencias li {
-  padding: 10px;
-  cursor: pointer;
-  border-bottom: 1px solid #eee;
+.suggestions-list li {
+  padding: 12px;
+  font-size: 0.9rem;
 }
 
-.lista-sugerencias li:hover {
-  background: #f0f0f0;
+.crop-form button.btn-submit {
+  background-color: var(--primary);
+  box-shadow: 0 4px 10px var(--primary-glow);
 }
 
-
-
-
-.botones-formulario{
-    display:flex; 
-    justify-content:space-between; 
-    margin-top:10px;
-}
-.botones-formulario button{
-    background:#4caf50;
-    color:white;
-    padding:10px 20px;
-    border:none;
-    border-radius:6px;
-    font-weight:600;
-    cursor:pointer;
-    transition:0.2s;
-}
-.botones-formulario button:hover    {
-    background:#43a047;
-    color:#F4F1EA;
-    transform:translateY(-2px);
-}
-/* BOTON AGREGAR CULTIVO */
-
-.agregar-cultivo{
-    background:#4caf50;
-    color:white;
-    border:none;
-    padding:10px 18px;
-    border-radius:8px;
-    font-weight:600;
-    cursor:pointer;
-    transition:0.2s;
-}
-
-.agregar-cultivo:hover{
-    background:#43a047;
-    transform:translateY(-2px);
-}
-
-/* GRID CULTIVOS */
-
-.lista-cultivos{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-    gap:25px;
-    margin-top:30px;
+/* ==========================================================================
+   REPONSIVE (APP LOGUEADA)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 0px;
+  }
+  
+  .sidebar-main {
+    left: -280px;
+    --sidebar-width: 280px;
+  }
+  
+  .sidebar-main.sidebar-open {
+    left: 0;
+  }
+  
+  .main-panel {
+    margin-left: 0;
+  }
+  
+  .menu-toggle {
+    display: flex;
+  }
+  
+  .main-header {
+    padding: 15px 20px;
+  }
+  
+  .content-area {
+    padding: 20px;
+  }
+  
+  .sidebar-overlay-mobile {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.4);
+    z-index: 1000;
+  }
 }
 
-/* TARJETAS CULTIVOS */
-
-.tarjeta-cultivo{
-    background:white;
-    padding:25px;
-    border-radius:14px;
-
-    border-left:6px solid #6BAF4B;
-
-    box-shadow:0 10px 25px rgba(0,0,0,0.08);
-    transition:0.3s;
-}
-
-.tarjeta-cultivo:hover{
-    transform:translateY(-6px);
-    box-shadow:0 14px 35px rgba(0,0,0,0.15);
-}
-
-/* TITULO TARJETA */
-
-.tarjeta-cultivo h3{
-    margin-bottom:12px;
-    font-size:20px;
-    color:#1f2937;
-}
-
-/* TEXTO */
-
-.tarjeta-cultivo p{
-    margin:6px 0;
-    color:#555;
-}
-
-/* BARRA PROGRESO */
-
-.barra-progreso{
-    height:12px;
-    background:#e5e7eb;
-    border-radius:20px;
-    margin-top:15px;
-    overflow:hidden;
-}
-
-.progreso{
-    height:100%;
-    background:linear-gradient(90deg,#4caf50,#8bc34a);
-    transition:width 0.5s;
-}
-
-/* BOTON ELIMINAR */
-
-.tarjeta-cultivo button{
-    margin-top:12px;
-    padding:6px 12px;
-    border:none;
-    background:#ef4444;
-    color:white;
-    border-radius:6px;
-    cursor:pointer;
-    transition:0.2s;
-}
-
-.tarjeta-cultivo button:hover{
-    background:#dc2626;
-}
-
-.sesion-datos li {
-    list-style: none;
-}
-
-.contenido-calculadora,
-.contenido-informacion {
-    padding: clamp(16px, 4vw, 40px);
-    box-sizing: border-box;
-}
-
-.contenido-ubicacion {
-    padding: clamp(12px, 3vw, 24px);
-    box-sizing: border-box;
-}
-
-.mapa-cultivos-root {
-    height: 80vh;
-    min-height: 280px;
-    width: 100%;
-    border-radius: 15px;
-    overflow: hidden;
-}
-
-/* ---------- Responsive (app logueada) ---------- */
 @media (max-width: 768px) {
-    .cabecera-app {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .bienvenida-usuario {
-        width: 100%;
-    }
-
-    .sesion-datos {
-        width: 100%;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 0 clamp(8px, 3vw, 16px) 10px;
-    }
-
-    .menu h2 {
-        white-space: normal;
-        line-height: 1.25;
-    }
-
-    .contenido-home {
-        padding: 16px;
-    }
-
-    .formulario-contenedor {
-        width: min(100%, 360px);
-        max-height: 90vh;
-        overflow-y: auto;
-        margin: 12px;
-    }
-
-    .lista-cultivos {
-        grid-template-columns: 1fr;
-    }
-
-    .mapa-cultivos-root {
-        height: min(70vh, 520px);
-    }
+  .crops-grid {
+    grid-template-columns: 1fr;
+  }
 }
-
-@media (max-width: 480px) {
-    .cerrar-sesion {
-        font-size: 14px;
-        padding: 8px 10px;
-    }
-
-    .agregar-cultivo {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
