@@ -104,9 +104,9 @@ const PerfilUsuario = () => {
           const data = await response.json();
 
           const direccion =
-            data.address.city ||
-            data.address.town ||
-            data.address.village ||
+            data.address?.city ||
+            data.address?.town ||
+            data.address?.village ||
             data.display_name;
 
           setUbicacion(direccion);
@@ -139,18 +139,15 @@ const PerfilUsuario = () => {
       const usuarioStorage = JSON.parse(localStorage.getItem("usuario"));
       const correoUsuario = perfil?.correo || usuarioStorage?.correo;
 
-      // 1. Subir foto si existe
+      // 1. Subir foto si existe usando el helper apiFetch centralizado
       if (fotoArchivo) {
         const formData = new FormData();
         formData.append("foto", fotoArchivo);
 
-        const subidaFoto = await fetch(
-          `http://127.0.0.1:8000/api/perfil/foto/${correoUsuario}`,
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
+        const subidaFoto = await apiFetch(`/perfil/foto/${correoUsuario}`, {
+          method: "POST",
+          body: formData,
+        });
 
         const fotoData = await subidaFoto.json();
 
@@ -162,12 +159,9 @@ const PerfilUsuario = () => {
         }
       }
 
-      // 2. Actualizar datos de perfil en backend
+      // 2. Actualizar datos de perfil en el backend en Render
       const response = await apiFetch(`/perfil/${correoUsuario}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           nombre,
           telefono,
@@ -210,7 +204,7 @@ const PerfilUsuario = () => {
           setFotoArchivo(null);
         }, 1200);
       } else {
-        setMensaje(data.detail || "Error al actualizar los datos");
+        setMensaje(data.detail || data.mensaje || "Error al actualizar los datos");
         setTipoMensaje("error");
       }
     } catch (error) {
@@ -279,7 +273,7 @@ const PerfilUsuario = () => {
             <div className="stats-text">
               <div className="stat-block">
                 <span className="stat-label">Última sesión</span>
-                <span className="stat-value">{perfil.ultima_sesion || "14/03/2025"}</span>
+                <span className="stat-value">{perfil.ultima_sesion || "Hoy"}</span>
               </div>
 
               <div className="stat-block">
@@ -310,7 +304,7 @@ const PerfilUsuario = () => {
         </div>
       </div>
 
-      {/* MODAL EDITAR PERFIL MEJORADO */}
+      {/* MODAL EDITAR PERFIL */}
       {modoEdicion && (
         <div className="modal-overlay">
           <div className="modal-editar-pro">
