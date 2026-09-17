@@ -1,5 +1,5 @@
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://agriot-backend.onrender.com";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://agriot-backend.onrender.com/api";
 
 export const buildApiUrl = (path) => {
   if (!path.startsWith("/")) {
