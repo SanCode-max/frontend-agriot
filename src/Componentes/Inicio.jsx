@@ -96,27 +96,34 @@ export default function Inicio() {
     const usuario = usuarioString ? JSON.parse(usuarioString) : null;
 
     if (usuario && usuario.correo) {
+      // 1. Asignar de inmediato los datos almacenados localmente en el inicio de sesión
+      setCorreo(usuario.correo);
+      if (usuario.nombre) {
+        setNombre(usuario.nombre);
+      }
 
+      // 2. Sincronizar cultivos desde el backend
       apiFetch(`/cultivos/${usuario.correo}`)
         .then((response) => response.json())
         .then((data) => {
-          setCorreo(usuario.correo);
-          setNombre(data.nombre);
-          setCultivos(data.cultivos);
+          // Preserva el nombre del usuario si la API de cultivos no lo trae explícitamente
+          if (data.nombre) setNombre(data.nombre);
+          setCultivos(data.cultivos || []);
         })
         .catch((error) => {
           console.error("Error al obtener los cultivos:", error);
         });
+
+      // 3. Obtener foto e información actualizada del perfil
       apiFetch(`/perfil/${usuario.correo}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setCorreo(usuario.correo);
-        setNombre(data.nombre);
-        setFoto(data.foto || "");
-      })
-      .catch((error) => {
-        console.error("Error al obtener perfil:", error);
-      });
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.nombre) setNombre(data.nombre);
+          setFoto(data.foto || "");
+        })
+        .catch((error) => {
+          console.error("Error al obtener perfil:", error);
+        });
 
     } else {
       navigate("/");
@@ -470,7 +477,22 @@ export default function Inicio() {
             </div>
           )}
 
-          {/* ... El resto de los componentes activos quedan igual en su renderizado interno ... */}
+          {/* 2. VISTA CALCULADORA */}
+          {activo === "calculadora" && <Calculadora />}
+
+          {/* 3. VISTA MAPAS */}
+          {activo === "ubicacion" && <MapaCultivos />}
+
+          {/* 4. VISTA MI PERFIL */}
+          {activo === "informacion" && <Perfil />}
+
+          {/* 5. VISTA REPORTES / ESTADÍSTICAS */}
+          {activo === "estadisticas" && (
+            <div className="seccion-placeholder">
+              <h2>Reportes y Estadísticas</h2>
+              <p>Módulo de analítica en desarrollo...</p>
+            </div>
+          )}
         </main>
       </div>
 
