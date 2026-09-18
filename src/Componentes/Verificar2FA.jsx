@@ -31,7 +31,7 @@ export default function Verificar2FA() {
           localStorage.setItem('usuario', JSON.stringify(data.usuario));
           setEstado("¡Autenticación completada! Redirigiendo al Dashboard...");
           setTimeout(() => {
-            navigate('/dashboard');
+            navigate('/Inicio');
           }, 1500);
         } else {
           setEstado(data.detail || "Error al verificar la autenticación.");
