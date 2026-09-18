@@ -157,7 +157,7 @@ export default function InicioSesion() {
                                 </div>
 
                                 <button type="submit" className='btn-sesion-submit' disabled={Cargando}>
-                                    {Cargando ? "Validando..." : "Continuar"}
+                                    {Cargando ? "Iniciando sesión..." : "Iniciar Sesión"}
                                 </button>
 
                                 {Mostrar && (
