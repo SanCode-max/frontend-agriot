@@ -138,29 +138,33 @@ const PerfilUsuario = () => {
     try {
       const usuarioStorage = JSON.parse(localStorage.getItem("usuario"));
       const correoUsuario = perfil?.correo || usuarioStorage?.correo;
+      let urlFotoConfirmada = perfil?.foto;
 
-      // 1. Subir foto si existe usando el helper apiFetch centralizado
+      // 1. SUBIR FOTO SI EXISTE
       if (fotoArchivo) {
         const formData = new FormData();
         formData.append("foto", fotoArchivo);
 
-        const subidaFoto = await apiFetch(`/perfil/foto/${correoUsuario}`, {
+        // Determinamos la URL base dinámica de tu backend (entorno publicado o local)
+        const API_URL = process.env.REACT_APP_API_URL || "https://tu-backend.onrender.com/api"; 
+
+        // NOTA: Usamos fetch nativo SIN headers manuales para que FormData funcione
+        const subidaFoto = await fetch(`${API_URL}/perfil/foto/${encodeURIComponent(correoUsuario)}`, {
           method: "POST",
           body: formData,
         });
 
         const fotoData = await subidaFoto.json();
 
-        if (subidaFoto.ok) {
-          setPerfil((prev) => ({
-            ...prev,
-            foto: fotoData.foto,
-          }));
+        if (subidaFoto.ok && fotoData.foto) {
+          urlFotoConfirmada = fotoData.foto;
+        } else {
+          console.error("Error al subir foto:", fotoData);
         }
       }
 
-      // 2. Actualizar datos de perfil en el backend en Render
-      const response = await apiFetch(`/perfil/${correoUsuario}`, {
+      // 2. ACTUALIZAR DATOS DEL PERFIL EN EL BACKEND
+      const response = await apiFetch(`/perfil/${encodeURIComponent(correoUsuario)}`, {
         method: "PUT",
         body: JSON.stringify({
           nombre,
@@ -175,6 +179,7 @@ const PerfilUsuario = () => {
       const data = await response.json();
 
       if (response.ok) {
+        // 3. ACTUALIZAR ESTADO LOCAL CON LA FOTO CONFIRMADA
         setPerfil((prev) => ({
           ...prev,
           nombre,
@@ -183,9 +188,10 @@ const PerfilUsuario = () => {
           profesion,
           latitud,
           longitud,
+          foto: urlFotoConfirmada,
         }));
 
-        // Actualizar localStorage para mantener sincronía con el saludo del Dashboard
+        // Actualizar localStorage para mantener la sincronía del nombre en la app
         localStorage.setItem(
           "usuario",
           JSON.stringify({
