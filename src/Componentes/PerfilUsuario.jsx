@@ -57,8 +57,7 @@ const PerfilUsuario = () => {
       })
       .then(data => {
         setPerfil(data);
-
-        setNombre(data.nombre || usuario.nombre || "");
+        setNombre(data.nombre_completo || `${data.nombre || ''} ${data.apellido || ''}`.trim() || usuario.nombre || "");
         setTelefono(data.telefono || usuario.telefono || "");
         setUbicacion(data.ubicacion || "");
         setProfesion(data.profesion || "Administrador");
@@ -145,8 +144,8 @@ const PerfilUsuario = () => {
         const formData = new FormData();
         formData.append("foto", fotoArchivo);
 
-        // Determinamos la URL base dinámica de tu backend (entorno publicado o local)
-        const API_URL = process.env.REACT_APP_API_URL || "https://tu-backend.onrender.com/api"; 
+
+        const API_URL = process.env.REACT_APP_API_URL || "https://agriot-backend.onrender.com/api"; 
 
         // NOTA: Usamos fetch nativo SIN headers manuales para que FormData funcione
         const subidaFoto = await fetch(`${API_URL}/perfil/foto/${encodeURIComponent(correoUsuario)}`, {
