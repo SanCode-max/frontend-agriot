@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../css componentes/Restaurar_Contraseña.css';
 import { FaEye, FaEyeSlash, FaKey, FaArrowLeft, FaLock } from "react-icons/fa";
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -8,21 +8,31 @@ export default function Campos_reestablecimiento() {
     const [params] = useSearchParams();
     const navigate = useNavigate();
     
-    // Extracción del token y correo recibidos desde los parámetros de la URL del email
+    // Extracción del token y correo recibidos desde la URL
     const token = params.get('token');
     const correo = params.get('correo');
 
-    const [Ncontraseña, setNcontraseña] = React.useState('');
-    const [Ccontraseña, setCcontraseña] = React.useState('');
-    const [Mensaje, setMensaje] = React.useState('');
-    const [TipoMensaje, setTipoMensaje] = React.useState('');
-    const [Mostrar, setMostrar] = React.useState(false);
-    const [VerContraseñaN, setVerContraseñaN] = React.useState(false);
-    const [VerContraseñaC, setVerContraseñaC] = React.useState(false);
+    const [Ncontraseña, setNcontraseña] = useState('');
+    const [Ccontraseña, setCcontraseña] = useState('');
+    const [Mensaje, setMensaje] = useState('');
+    const [TipoMensaje, setTipoMensaje] = useState('');
+    const [Mostrar, setMostrar] = useState(false);
+    const [Cargando, setCargando] = useState(false);
+    const [VerContraseñaN, setVerContraseñaN] = useState(false);
+    const [VerContraseñaC, setVerContraseñaC] = useState(false);
 
     const camposClick = async (e) => {
         e.preventDefault();
 
+        // 1. Validar presencia de token y correo en la URL
+        if (!token || !correo) {
+            setMensaje('⚠️ El enlace de recuperación es inválido o no contiene los datos requeridos.');
+            setTipoMensaje('error');
+            setMostrar(true);
+            return;
+        }
+
+        // 2. Validaciones del formulario
         if (!Ncontraseña || !Ccontraseña) {
             setMensaje('⚠️ Por favor, complete todos los campos.');
             setTipoMensaje('error');
@@ -49,6 +59,8 @@ export default function Campos_reestablecimiento() {
             return;
         }
 
+        setCargando(true);
+
         try {
             const response = await apiFetch("/reset_password", {
                 method: "POST",
@@ -58,9 +70,10 @@ export default function Campos_reestablecimiento() {
                 body: JSON.stringify({
                     correo,
                     token,
-                    password: Ncontraseña, // Nombre del parámetro coincidente con Laravel
+                    password: Ncontraseña, 
                 }),
             });
+
             const data = await response.json();
 
             if (response.ok) {
@@ -82,6 +95,8 @@ export default function Campos_reestablecimiento() {
             setTipoMensaje("error");
             setMostrar(true);
             setTimeout(() => setMostrar(false), 4000);
+        } finally {
+            setCargando(false);
         }
     };
 
@@ -112,6 +127,7 @@ export default function Campos_reestablecimiento() {
                             placeholder='Nueva contraseña' 
                             value={Ncontraseña} 
                             onChange={(e) => setNcontraseña(e.target.value)}
+                            disabled={Cargando}
                         />
                         <span className='ojo' onClick={() => setVerContraseñaN(!VerContraseñaN)}> 
                             {VerContraseñaN ? <FaEyeSlash/> : <FaEye/>} 
@@ -125,14 +141,15 @@ export default function Campos_reestablecimiento() {
                             placeholder='Confirmar nueva contraseña' 
                             value={Ccontraseña} 
                             onChange={(e) => setCcontraseña(e.target.value)}
+                            disabled={Cargando}
                         />
                         <span className='ojo' onClick={() => setVerContraseñaC(!VerContraseñaC)}> 
                             {VerContraseñaC ? <FaEyeSlash/> : <FaEye/>} 
                         </span>
                     </div>
 
-                    <button type="submit" className='btn-restaurar-submit'>
-                        Actualizar Contraseña
+                    <button type="submit" className='btn-restaurar-submit' disabled={Cargando}>
+                        {Cargando ? "Actualizando..." : "Actualizar Contraseña"}
                     </button>
                 </form>
 
@@ -145,7 +162,7 @@ export default function Campos_reestablecimiento() {
                 <footer className="texto-restaurar-footer">
                     <p>
                         ¿Recordaste tu contraseña? 
-                        <Link to="/login" className="link-login">Iniciar sesión</Link>
+                        <Link to="/login" className="link-login"> Iniciar sesión</Link>
                     </p>
                 </footer>
             </div>

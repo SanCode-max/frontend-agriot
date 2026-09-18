@@ -36,14 +36,24 @@ export default function RestaurarContraseña() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ correo: Correo }),
       });
+
       const data = await response.json();
-      setMensaje(data.detail || "Enlace enviado con éxito a tu correo.");
-      setTipoMensaje("exito");
-      setMostrar(true);
-      setTimeout(() => setMostrar(false), 5000);
-      setCorreo("");
+
+      if (response.ok) {
+        setMensaje(data.detail || "Enlace enviado con éxito a tu correo.");
+        setTipoMensaje("exito");
+        setMostrar(true);
+        setCorreo(""); // Limpiar el campo solo en caso de éxito
+        setTimeout(() => setMostrar(false), 5000);
+      } else {
+        setMensaje(data.detail || "Error al solicitar el enlace.");
+        setTipoMensaje("error");
+        setMostrar(true);
+        setTimeout(() => setMostrar(false), 4000);
+      }
+
     } catch (error) {
-      setMensaje("No se pudo conectar con el servidor");
+      setMensaje("No se pudo conectar con el servidor.");
       setTipoMensaje("error");
       setMostrar(true);
       setTimeout(() => setMostrar(false), 4000);
@@ -80,6 +90,7 @@ export default function RestaurarContraseña() {
                 placeholder='Correo electrónico' 
                 value={Correo} 
                 onChange={(e) => setCorreo(e.target.value)}
+                disabled={Cargando}
                 required
               />
             </div>
