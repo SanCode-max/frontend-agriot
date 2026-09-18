@@ -7,7 +7,6 @@ import Registro from './Componentes/Registro';
 import  Restaurar from './Componentes/RestaurarContraseña';
 import Inicio from './Componentes/Inicio';
 import Campos from './Componentes/Campos_reestablecimiento';
-import Verificar2FA from './Componentes/Verificar2FA.jsx';
 
 function MyApp() {
   return (
@@ -21,7 +20,6 @@ function MyApp() {
         <Route path='/Restauracion' element= {<Restaurar/>}/>
         <Route path='/Inicio' element={<Inicio/>}/>
         <Route path='/restablecer-password' element={<Campos/>}/>
-        <Route path="/verificar-2fa" element={<Verificar2FA />} />
       </Routes>
     </Router>
     
