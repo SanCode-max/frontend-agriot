@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import '../css componentes/InicioSesion.css';
 import { FaEye, FaEyeSlash, FaEnvelope, FaLock, FaArrowLeft } from "react-icons/fa";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { apiFetch } from '../services/apiClient';
 
 export default function InicioSesion() {
-    const navigate = useNavigate();
     const [Correo, setCorreo] = useState('');
     const [Contraseña, setContraseña] = useState('');
     const [Mensaje, setMensaje] = useState('');
@@ -39,34 +38,31 @@ export default function InicioSesion() {
 
             const data = await respuesta.json();
 
-            if (respuesta.ok) {
-                setMensaje(data.mensaje || "Inicio de sesión exitoso");
+            if (respuesta.ok && data.requiere_2fa) {
+                // Notificación de envío del enlace mágico 2FA
+                setMensaje(data.detail || "Credenciales correctas. Se ha enviado un enlace de acceso a tu correo electrónico.");
                 setTipoMensaje("exito");
                 setMostrar(true);
 
-                // Asigna siempre el rol 'administrador' al guardar en localStorage
-                const usuarioData = {
-                    ...data.usuario,
-                    rol: data.usuario?.rol || 'administrador'
-                };
+                // Limpiamos los campos del formulario por seguridad
+                setCorreo('');
+                setContraseña('');
 
-                localStorage.setItem("usuario", JSON.stringify(usuarioData));
-
+                // Mantenemos la notificación visible durante 8 segundos
                 setTimeout(() => { 
                     setMostrar(false);
-                    navigate("/Inicio"); 
-                }, 1200);
+                }, 8000);
             } else {
-                setMensaje(data.detail || "Error al iniciar sesión");
+                setMensaje(data.detail || "Correo o contraseña incorrectos");
                 setTipoMensaje("error");
                 setMostrar(true);
-                setTimeout(() => setMostrar(false), 4000);
+                setTimeout(() => setMostrar(false), 5000);
             }
         } catch (error) {
-            setMensaje(`${error.message}`);
+            setMensaje("No se pudo conectar con el servidor.");
             setTipoMensaje("error");
             setMostrar(true);
-            setTimeout(() => setMostrar(false), 4000);
+            setTimeout(() => setMostrar(false), 5000);
         } finally {
             setCargando(false);
         }
@@ -86,7 +82,7 @@ export default function InicioSesion() {
                 <div className="header-card-login">
                     <span className="badge-login">Acceso a la Plataforma</span>
                     <h1>Iniciar Sesión</h1>
-                    <p>Ingresa tus credenciales para acceder al monitoreo</p>
+                    <p>Ingresa tus credenciales para recibir tu enlace seguro de acceso</p>
                 </div>
 
                 <div className='formulario-login'>
@@ -99,6 +95,7 @@ export default function InicioSesion() {
                                 placeholder='Correo electrónico' 
                                 value={Correo} 
                                 onChange={(e) => setCorreo(e.target.value)}
+                                disabled={Cargando}
                                 required
                             />
                         </div>
@@ -111,6 +108,7 @@ export default function InicioSesion() {
                                 placeholder='Contraseña' 
                                 value={Contraseña} 
                                 onChange={(e) => setContraseña(e.target.value)}
+                                disabled={Cargando}
                                 required
                             />
                             <span className='ojo-login' onClick={() => setVerContraseña(!VerContraseña)}>
@@ -125,7 +123,7 @@ export default function InicioSesion() {
 
                         {/* Botón Acción */}
                         <button type="submit" className='btn-sesion-submit' disabled={Cargando}>
-                            {Cargando ? "Iniciando sesión..." : "Iniciar Sesión"}
+                            {Cargando ? "Verificando..." : "Enviar Enlace de Acceso"}
                         </button>
 
                         {/* Banner de Mensajes / Notificación */}
