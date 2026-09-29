@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../css componentes/Inicio.css";
 // Iconos de Font Awesome 5
-import { FaUser, FaBell, FaPlus, FaCalendarAlt, FaMapMarkerAlt, FaSeedling, FaTrash, FaCalculator, FaChartBar, FaHome } from "react-icons/fa";
+import { FaUser, FaBell, FaPlus, FaCalendarAlt, FaMapMarkerAlt, FaSeedling, FaTrash, FaCalculator, FaChartBar, FaHome, FaUserPlus } from "react-icons/fa";
 // Icono de Font Awesome 6
 import { FaRightFromBracket } from "react-icons/fa6";
 import Calculadora from "./Calculadora";
@@ -9,6 +9,7 @@ import Perfil from "./PerfilUsuario";
 import MapaCultivos from "./MapaCultivos";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../services/apiClient";
+import CrearUsuario from "./CrearUsuario";
 
 export default function Inicio() {
   const navigate = useNavigate();
@@ -276,6 +277,9 @@ export default function Inicio() {
     { id: "ubicacion", label: "Mapas", icon: FaMapMarkerAlt },
     { id: "informacion", label: "Mi Perfil", icon: FaUser },
     { id: "estadisticas", label: "Reportes", icon: FaChartBar },
+    ...(JSON.parse(localStorage.getItem("usuario") || "{}")?.rol === "admin"
+      ? [{ id: "usuarios", label: "Crear Usuario", icon: FaUserPlus }]
+      : []),
   ];
 
   return (
@@ -333,12 +337,6 @@ export default function Inicio() {
           </div>
           
           <div className="header-right">
-            {JSON.parse(localStorage.getItem("usuario") || "{}")?.rol === "admin" && (
-              <button className="btn-logout-header" onClick={() => navigate("/admin/usuarios")}>
-                <FaUser className="header-icon" />
-                <span>Crear usuario</span>
-              </button>
-            )}
             <button className="icon-btn" aria-label="Notificaciones">
               <FaBell className="header-icon" />
               <span className="notification-badge">3</span>
@@ -502,6 +500,10 @@ export default function Inicio() {
               <h2>Reportes y Estadísticas</h2>
               <p>Módulo de analítica en desarrollo...</p>
             </div>
+          )}
+
+          {activo === "usuarios" && JSON.parse(localStorage.getItem("usuario") || "{}")?.rol === "admin" && (
+            <CrearUsuario embedded />
           )}
         </main>
       </div>
