@@ -19,6 +19,7 @@ export default function Inicio() {
   const [activo, setActivo] = useState("home");
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [guardandoCultivo, setGuardandoCultivo] = useState(false);
   const [cultivos, setCultivos] = useState([]);
   const [nombreCultivo, setNombreCultivo] = useState('');
   const [variedadCultivo, setVariedadCultivo] = useState('Arándano');
@@ -146,6 +147,13 @@ export default function Inicio() {
   }, [navigate]);
 
   useEffect(() => {
+    if (!mostrarFormulario) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [mostrarFormulario]);
+
+  useEffect(() => {
     if (!mostrarFormulario || !esGestorCultivos(JSON.parse(localStorage.getItem("usuario") || "{}").rol)) return;
     apiFetch('/admin/usuarios').then(async (response) => {
       const data = await response.json();
@@ -173,6 +181,7 @@ export default function Inicio() {
 
   const hadleGuardarCultivo = async (e) => {
     e.preventDefault();
+    if (guardandoCultivo) return;
     if (!nombreCultivo || !fechaSiembra || !ubicacion || !deviceId || !usuarioAsignado) {
       setMensaje(' ⚠️ Por favor, complete todos los campos.');
       setTipoMensaje('error');
@@ -181,6 +190,7 @@ export default function Inicio() {
       return;
     }
 
+    setGuardandoCultivo(true);
     try {
       const response = await apiFetch("/cultivos", {
         method: "POST",
@@ -235,6 +245,8 @@ export default function Inicio() {
       setTipoMensaje("error");
       setMostrar(true);
       setTimeout (() => setMostrar(false),4000)
+    } finally {
+      setGuardandoCultivo(false);
     }
 
   };
@@ -462,8 +474,8 @@ export default function Inicio() {
                       <footer className="form-footer">
                         {mostrar && <div className={`form-message ${tipoMensaje}`}>{mensaje}</div>}
                         <div className="form-actions">
-                          <button type="button" className="btn-cancel" onClick={() => setMostrarFormulario(false)}>Cancelar</button>
-                          <button type="submit" className="btn-submit">Guardar Cultivo</button>
+                          <button type="button" className="btn-cancel" onClick={() => setMostrarFormulario(false)} disabled={guardandoCultivo}>Cancelar</button>
+                          <button type="submit" className="btn-submit" disabled={guardandoCultivo}>{guardandoCultivo ? 'Guardando…' : 'Guardar cultivo'}</button>
                         </div>
                       </footer>
                     </form>
