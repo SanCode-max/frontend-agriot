@@ -10,6 +10,7 @@ import MapaCultivos from "./MapaCultivos";
 import { useNavigate } from "react-router-dom";
 import { apiFetch, buildMediaUrl } from "../services/apiClient";
 import CrearUsuario from "./CrearUsuario";
+import AgendaNotas from "./AgendaNotas";
 
 const esRolAdministrador = (rol) => ["admin", "administrador", "administrator"].includes(String(rol || "").toLowerCase());
 const esGestorCultivos = (rol) => esRolAdministrador(rol) || String(rol || "").toLowerCase() === "asistente";
@@ -369,6 +370,7 @@ export default function Inicio() {
     { id: "home", label: "Inicio", icon: FaHome },
     { id: "calculadora", label: "Calculadora", icon: FaCalculator },
     { id: "ubicacion", label: "Mapas", icon: FaMapMarkerAlt },
+    { id: "agenda", label: "Calendario", icon: FaCalendarAlt },
     { id: "estadisticas", label: "Reportes", icon: FaChartBar },
     ...(esRolAdministrador(JSON.parse(localStorage.getItem("usuario") || "{}")?.rol)
       ? [{ id: "usuarios", label: "Crear Operario", icon: FaUserPlus }]
@@ -628,6 +630,8 @@ export default function Inicio() {
 
           {/* 3. VISTA MAPAS */}
           {activo === "ubicacion" && <MapaCultivos />}
+
+          {activo === "agenda" && <AgendaNotas embedded />}
 
           {/* 5. VISTA REPORTES / ESTADÍSTICAS */}
           {activo === "estadisticas" && (
