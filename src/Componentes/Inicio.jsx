@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../services/apiClient";
 import CrearUsuario from "./CrearUsuario";
 
+const esRolAdministrador = (rol) => ["admin", "administrador", "administrator"].includes(String(rol || "").toLowerCase());
+
 export default function Inicio() {
   const navigate = useNavigate();
   const [activo, setActivo] = useState("home");
@@ -277,8 +279,8 @@ export default function Inicio() {
     { id: "ubicacion", label: "Mapas", icon: FaMapMarkerAlt },
     { id: "informacion", label: "Mi Perfil", icon: FaUser },
     { id: "estadisticas", label: "Reportes", icon: FaChartBar },
-    ...(JSON.parse(localStorage.getItem("usuario") || "{}")?.rol === "admin"
-      ? [{ id: "usuarios", label: "Crear Usuario", icon: FaUserPlus }]
+    ...(esRolAdministrador(JSON.parse(localStorage.getItem("usuario") || "{}")?.rol)
+      ? [{ id: "usuarios", label: "Crear Operario", icon: FaUserPlus }]
       : []),
   ];
 
@@ -502,7 +504,7 @@ export default function Inicio() {
             </div>
           )}
 
-          {activo === "usuarios" && JSON.parse(localStorage.getItem("usuario") || "{}")?.rol === "admin" && (
+          {activo === "usuarios" && esRolAdministrador(JSON.parse(localStorage.getItem("usuario") || "{}")?.rol) && (
             <CrearUsuario embedded />
           )}
         </main>
