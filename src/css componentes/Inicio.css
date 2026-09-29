@@ -265,6 +265,88 @@ body {
   font-size: 1.2rem;
 }
 
+.header-profile-button {
+  width: 42px;
+  height: 42px;
+  padding: 2px;
+  border: 2px solid #dce9de;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  overflow: hidden;
+  flex: 0 0 auto;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.header-profile-button:hover,
+.header-profile-button:focus-visible {
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+}
+
+.header-profile-avatar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-card-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1600;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(15, 31, 23, 0.58);
+  backdrop-filter: blur(4px);
+}
+
+.profile-card-dialog {
+  position: relative;
+  width: min(920px, 100%);
+  max-height: calc(100vh - 40px);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  border-radius: 24px;
+  background: #f8fafc;
+  box-shadow: 0 24px 80px rgba(8, 24, 15, 0.3);
+}
+
+.profile-card-dialog .perfil-container {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border-radius: 24px;
+  box-shadow: none;
+}
+
+.profile-card-close {
+  position: sticky;
+  z-index: 4;
+  top: 12px;
+  float: right;
+  width: 38px;
+  height: 38px;
+  margin: 12px 12px -50px 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  background: #fff;
+  color: #475569;
+  font-size: 25px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .header-right { gap: 10px; }
+  .profile-card-overlay { padding: 10px; }
+  .profile-card-dialog { max-height: calc(100vh - 20px); max-height: calc(100dvh - 20px); border-radius: 18px; }
+  .profile-card-dialog .perfil-container { padding: 58px 20px 24px; border-radius: 18px; }
+}
+
 .notification-badge {
   position: absolute;
   top: 2px;

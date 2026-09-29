@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Activity, AlertTriangle, Beaker, Droplets, Download, Leaf, Sprout } from 'lucide-react';
 import { apiFetch } from '../services/apiClient';
-import './CalculadoraNutricional.css';
+import '../css componentes/CalculadoraNutricional.css';
 
 const ETAPAS = [
   ['vegetativo', 'Vegetativo'], ['floracion', 'Floración'],

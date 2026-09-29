@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/apiClient';
-import './UsuarioDashboard.css';
+import '../css componentes/UsuarioDashboard.css';
 
 export default function CambiarPasswordInicial() {
   const [actual, setActual] = useState('');

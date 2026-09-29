@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { apiFetch } from '../services/apiClient';
-import './CultivoMonitoreo.css';
+import '../css componentes/CultivoMonitoreo.css';
 
 const pH = 5.2;
 const humedad = 68.5;

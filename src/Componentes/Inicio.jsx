@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../css componentes/Inicio.css";
 // Iconos de Font Awesome 5
-import { FaUser, FaBell, FaPlus, FaCalendarAlt, FaMapMarkerAlt, FaSeedling, FaCalculator, FaChartBar, FaHome, FaUserPlus } from "react-icons/fa";
+import { FaBell, FaPlus, FaCalendarAlt, FaMapMarkerAlt, FaSeedling, FaCalculator, FaChartBar, FaHome, FaUserPlus } from "react-icons/fa";
 // Icono de Font Awesome 6
 import { FaRightFromBracket } from "react-icons/fa6";
 import CalculadoraNutricional from "./CalculadoraNutricional";
@@ -18,6 +18,7 @@ export default function Inicio() {
   const navigate = useNavigate();
   const [activo, setActivo] = useState("home");
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [mostrarPerfil, setMostrarPerfil] = useState(false);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [guardandoCultivo, setGuardandoCultivo] = useState(false);
   const [cultivoEditando, setCultivoEditando] = useState(null);
@@ -85,6 +86,18 @@ export default function Inicio() {
     clearTimeout(busquedaUbicacionTimer.current);
     busquedaUbicacionController.current?.abort();
   }, []);
+
+  useEffect(() => {
+    if (!mostrarPerfil) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event) => { if (event.key === 'Escape') setMostrarPerfil(false); };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [mostrarPerfil]);
 
   //Cerrar sesion automaticamente despues de 5 minutos de inactividad
   useEffect(() => {
@@ -356,7 +369,6 @@ export default function Inicio() {
     { id: "home", label: "Inicio", icon: FaHome },
     { id: "calculadora", label: "Calculadora", icon: FaCalculator },
     { id: "ubicacion", label: "Mapas", icon: FaMapMarkerAlt },
-    { id: "informacion", label: "Mi Perfil", icon: FaUser },
     { id: "estadisticas", label: "Reportes", icon: FaChartBar },
     ...(esRolAdministrador(JSON.parse(localStorage.getItem("usuario") || "{}")?.rol)
       ? [{ id: "usuarios", label: "Crear Operario", icon: FaUserPlus }]
@@ -421,6 +433,9 @@ export default function Inicio() {
             <button className="icon-btn" aria-label="Notificaciones">
               <FaBell className="header-icon" />
               <span className="notification-badge">3</span>
+            </button>
+            <button type="button" className="header-profile-button" onClick={() => setMostrarPerfil(true)} aria-label="Abrir perfil" title="Mi perfil">
+              <img src={foto ? `${foto}${foto.includes('?') ? '&' : '?'}v=${Date.now()}` : "/avatar-placeholder.jpg"} alt="" className="header-profile-avatar" />
             </button>
             <button className="btn-logout-header" onClick={handleCerrarSesion}>
               <FaRightFromBracket className="header-icon" />
@@ -614,9 +629,6 @@ export default function Inicio() {
           {/* 3. VISTA MAPAS */}
           {activo === "ubicacion" && <MapaCultivos />}
 
-          {/* 4. VISTA MI PERFIL */}
-          {activo === "informacion" && <Perfil />}
-
           {/* 5. VISTA REPORTES / ESTADÍSTICAS */}
           {activo === "estadisticas" && (
             <div className="seccion-placeholder">
@@ -634,6 +646,14 @@ export default function Inicio() {
       {/* Overlay de la sidebar móvil */}
       {menuAbierto && (
         <div className="sidebar-overlay-mobile" onClick={() => setMenuAbierto(false)}></div>
+      )}
+      {mostrarPerfil && (
+        <div className="profile-card-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setMostrarPerfil(false); }}>
+          <section className="profile-card-dialog" role="dialog" aria-modal="true" aria-label="Perfil del usuario">
+            <button type="button" className="profile-card-close" onClick={() => setMostrarPerfil(false)} aria-label="Cerrar perfil">×</button>
+            <Perfil onProfileUpdated={setFoto} />
+          </section>
+        </div>
       )}
     </div>
   );

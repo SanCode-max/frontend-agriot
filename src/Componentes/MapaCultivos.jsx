@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 import '../css componentes/Inicio.css';
 import { apiFetch } from '../services/apiClient';
-import './MapaCultivos.css';
+import '../css componentes/MapaCultivos.css';
 
 const fincaLaGuaca = [5.309, -73.815];
 

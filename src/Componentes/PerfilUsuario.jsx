@@ -4,7 +4,7 @@ import { Mail, Phone, MapPin, Edit3, X, LocateFixed } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/apiClient';
 
-const PerfilUsuario = () => {
+const PerfilUsuario = ({ onProfileUpdated }) => {
   const navigate = useNavigate();
   const [perfil, setPerfil] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -27,6 +27,9 @@ const PerfilUsuario = () => {
   // Coordenadas GPS
   const [latitud, setLatitud] = useState(null);
   const [longitud, setLongitud] = useState(null);
+  const usuarioActual = JSON.parse(localStorage.getItem("usuario") || "{}");
+  const rolActual = String(usuarioActual.rol || '').toLowerCase();
+  const rolVisible = ['admin', 'administrador', 'administrator'].includes(rolActual) ? 'Administrador' : rolActual === 'asistente' ? 'Asistente' : 'Operario';
 
   useEffect(() => {
     const usuario = JSON.parse(localStorage.getItem("usuario"));
@@ -42,7 +45,7 @@ const PerfilUsuario = () => {
       correo: usuario.correo,
       telefono: usuario.telefono || "Sin registrar",
       ubicacion: "Ubaté, Cundinamarca",
-      profesion: "Administrador",
+      profesion: rolVisible,
       foto: null,
       ultima_sesion: "Hoy",
       proyectos_asignados: 2,
@@ -60,7 +63,7 @@ const PerfilUsuario = () => {
         setNombre(data.nombre_completo || `${data.nombre || ''} ${data.apellido || ''}`.trim() || usuario.nombre || "");
         setTelefono(data.telefono || usuario.telefono || "");
         setUbicacion(data.ubicacion || "");
-        setProfesion(data.profesion || "Administrador");
+        setProfesion(data.profesion || rolVisible);
         if (data.latitud) setLatitud(data.latitud);
         if (data.longitud) setLongitud(data.longitud);
       })
@@ -69,13 +72,13 @@ const PerfilUsuario = () => {
         setPerfil(perfilRespaldo);
         setNombre(usuario.nombre || "");
         setTelefono(usuario.telefono || "");
-        setProfesion("Administrador");
+        setProfesion(rolVisible);
       })
       .finally(() => {
         setCargando(false);
       });
 
-  }, [navigate]);
+  }, [navigate, rolVisible]);
 
   // OBTENER UBICACIÓN AUTOMÁTICA
   const obtenerUbicacionActual = () => {
@@ -189,6 +192,7 @@ const PerfilUsuario = () => {
           longitud,
           foto: urlFotoConfirmada,
         }));
+        onProfileUpdated?.(urlFotoConfirmada || '');
 
         // Actualizar localStorage para mantener la sincronía del nombre en la app
         localStorage.setItem(
@@ -237,7 +241,7 @@ const PerfilUsuario = () => {
         </div>
         <div className="header-info">
           <h1>{perfil.nombre}</h1>
-          <p>{perfil.profesion || "Administrador"}</p>
+          <p>{rolVisible}</p>
         </div>
       </div>
 
