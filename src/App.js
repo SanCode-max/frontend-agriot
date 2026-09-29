@@ -10,6 +10,7 @@ import Campos from './Componentes/Campos_reestablecimiento';
 import UsuarioDashboard from './Componentes/UsuarioDashboard';
 import CrearUsuario from './Componentes/CrearUsuario';
 import CambiarPasswordInicial from './Componentes/CambiarPasswordInicial';
+import CultivoMonitoreo from './Componentes/CultivoMonitoreo';
 
 function RutaProtegida({ children }) {
   const token = localStorage.getItem('token');
@@ -33,6 +34,7 @@ function MyApp() {
         <Route path='/restablecer-password' element={<Campos/>}/>
         <Route path='/cambiar-password' element={localStorage.getItem('token') ? <CambiarPasswordInicial/> : <Navigate to='/login' replace/>}/>
         <Route path='/dashboard/usuario' element={<RutaProtegida><UsuarioDashboard/></RutaProtegida>}/>
+        <Route path='/cultivos/:id' element={<RutaProtegida><CultivoMonitoreo/></RutaProtegida>}/>
         <Route path='/admin/usuarios' element={<RutaProtegida><CrearUsuario/></RutaProtegida>}/>
       </Routes>
     </Router>

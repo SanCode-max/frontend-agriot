@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/apiClient';
 import './UsuarioDashboard.css';
+import './CultivoMonitoreo.css';
 
 export default function UsuarioDashboard() {
   const [dashboard, setDashboard] = useState(null);
@@ -32,7 +33,7 @@ export default function UsuarioDashboard() {
     {error && <p className="agriot-error" role="alert">{error}</p>}
     <section className="agriot-stats"><article><span>Cultivos asignados</span><strong>{cargando ? '…' : dashboard?.resumen?.total_cultivos ?? cultivos.length}</strong></article><article><span>Estado de cuenta</span><strong className="agriot-status">Activa</strong></article><article><span>Monitoreo</span><strong>En línea</strong></article></section>
     <section className="agriot-crops"><div className="agriot-section-heading"><div><span className="agriot-eyebrow">Seguimiento</span><h2>Mis cultivos asignados</h2></div><span className="agriot-count">{cultivos.length} registros</span></div>
-      {cargando ? <p className="agriot-empty">Cargando tus cultivos…</p> : cultivos.length === 0 ? <div className="agriot-empty"><span>🌱</span><h3>Aún no tienes cultivos asignados</h3><p>Cuando el administrador te asigne cultivos, aparecerán aquí.</p></div> : <div className="agriot-crop-grid">{cultivos.map(c => <article className="agriot-crop-card" key={c.id}><span className="agriot-crop-icon">🌿</span><div><h3>{c.nombre || c.name || `Cultivo #${c.id}`}</h3><p>{c.ubicacion || c.location || 'Ubicación no especificada'}</p></div><span className="agriot-pill">{c.estado || c.status || 'En seguimiento'}</span></article>)}</div>}
+      {cargando ? <p className="agriot-empty">Cargando tus cultivos…</p> : cultivos.length === 0 ? <div className="agriot-empty"><span>🌱</span><h3>Aún no tienes cultivos asignados</h3><p>Cuando el administrador te asigne cultivos, aparecerán aquí.</p></div> : <div className="agriot-crop-grid">{cultivos.map(c => <button type="button" className="agriot-crop-card agriot-crop-card-button" key={c.id} onClick={() => navigate(`/cultivos/${c.id}`)}><span className="agriot-crop-icon">🌿</span><div><h3>{c.nombre || c.name || `Cultivo #${c.id}`}</h3><p>{c.ubicacion || c.location || 'Ubicación no especificada'}</p><small>Nodo {c.device_id || 'pendiente'}</small></div><span className="agriot-pill">{c.estado || c.status || 'En seguimiento'}</span></button>)}</div>}
     </section>
   </main>;
 }

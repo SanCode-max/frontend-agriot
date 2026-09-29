@@ -701,3 +701,6 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+.crop-card-clickable { cursor: pointer; }
+.crop-card-clickable:focus-visible { outline: 3px solid #4caf50; outline-offset: 3px; }

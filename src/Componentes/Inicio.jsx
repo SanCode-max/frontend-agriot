@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../css componentes/Inicio.css";
 // Iconos de Font Awesome 5
-import { FaUser, FaBell, FaPlus, FaCalendarAlt, FaMapMarkerAlt, FaSeedling, FaTrash, FaCalculator, FaChartBar, FaHome, FaUserPlus } from "react-icons/fa";
+import { FaUser, FaBell, FaPlus, FaCalendarAlt, FaMapMarkerAlt, FaSeedling, FaCalculator, FaChartBar, FaHome, FaUserPlus } from "react-icons/fa";
 // Icono de Font Awesome 6
 import { FaRightFromBracket } from "react-icons/fa6";
 import Calculadora from "./Calculadora";
@@ -12,6 +12,7 @@ import { apiFetch } from "../services/apiClient";
 import CrearUsuario from "./CrearUsuario";
 
 const esRolAdministrador = (rol) => ["admin", "administrador", "administrator"].includes(String(rol || "").toLowerCase());
+const esGestorCultivos = (rol) => esRolAdministrador(rol) || String(rol || "").toLowerCase() === "asistente";
 
 export default function Inicio() {
   const navigate = useNavigate();
@@ -22,6 +23,9 @@ export default function Inicio() {
   const [nombreCultivo, setNombreCultivo] = useState('');
   const [fechaSiembra, setFechaSiembra] = useState('');
   const [fechaCosecha, setFechaCosecha] = useState('');
+  const [deviceId, setDeviceId] = useState('');
+  const [usuarioAsignado, setUsuarioAsignado] = useState('');
+  const [usuariosAsignables, setUsuariosAsignables] = useState([]);
   const [estado, setEstado] = useState('');
   const [ubicacion, setUbicacion] = useState('');
   const [observaciones, setObservaciones] = useState('');
@@ -32,8 +36,6 @@ export default function Inicio() {
   const [correo, setCorreo] = useState("");
   const [foto, setFoto] = useState("");
   const [sugerenciasUbicacion, setSugerenciasUbicacion] = useState([]);
-  const [latitudCultivo, setLatitudCultivo] = useState("");
-  const [longitudCultivo, setLongitudCultivo] = useState("");
 
   const handleClickMenu = () => {
     setMenuAbierto(!menuAbierto);
@@ -107,13 +109,16 @@ export default function Inicio() {
         setNombre(usuario.nombre);
       }
 
-      // 2. Sincronizar cultivos desde el backend
-      apiFetch(`/cultivos/${usuario.correo}`)
+      // Cultivos: el backend filtra por la sesión para operarios.
+      apiFetch('/cultivos')
         .then((response) => response.json())
         .then((data) => {
-          // Preserva el nombre del usuario si la API de cultivos no lo trae explícitamente
-          if (data.nombre) setNombre(data.nombre);
-          setCultivos(data.cultivos || []);
+          setCultivos((data.cultivos || []).map((crop) => ({
+            ...crop,
+            fechaSiembra: crop.fecha_siembra || crop.fechaSiembra,
+            fechaCosecha: crop.fecha_estimada_cosecha || crop.fecha_cosecha || crop.fechaCosecha,
+            estado: crop.estado_actual || crop.estado,
+          })));
         })
         .catch((error) => {
           console.error("Error al obtener los cultivos:", error);
@@ -135,6 +140,20 @@ export default function Inicio() {
     }
   }, [navigate]);
 
+  useEffect(() => {
+    if (!mostrarFormulario || !esGestorCultivos(JSON.parse(localStorage.getItem("usuario") || "{}").rol)) return;
+    apiFetch('/admin/usuarios').then(async (response) => {
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || 'No se pudieron cargar los usuarios.');
+      setUsuariosAsignables(data.usuarios || []);
+      if (data.usuarios?.length) setUsuarioAsignado(String(data.usuarios[0].id));
+    }).catch((error) => {
+      setMensaje(error.message);
+      setTipoMensaje('error');
+      setMostrar(true);
+    });
+  }, [mostrarFormulario]);
+
   const handleCerrarSesion = () => {
     apiFetch('/logout', { method: 'POST' }).catch(() => {});
     localStorage.removeItem("token");
@@ -150,7 +169,7 @@ export default function Inicio() {
   const hadleGuardarCultivo = async (e) => {
     e.preventDefault();
     const usuario = JSON.parse(localStorage.getItem("usuario"));
-    if (!nombreCultivo || !fechaSiembra || !ubicacion || !observaciones ) {
+    if (!nombreCultivo || !fechaSiembra || !ubicacion || !deviceId || !usuarioAsignado) {
       setMensaje(' ⚠️ Por favor, complete todos los campos.');
       setTipoMensaje('error');
       setMostrar(true);
@@ -165,44 +184,38 @@ export default function Inicio() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          correo: usuario.correo,
           nombre: nombreCultivo,
-          fechaSiembra: fechaSiembra,
-          fechaCosecha: fechaCosecha,
-          estado: estado,
+          user_id: Number(usuarioAsignado),
+          device_id: deviceId,
+          fecha_siembra: fechaSiembra,
+          fecha_estimada_cosecha: fechaCosecha || null,
+          estado_actual: estado,
           ubicacion: ubicacion,
           observaciones: observaciones,
-          latitud: latitudCultivo,
-          longitud: longitudCultivo
         }),                
       });
       const data = await response.json();
 
       if (response.ok){
 
-        const nuevoCultivo = {
-          id: data.id,
-          nombre: nombreCultivo,
-          fechaSiembra: fechaSiembra,
-          fechaCosecha: fechaCosecha,
-          estado: estado,
-          ubicacion: ubicacion,
-          observaciones: observaciones
-        }
+        const crop = data.cultivo;
+        const nuevoCultivo = { ...crop, fechaSiembra: crop.fecha_siembra, fechaCosecha: crop.fecha_estimada_cosecha, estado: crop.estado_actual };
         setMensaje(data.mensaje || "Cultivo registrado correctamente");
         setTipoMensaje("exito");
-        setCultivos([...cultivos, nuevoCultivo]);
+        setCultivos((previous) => [nuevoCultivo, ...previous]);
         setMostrarFormulario(false);
         setNombreCultivo('');
         setFechaSiembra('');
         setFechaCosecha('');
+        setDeviceId('');
+        setUsuarioAsignado('');
         setEstado('');
         setUbicacion('');
         setObservaciones('');
         setMostrar(true);
         setTimeout (() => setMostrar(false), 4000);
       }else {
-        setMensaje(data.detail || "Ocurrió un error en el registro");
+        setMensaje(data.detail || Object.values(data.errors || {}).flat()[0] || "Ocurrió un error en el registro");
         setTipoMensaje("error")
         setMostrar(true);
         setTimeout (() => setMostrar(false), 4000);
@@ -212,33 +225,6 @@ export default function Inicio() {
       setTipoMensaje("error");
       setMostrar(true);
       setTimeout (() => setMostrar(false),4000)
-    }
-
-  };
-
-  //Eliminar cultivo
-  const eliminarCultivo = async (id) => {
-
-  const usuario = JSON.parse(localStorage.getItem("usuario"));
-
-  try {
-
-    const response = await apiFetch(
-      `/cultivos/${usuario.correo}/${id}`,
-      {
-        method: "DELETE"
-      }
-    );
-
-    if (response.ok) {
-
-      const nuevosCultivos = cultivos.filter(c => c.id !== id);
-      setCultivos(nuevosCultivos);
-
-    }
-
-    } catch (error) {
-      console.error("Error eliminando cultivo:", error);
     }
 
   };
@@ -265,9 +251,10 @@ export default function Inicio() {
 
   const obtenerEstadoClase = (estado) => {
     switch (estado) {
-      case 'Sembrado': return 'estado-sembrado';
-      case 'Crecimiento': return 'estado-crecimiento';
-      case 'Cosechado': return 'estado-cosechado';
+      case 'Vegetativo': return 'estado-crecimiento';
+      case 'Floración': return 'estado-sembrado';
+      case 'Fructificación': return 'estado-crecimiento';
+      case 'Cosecha': return 'estado-cosechado';
       case 'problema': return 'estado-problema';
       default: return '';
     }
@@ -358,9 +345,11 @@ export default function Inicio() {
                   <h2 className="content-title">Panel General de Cultivos</h2>
                   <p className="content-subtitle">Gestiona y monitorea el progreso de tus siembras en tiempo real.</p>
                 </div>
-                <button className="btn-add-crop" onClick={handleAgregarCultivo}>
-                  <FaPlus className="icon-plus" />Nuevo Cultivo
-                </button>
+                {esGestorCultivos(JSON.parse(localStorage.getItem("usuario") || "{}").rol) && (
+                  <button className="btn-add-crop" onClick={handleAgregarCultivo}>
+                    <FaPlus className="icon-plus" />Nuevo Cultivo
+                  </button>
+                )}
               </div>
 
               {mostrarFormulario && (
@@ -374,6 +363,19 @@ export default function Inicio() {
                     <form className="crop-form" onSubmit={hadleGuardarCultivo}>
                       <div className="form-group">
                         <input type="text" placeholder="Nombre descriptivo (ej: Arándanos Norte)" value={nombreCultivo} onChange={(e) => setNombreCultivo(e.target.value)} required />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Usuario operario asignado *</label>
+                        <select value={usuarioAsignado} onChange={(e) => setUsuarioAsignado(e.target.value)} required disabled={!usuariosAsignables.length}>
+                          <option value="">{usuariosAsignables.length ? 'Seleccionar operario...' : 'No hay operarios disponibles'}</option>
+                          {usuariosAsignables.map((operario) => <option key={operario.id} value={operario.id}>{operario.nombre} {operario.apellido} · {operario.correo}</option>)}
+                        </select>
+                      </div>
+
+                      <div className="form-group">
+                        <label>ID del Nodo IoT / ESP32 *</label>
+                        <input type="text" placeholder="Ej: ESP32-CAM-NORTE-01" value={deviceId} onChange={(e) => setDeviceId(e.target.value)} maxLength="120" required />
                       </div>
                       
                       <div className="form-row-2">
@@ -390,10 +392,12 @@ export default function Inicio() {
                       <div className="form-group">
                         <select value={estado} onChange={(e) => setEstado(e.target.value)} required>
                           <option value="">Seleccionar estado actual...</option>
-                          <option value="Sembrado">🌱 Sembrado</option>
-                          <option value="Crecimiento">🌿 En Crecimiento</option>
-                          <option value="Cosechado">🍇 Listo para Cosecha</option>
-                          <option value="problema">⚠️ Problema / Secado</option>
+                          <option value="Vegetativo">🌱 Vegetativo</option>
+                          <option value="Floración">🌼 Floración</option>
+                          <option value="Fructificación">🫐 Fructificación</option>
+                          <option value="Cosecha">🧺 Cosecha</option>
+                          <option value="Descanso">🌿 Descanso</option>
+                          <option value="Otro">Otro</option>
                         </select>
                       </div>
 
@@ -404,6 +408,7 @@ export default function Inicio() {
                           placeholder="Ubicación del cultivo"
                           value={ubicacion}
                           onChange={(e) => buscarUbicacion(e.target.value)}
+                          required
                         />
                         {sugerenciasUbicacion.length > 0 && (
                           <ul className="suggestions-list">
@@ -412,8 +417,6 @@ export default function Inicio() {
                                 key={index}
                                 onClick={() => {
                                   setUbicacion(lugar.display_name);
-                                  setLatitudCultivo(lugar.lat);
-                                  setLongitudCultivo(lugar.lon);
                                   setSugerenciasUbicacion([]);
                                 }}
                               >
@@ -444,7 +447,7 @@ export default function Inicio() {
                 {cultivos.map((cultivo) => {
                   const progreso = calcularProgreso(cultivo.fechaSiembra, cultivo.fechaCosecha);
                   return (
-                    <article key={cultivo.id} className="crop-card reveal-delay">
+                    <article key={cultivo.id} className="crop-card reveal-delay crop-card-clickable" role="link" tabIndex={0} onClick={() => navigate(`/cultivos/${cultivo.id}`)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') navigate(`/cultivos/${cultivo.id}`); }}>
                       <header className="card-header">
                         <h3>{cultivo.nombre}</h3>
                         <span className={`status-pill ${obtenerEstadoClase(cultivo.estado)}`}>{cultivo.estado}</span>
@@ -475,10 +478,7 @@ export default function Inicio() {
                       </div>
 
                       <footer className="card-footer">
-                        <button className="btn-delete-card" onClick={() => eliminarCultivo(cultivo.id)} aria-label="Eliminar cultivo">
-                          <FaTrash />
-                        </button>
-                        <button className="btn-details-card">Ver Detalles</button>
+                        <button className="btn-details-card" onClick={() => navigate(`/cultivos/${cultivo.id}`)}>Abrir monitoreo</button>
                       </footer>
                     </article>
                   )
