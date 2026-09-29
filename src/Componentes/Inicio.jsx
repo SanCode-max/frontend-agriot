@@ -21,6 +21,7 @@ export default function Inicio() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [cultivos, setCultivos] = useState([]);
   const [nombreCultivo, setNombreCultivo] = useState('');
+  const [variedadCultivo, setVariedadCultivo] = useState('Arándano');
   const [fechaSiembra, setFechaSiembra] = useState('');
   const [fechaCosecha, setFechaCosecha] = useState('');
   const [deviceId, setDeviceId] = useState('');
@@ -28,6 +29,8 @@ export default function Inicio() {
   const [usuariosAsignables, setUsuariosAsignables] = useState([]);
   const [estado, setEstado] = useState('');
   const [ubicacion, setUbicacion] = useState('');
+  const [latitud, setLatitud] = useState('');
+  const [longitud, setLongitud] = useState('');
   const [observaciones, setObservaciones] = useState('');
   const [mensaje, setMensaje] = useState('');
   const [tipoMensaje, setTipoMensaje] = useState('');
@@ -43,6 +46,8 @@ export default function Inicio() {
 
   const buscarUbicacion = async (texto) => {
     setUbicacion(texto);
+    setLatitud('');
+    setLongitud('');
 
     if (texto.length < 3) {
       setSugerenciasUbicacion([]);
@@ -168,7 +173,6 @@ export default function Inicio() {
 
   const hadleGuardarCultivo = async (e) => {
     e.preventDefault();
-    const usuario = JSON.parse(localStorage.getItem("usuario"));
     if (!nombreCultivo || !fechaSiembra || !ubicacion || !deviceId || !usuarioAsignado) {
       setMensaje(' ⚠️ Por favor, complete todos los campos.');
       setTipoMensaje('error');
@@ -185,6 +189,7 @@ export default function Inicio() {
         },
         body: JSON.stringify({
           nombre: nombreCultivo,
+          variedad: variedadCultivo,
           user_id: Number(usuarioAsignado),
           device_id: deviceId,
           fecha_siembra: fechaSiembra,
@@ -192,6 +197,8 @@ export default function Inicio() {
           estado_actual: estado,
           ubicacion: ubicacion,
           observaciones: observaciones,
+          latitud: latitud === '' ? null : Number(latitud),
+          longitud: longitud === '' ? null : Number(longitud),
         }),                
       });
       const data = await response.json();
@@ -205,9 +212,12 @@ export default function Inicio() {
         setCultivos((previous) => [nuevoCultivo, ...previous]);
         setMostrarFormulario(false);
         setNombreCultivo('');
+        setVariedadCultivo('Arándano');
         setFechaSiembra('');
         setFechaCosecha('');
         setDeviceId('');
+        setLatitud('');
+        setLongitud('');
         setUsuarioAsignado('');
         setEstado('');
         setUbicacion('');
@@ -366,6 +376,11 @@ export default function Inicio() {
                       </div>
 
                       <div className="form-group">
+                        <label>Variedad de arándano</label>
+                        <input type="text" placeholder="Ej: Biloxi" value={variedadCultivo} onChange={(e) => setVariedadCultivo(e.target.value)} maxLength="120" />
+                      </div>
+
+                      <div className="form-group">
                         <label>Usuario operario asignado *</label>
                         <select value={usuarioAsignado} onChange={(e) => setUsuarioAsignado(e.target.value)} required disabled={!usuariosAsignables.length}>
                           <option value="">{usuariosAsignables.length ? 'Seleccionar operario...' : 'No hay operarios disponibles'}</option>
@@ -417,6 +432,8 @@ export default function Inicio() {
                                 key={index}
                                 onClick={() => {
                                   setUbicacion(lugar.display_name);
+                                  setLatitud(lugar.lat);
+                                  setLongitud(lugar.lon);
                                   setSugerenciasUbicacion([]);
                                 }}
                               >
@@ -425,6 +442,17 @@ export default function Inicio() {
                             ))}
                           </ul>
                         )}
+                      </div>
+
+                      <div className="form-row-2">
+                        <div className="form-group">
+                          <label>Latitud</label>
+                          <input type="number" step="any" min="-90" max="90" placeholder="5.309" value={latitud} onChange={(e) => setLatitud(e.target.value)} />
+                        </div>
+                        <div className="form-group">
+                          <label>Longitud</label>
+                          <input type="number" step="any" min="-180" max="180" placeholder="-73.815" value={longitud} onChange={(e) => setLongitud(e.target.value)} />
+                        </div>
                       </div>
 
                       <div className="form-group">

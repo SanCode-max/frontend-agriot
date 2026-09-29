@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { apiFetch } from '../services/apiClient';
 import './CultivoMonitoreo.css';
 
@@ -10,6 +10,7 @@ const tanque = 72;
 export default function CultivoMonitoreo() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [cultivo, setCultivo] = useState(null);
   const [error, setError] = useState('');
 
@@ -30,7 +31,7 @@ export default function CultivoMonitoreo() {
   if (!cultivo) return <main className="monitor-page"><div className="monitor-loading">Cargando datos del cultivo…</div></main>;
 
   return <main className="monitor-page">
-    <header className="monitor-topbar"><button className="monitor-back" onClick={() => navigate(user.rol === 'user' ? '/dashboard/usuario' : '/Inicio')}>← Mis cultivos</button><span className="monitor-brand">Agr<span>IoT</span></span><span className="monitor-live"><i/>Gateway conectado</span></header>
+    <header className="monitor-topbar"><button className="monitor-back" onClick={() => navigate(location.state?.from || (user.rol === 'user' ? '/dashboard/usuario' : '/Inicio'))}>← Mis cultivos</button><span className="monitor-brand">Agr<span>IoT</span></span><span className="monitor-live"><i/>Gateway conectado</span></header>
     <section className="monitor-heading"><div><span className="monitor-eyebrow">Sub-dashboard de monitoreo</span><h1>{cultivo.nombre}</h1><p>{cultivo.ubicacion} · Nodo <b>{cultivo.device_id}</b></p></div><span className="monitor-state">{cultivo.estado_actual}</span></section>
     <section className="monitor-camera panel"><div className="panel-title"><div><span className="monitor-eyebrow">Visión del cultivo</span><h2>ESP32-CAM</h2></div><span className="camera-live"><i/>Vista simulada</span></div><div className="camera-scene"><div className="camera-sun"/><div className="camera-hill camera-hill-back"/><div className="camera-hill camera-hill-front"/><div className="camera-rows">{Array.from({length: 6}, (_, i) => <span key={i}/>)}</div><div className="camera-overlay">TRANSMISIÓN SIMULADA · {cultivo.device_id}</div></div><div className="camera-meta"><span>Resolución<strong>1280 × 720</strong></span><span>Frecuencia<strong>15 FPS</strong></span><span>Panel solar<strong className="solar-ok">● Cargando</strong></span></div></section>
     <section className="monitor-metrics">
