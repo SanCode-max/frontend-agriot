@@ -28,7 +28,7 @@ export default function UsuarioDashboard() {
 
   const usuario = dashboard?.usuario || JSON.parse(localStorage.getItem('usuario') || '{}');
   const cultivos = dashboard?.cultivos || [];
-  return <main className="agriot-dashboard"><header className="agriot-topbar"><a className="agriot-brand" href="/">Agr<span>IoT</span></a><div className="agriot-top-actions"><button className="agriot-button agriot-button-light" onClick={() => navigate('/mapa')}>Mapa de cultivos</button><button className="agriot-button agriot-button-light" onClick={cerrarSesion}>Cerrar sesión</button></div></header>
+  return <main className="agriot-dashboard"><header className="agriot-topbar"><a className="agriot-brand" href="/">Agr<span>IoT</span></a><div className="agriot-top-actions"><button className="agriot-button agriot-button-light" onClick={() => navigate('/mapa')}>Mapa de cultivos</button><button className="agriot-button agriot-button-light" onClick={() => navigate('/calculadora-nutricional')}>Calculadora nutricional</button><button className="agriot-button agriot-button-light" onClick={cerrarSesion}>Cerrar sesión</button></div></header>
     <section className="agriot-welcome"><span className="agriot-eyebrow">Panel de operación</span><h1>Hola, {usuario.nombre || 'agricultor'} 👋</h1><p>Este es el estado de tus cultivos asignados.</p></section>
     {error && <p className="agriot-error" role="alert">{error}</p>}
     <section className="agriot-stats"><article><span>Cultivos asignados</span><strong>{cargando ? '…' : dashboard?.resumen?.total_cultivos ?? cultivos.length}</strong></article><article><span>Estado de cuenta</span><strong className="agriot-status">Activa</strong></article><article><span>Monitoreo</span><strong>En línea</strong></article></section>

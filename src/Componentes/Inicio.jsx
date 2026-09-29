@@ -4,7 +4,7 @@ import "../css componentes/Inicio.css";
 import { FaUser, FaBell, FaPlus, FaCalendarAlt, FaMapMarkerAlt, FaSeedling, FaCalculator, FaChartBar, FaHome, FaUserPlus } from "react-icons/fa";
 // Icono de Font Awesome 6
 import { FaRightFromBracket } from "react-icons/fa6";
-import Calculadora from "./Calculadora";
+import CalculadoraNutricional from "./CalculadoraNutricional";
 import Perfil from "./PerfilUsuario";
 import MapaCultivos from "./MapaCultivos";
 import { useNavigate } from "react-router-dom";
@@ -609,7 +609,7 @@ export default function Inicio() {
           )}
 
           {/* 2. VISTA CALCULADORA */}
-          {activo === "calculadora" && <Calculadora />}
+          {activo === "calculadora" && <CalculadoraNutricional embedded />}
 
           {/* 3. VISTA MAPAS */}
           {activo === "ubicacion" && <MapaCultivos />}
