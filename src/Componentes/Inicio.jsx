@@ -387,7 +387,7 @@ export default function Inicio() {
         <div className="sidebar-profile">
           <div className="avatar-wrapper">
             <img 
-              src={foto ? `${foto}?t=${new Date().getTime()}` : "/avatar-placeholder.jpg"} 
+              src={foto ? `${foto}${foto.includes('?') ? '&' : '?'}t=${Date.now()}` : "/profile-icon.png"}
               alt="Perfil"
               className="profile-avatar"
             />
@@ -435,7 +435,7 @@ export default function Inicio() {
               <span className="notification-badge">3</span>
             </button>
             <button type="button" className="header-profile-button" onClick={() => setMostrarPerfil(true)} aria-label="Abrir perfil" title="Mi perfil">
-              <img src={foto ? `${foto}${foto.includes('?') ? '&' : '?'}v=${Date.now()}` : "/avatar-placeholder.jpg"} alt="" className="header-profile-avatar" />
+              <img src={foto ? `${foto}${foto.includes('?') ? '&' : '?'}v=${Date.now()}` : "/profile-icon.png"} alt="" className="header-profile-avatar" />
             </button>
             <button className="btn-logout-header" onClick={handleCerrarSesion}>
               <FaRightFromBracket className="header-icon" />

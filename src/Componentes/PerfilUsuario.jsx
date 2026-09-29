@@ -4,6 +4,34 @@ import { Mail, Phone, MapPin, Edit3, X, LocateFixed } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/apiClient';
 
+const MAX_FOTO_BYTES = 2 * 1024 * 1024;
+
+function prepararFotoParaSubida(file) {
+  if (!file || !file.type.startsWith('image/')) return Promise.reject(new Error('Selecciona un archivo de imagen válido.'));
+  if (file.size > 10 * 1024 * 1024) return Promise.reject(new Error('La imagen debe pesar menos de 10 MB.'));
+  if (file.size <= MAX_FOTO_BYTES && ['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return Promise.resolve(file);
+
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const scale = Math.min(1, 1600 / Math.max(image.width, image.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => {
+        if (!blob) return reject(new Error('No se pudo preparar la imagen. Prueba con otra foto.'));
+        if (blob.size > MAX_FOTO_BYTES) return reject(new Error('La foto sigue pesando más de 2 MB después de comprimirla.'));
+        resolve(new File([blob], `${file.name.replace(/\.[^.]+$/, '')}.jpg`, { type: 'image/jpeg', lastModified: Date.now() }));
+      }, 'image/jpeg', 0.82);
+    };
+    image.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('El navegador no pudo leer esta imagen. Usa JPG, PNG o WebP.')); };
+    image.src = objectUrl;
+  });
+}
+
 const PerfilUsuario = ({ onProfileUpdated }) => {
   const navigate = useNavigate();
   const [perfil, setPerfil] = useState(null);
@@ -144,25 +172,17 @@ const PerfilUsuario = ({ onProfileUpdated }) => {
 
       // 1. SUBIR FOTO SI EXISTE
       if (fotoArchivo) {
+        const fotoLista = await prepararFotoParaSubida(fotoArchivo);
         const formData = new FormData();
-        formData.append("foto", fotoArchivo);
+        formData.append("foto", fotoLista);
 
-
-        const API_URL = process.env.REACT_APP_API_URL || "https://agriot-backend.onrender.com/api"; 
-
-        // NOTA: Usamos fetch nativo SIN headers manuales para que FormData funcione
-        const subidaFoto = await fetch(`${API_URL}/perfil/foto/${encodeURIComponent(correoUsuario)}`, {
-          method: "POST",
-          body: formData,
+        const subidaFoto = await apiFetch(`/perfil/foto/${encodeURIComponent(correoUsuario)}`, {
+          method: 'POST', body: formData,
         });
-
-        const fotoData = await subidaFoto.json();
-
-        if (subidaFoto.ok && fotoData.foto) {
-          urlFotoConfirmada = fotoData.foto;
-        } else {
-          console.error("Error al subir foto:", fotoData);
-        }
+        const fotoData = await subidaFoto.json().catch(() => ({}));
+        if (!subidaFoto.ok) throw new Error(fotoData.message || fotoData.detail || Object.values(fotoData.errors || {}).flat().join(' ') || 'No se pudo subir la foto.');
+        if (!fotoData.foto) throw new Error('El servidor no devolvió la ruta de la foto guardada.');
+        urlFotoConfirmada = fotoData.foto;
       }
 
       // 2. ACTUALIZAR DATOS DEL PERFIL EN EL BACKEND
@@ -235,7 +255,7 @@ const PerfilUsuario = ({ onProfileUpdated }) => {
       <div className="perfil-header">
         <div className="foto-wrapper">
           <img 
-            src={perfil.foto ? `${perfil.foto}?t=${new Date().getTime()}` : "/avatar-placeholder.jpg"} 
+            src={perfil.foto ? `${perfil.foto}${perfil.foto.includes('?') ? '&' : '?'}t=${Date.now()}` : "/profile-icon.png"}
             alt="Foto de perfil"
           />
         </div>
@@ -345,7 +365,7 @@ const PerfilUsuario = ({ onProfileUpdated }) => {
                         ? URL.createObjectURL(fotoArchivo)
                         : perfil?.foto
                         ? `${perfil.foto}?t=${new Date().getTime()}`
-                        : "/avatar-placeholder.jpg"
+                        : "/profile-icon.png"
                     }
                     alt="Vista previa"
                     className="preview-foto-pro"
@@ -356,8 +376,25 @@ const PerfilUsuario = ({ onProfileUpdated }) => {
                   <input
                     id="input-foto-pro"
                     type="file"
-                    accept="image/*"
-                    onChange={(e) => setFotoArchivo(e.target.files[0])}
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (!file.type.startsWith('image/')) {
+                        setMensaje('Selecciona un archivo de imagen válido.');
+                        setTipoMensaje('error');
+                        e.target.value = '';
+                        return;
+                      }
+                      if (file.size > 10 * 1024 * 1024) {
+                        setMensaje('La imagen debe pesar menos de 10 MB.');
+                        setTipoMensaje('error');
+                        e.target.value = '';
+                        return;
+                      }
+                      setMensaje('');
+                      setFotoArchivo(file);
+                    }}
                     disabled={guardando}
                     style={{ display: 'none' }}
                   />
