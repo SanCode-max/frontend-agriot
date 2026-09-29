@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "../css componentes/Inicio.css";
 // Iconos de Font Awesome 5
 import { FaUser, FaBell, FaPlus, FaCalendarAlt, FaMapMarkerAlt, FaSeedling, FaCalculator, FaChartBar, FaHome, FaUserPlus } from "react-icons/fa";
@@ -20,6 +20,8 @@ export default function Inicio() {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [guardandoCultivo, setGuardandoCultivo] = useState(false);
+  const [cultivoEditando, setCultivoEditando] = useState(null);
+  const [eliminandoCultivoId, setEliminandoCultivoId] = useState(null);
   const [cultivos, setCultivos] = useState([]);
   const [nombreCultivo, setNombreCultivo] = useState('');
   const [variedadCultivo, setVariedadCultivo] = useState('Arándano');
@@ -40,33 +42,49 @@ export default function Inicio() {
   const [correo, setCorreo] = useState("");
   const [foto, setFoto] = useState("");
   const [sugerenciasUbicacion, setSugerenciasUbicacion] = useState([]);
+  const [buscandoUbicacion, setBuscandoUbicacion] = useState(false);
+  const busquedaUbicacionTimer = useRef(null);
+  const busquedaUbicacionController = useRef(null);
 
   const handleClickMenu = () => {
     setMenuAbierto(!menuAbierto);
   };
 
-  const buscarUbicacion = async (texto) => {
+  const buscarUbicacion = (texto) => {
     setUbicacion(texto);
     setLatitud('');
     setLongitud('');
+    clearTimeout(busquedaUbicacionTimer.current);
+    busquedaUbicacionController.current?.abort();
 
     if (texto.length < 3) {
       setSugerenciasUbicacion([]);
+      setBuscandoUbicacion(false);
       return;
     }
 
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${texto}, Colombia&addressdetails=1&limit=5`
-      );
-
-      const data = await response.json();
-      setSugerenciasUbicacion(data);
-
-    } catch (error) {
-      console.error("Error buscando ubicación:", error);
-    }
+    setBuscandoUbicacion(true);
+    busquedaUbicacionTimer.current = setTimeout(async () => {
+      const controller = new AbortController();
+      busquedaUbicacionController.current = controller;
+      try {
+        const params = new URLSearchParams({ format: 'jsonv2', q: `${texto}, Colombia`, addressdetails: '1', limit: '5', countrycodes: 'co' });
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, { signal: controller.signal });
+        if (!response.ok) throw new Error('No se pudo buscar esta ubicación.');
+        const results = await response.json();
+        setSugerenciasUbicacion(results);
+      } catch (error) {
+        if (error.name !== 'AbortError') setSugerenciasUbicacion([]);
+      } finally {
+        if (!controller.signal.aborted) setBuscandoUbicacion(false);
+      }
+    }, 1000);
   };
+
+  useEffect(() => () => {
+    clearTimeout(busquedaUbicacionTimer.current);
+    busquedaUbicacionController.current?.abort();
+  }, []);
 
   //Cerrar sesion automaticamente despues de 5 minutos de inactividad
   useEffect(() => {
@@ -159,13 +177,13 @@ export default function Inicio() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || 'No se pudieron cargar los usuarios.');
       setUsuariosAsignables(data.usuarios || []);
-      if (data.usuarios?.length) setUsuarioAsignado(String(data.usuarios[0].id));
+      if (!cultivoEditando && data.usuarios?.length) setUsuarioAsignado(String(data.usuarios[0].id));
     }).catch((error) => {
       setMensaje(error.message);
       setTipoMensaje('error');
       setMostrar(true);
     });
-  }, [mostrarFormulario]);
+  }, [mostrarFormulario, cultivoEditando]);
 
   const handleCerrarSesion = () => {
     apiFetch('/logout', { method: 'POST' }).catch(() => {});
@@ -174,8 +192,57 @@ export default function Inicio() {
     navigate("/");
   };
   const handleAgregarCultivo = () => {
+    setCultivoEditando(null);
+    setNombreCultivo('');
+    setVariedadCultivo('Arándano');
+    setFechaSiembra('');
+    setFechaCosecha('');
+    setDeviceId('');
+    setUsuarioAsignado('');
+    setEstado('');
+    setUbicacion('');
+    setLatitud('');
+    setLongitud('');
+    setObservaciones('');
+    setSugerenciasUbicacion([]);
     setMostrarFormulario(true);
   }
+
+  const handleEditarCultivo = (cultivo) => {
+    setCultivoEditando(cultivo);
+    setNombreCultivo(cultivo.nombre || '');
+    setVariedadCultivo(cultivo.variedad || 'Arándano');
+    setFechaSiembra(cultivo.fechaSiembra || cultivo.fecha_siembra || '');
+    setFechaCosecha(cultivo.fechaCosecha || cultivo.fecha_estimada_cosecha || '');
+    setDeviceId(cultivo.device_id || '');
+    setUsuarioAsignado(String(cultivo.user_id || ''));
+    setEstado(cultivo.estado || cultivo.estado_actual || '');
+    setUbicacion(cultivo.ubicacion || '');
+    setLatitud(cultivo.latitud ?? '');
+    setLongitud(cultivo.longitud ?? '');
+    setObservaciones(cultivo.observaciones || '');
+    setSugerenciasUbicacion([]);
+    setMensaje('');
+    setMostrar(false);
+    setMostrarFormulario(true);
+  };
+
+  const handleEliminarCultivo = async (cultivo) => {
+    const confirmar = window.confirm(`¿Eliminar el cultivo "${cultivo.nombre}"? Esta acción no se puede deshacer.`);
+    if (!confirmar) return;
+
+    setEliminandoCultivoId(cultivo.id);
+    try {
+      const response = await apiFetch(`/cultivos/${cultivo.id}`, { method: 'DELETE' });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || 'No se pudo eliminar el cultivo.');
+      setCultivos(previous => previous.filter(item => item.id !== cultivo.id));
+    } catch (error) {
+      window.alert(error.message || 'No se pudo conectar con el servidor.');
+    } finally {
+      setEliminandoCultivoId(null);
+    }
+  };
 
   //Guardar cultivo
 
@@ -192,8 +259,8 @@ export default function Inicio() {
 
     setGuardandoCultivo(true);
     try {
-      const response = await apiFetch("/cultivos", {
-        method: "POST",
+      const response = await apiFetch(cultivoEditando ? `/cultivos/${cultivoEditando.id}` : "/cultivos", {
+        method: cultivoEditando ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -219,8 +286,11 @@ export default function Inicio() {
         const nuevoCultivo = { ...crop, fechaSiembra: crop.fecha_siembra, fechaCosecha: crop.fecha_estimada_cosecha, estado: crop.estado_actual };
         setMensaje(data.mensaje || "Cultivo registrado correctamente");
         setTipoMensaje("exito");
-        setCultivos((previous) => [nuevoCultivo, ...previous]);
+        setCultivos((previous) => cultivoEditando
+          ? previous.map(item => item.id === nuevoCultivo.id ? nuevoCultivo : item)
+          : [nuevoCultivo, ...previous]);
         setMostrarFormulario(false);
+        setCultivoEditando(null);
         setNombreCultivo('');
         setVariedadCultivo('Arándano');
         setFechaSiembra('');
@@ -378,8 +448,8 @@ export default function Inicio() {
                 <div className="modal-overlay">
                   <div className="modal-content glass-form">
                     <header className="modal-header">
-                      <h3>Registrar Nuevo Cultivo</h3>
-                      <button className="btn-close-modal" onClick={() => setMostrarFormulario(false)}>×</button>
+                      <h3>{cultivoEditando ? 'Editar Cultivo' : 'Registrar Nuevo Cultivo'}</h3>
+                      <button type="button" className="btn-close-modal" onClick={() => setMostrarFormulario(false)} aria-label="Cerrar formulario">×</button>
                     </header>
                     
                     <form className="crop-form" onSubmit={hadleGuardarCultivo}>
@@ -429,27 +499,34 @@ export default function Inicio() {
                       </div>
 
                       <div className="form-group ubicacion-autocomplete">
+                        <label htmlFor="cultivo-ubicacion">Ubicación *</label>
                         <FaMapMarkerAlt className="icon-input" />
                         <input
+                          id="cultivo-ubicacion"
                           type="text"
                           placeholder="Ubicación del cultivo"
                           value={ubicacion}
                           onChange={(e) => buscarUbicacion(e.target.value)}
                           required
+                          autoComplete="off"
+                          aria-autocomplete="list"
+                          aria-expanded={sugerenciasUbicacion.length > 0}
+                          aria-controls="ubicacion-sugerencias"
                         />
+                        {buscandoUbicacion && <span className="ubicacion-buscando">Buscando ubicaciones…</span>}
                         {sugerenciasUbicacion.length > 0 && (
-                          <ul className="suggestions-list">
+                          <ul className="suggestions-list" id="ubicacion-sugerencias" role="listbox">
                             {sugerenciasUbicacion.map((lugar, index) => (
-                              <li
-                                key={index}
-                                onClick={() => {
+                              <li key={`${lugar.place_id}-${index}`} role="presentation">
+                                <button type="button" role="option" aria-selected="false" onClick={() => {
                                   setUbicacion(lugar.display_name);
                                   setLatitud(lugar.lat);
                                   setLongitud(lugar.lon);
                                   setSugerenciasUbicacion([]);
-                                }}
-                              >
-                                {lugar.display_name}
+                                  setBuscandoUbicacion(false);
+                                  clearTimeout(busquedaUbicacionTimer.current);
+                                  busquedaUbicacionController.current?.abort();
+                                }}>{lugar.display_name}</button>
                               </li>
                             ))}
                           </ul>
@@ -475,7 +552,7 @@ export default function Inicio() {
                         {mostrar && <div className={`form-message ${tipoMensaje}`}>{mensaje}</div>}
                         <div className="form-actions">
                           <button type="button" className="btn-cancel" onClick={() => setMostrarFormulario(false)} disabled={guardandoCultivo}>Cancelar</button>
-                          <button type="submit" className="btn-submit" disabled={guardandoCultivo}>{guardandoCultivo ? 'Guardando…' : 'Guardar cultivo'}</button>
+                          <button type="submit" className="btn-submit" disabled={guardandoCultivo}>{guardandoCultivo ? 'Guardando…' : cultivoEditando ? 'Guardar cambios' : 'Guardar cultivo'}</button>
                         </div>
                       </footer>
                     </form>
@@ -518,6 +595,10 @@ export default function Inicio() {
                       </div>
 
                       <footer className="card-footer">
+                        {esGestorCultivos(JSON.parse(localStorage.getItem("usuario") || "{}").rol) && <>
+                          <button type="button" className="btn-crop-edit" onClick={(event) => { event.stopPropagation(); handleEditarCultivo(cultivo); }}>Editar</button>
+                          <button type="button" className="btn-crop-delete" disabled={eliminandoCultivoId === cultivo.id} onClick={(event) => { event.stopPropagation(); handleEliminarCultivo(cultivo); }}>{eliminandoCultivoId === cultivo.id ? 'Eliminando…' : 'Eliminar'}</button>
+                        </>}
                         <button className="btn-details-card" onClick={() => navigate(`/cultivos/${cultivo.id}`)}>Abrir monitoreo</button>
                       </footer>
                     </article>
