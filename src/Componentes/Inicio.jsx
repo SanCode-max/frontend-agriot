@@ -8,7 +8,7 @@ import CalculadoraNutricional from "./CalculadoraNutricional";
 import Perfil from "./PerfilUsuario";
 import MapaCultivos from "./MapaCultivos";
 import { useNavigate } from "react-router-dom";
-import { apiFetch } from "../services/apiClient";
+import { apiFetch, buildMediaUrl } from "../services/apiClient";
 import CrearUsuario from "./CrearUsuario";
 
 const esRolAdministrador = (rol) => ["admin", "administrador", "administrator"].includes(String(rol || "").toLowerCase());
@@ -387,7 +387,7 @@ export default function Inicio() {
         <div className="sidebar-profile">
           <div className="avatar-wrapper">
             <img 
-              src={foto ? `${foto}${foto.includes('?') ? '&' : '?'}t=${Date.now()}` : "/profile-icon.png"}
+              src={foto ? buildMediaUrl(foto, Date.now()) : "/profile-icon.png"}
               alt="Perfil"
               className="profile-avatar"
             />
@@ -435,7 +435,7 @@ export default function Inicio() {
               <span className="notification-badge">3</span>
             </button>
             <button type="button" className="header-profile-button" onClick={() => setMostrarPerfil(true)} aria-label="Abrir perfil" title="Mi perfil">
-              <img src={foto ? `${foto}${foto.includes('?') ? '&' : '?'}v=${Date.now()}` : "/profile-icon.png"} alt="" className="header-profile-avatar" />
+              <img src={foto ? buildMediaUrl(foto, Date.now()) : "/profile-icon.png"} alt="" className="header-profile-avatar" />
             </button>
             <button className="btn-logout-header" onClick={handleCerrarSesion}>
               <FaRightFromBracket className="header-icon" />

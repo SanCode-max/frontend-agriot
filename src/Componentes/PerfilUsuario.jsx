@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import '../css componentes/perfilUsuario.css';
 import { Mail, Phone, MapPin, Edit3, X, LocateFixed } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/apiClient';
+import { apiFetch, buildMediaUrl } from '../services/apiClient';
 
 const MAX_FOTO_BYTES = 2 * 1024 * 1024;
 
@@ -255,7 +255,7 @@ const PerfilUsuario = ({ onProfileUpdated }) => {
       <div className="perfil-header">
         <div className="foto-wrapper">
           <img 
-            src={perfil.foto ? `${perfil.foto}${perfil.foto.includes('?') ? '&' : '?'}t=${Date.now()}` : "/profile-icon.png"}
+            src={perfil.foto ? buildMediaUrl(perfil.foto, Date.now()) : "/profile-icon.png"}
             alt="Foto de perfil"
           />
         </div>
@@ -364,7 +364,7 @@ const PerfilUsuario = ({ onProfileUpdated }) => {
                       fotoArchivo
                         ? URL.createObjectURL(fotoArchivo)
                         : perfil?.foto
-                        ? `${perfil.foto}?t=${new Date().getTime()}`
+                        ? buildMediaUrl(perfil.foto, Date.now())
                         : "/profile-icon.png"
                     }
                     alt="Vista previa"
