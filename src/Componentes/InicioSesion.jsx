@@ -79,14 +79,14 @@ export default function InicioSesion() {
                 mostrarToast("¡Autenticación completada! Ingresando...", "exito");
 
                 // Guardar datos en localStorage y redirigir
-                const usuarioData = {
-                    ...data.usuario,
-                    rol: data.usuario?.rol || 'administrador'
-                };
+                const usuarioData = data.usuario;
+                if (data.token) localStorage.setItem("token", data.token);
                 localStorage.setItem("usuario", JSON.stringify(usuarioData));
 
                 setTimeout(() => {
-                    navigate("/Inicio");
+                    if (usuarioData.must_change_password) navigate("/cambiar-password");
+                    else if (usuarioData.rol === 'user') navigate("/dashboard/usuario");
+                    else navigate("/Inicio");
                 }, 1200);
             } else {
                 mostrarToast(data.detail || "Código incorrecto o caducado", "error");

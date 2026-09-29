@@ -21,10 +21,13 @@ export const apiFetch = (path, options = {}) => {
         Accept: "application/json",
       };
 
+  const token = localStorage.getItem("token");
+
   return fetch(url, {
     ...options,
     headers: {
       ...defaultHeaders,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options?.headers,
     },
   }).catch((error) => {

@@ -62,6 +62,8 @@ export default function Inicio() {
     let temporizador;
 
     const cerrarSesionPorInactividad = () => {
+      apiFetch('/logout', { method: 'POST' }).catch(() => {});
+      localStorage.removeItem("token");
       localStorage.removeItem("usuario");
       alert("Sesión cerrada por inactividad");
       navigate("/");
@@ -131,6 +133,8 @@ export default function Inicio() {
   }, [navigate]);
 
   const handleCerrarSesion = () => {
+    apiFetch('/logout', { method: 'POST' }).catch(() => {});
+    localStorage.removeItem("token");
     localStorage.removeItem("usuario");
     navigate("/");
   };
@@ -329,6 +333,12 @@ export default function Inicio() {
           </div>
           
           <div className="header-right">
+            {JSON.parse(localStorage.getItem("usuario") || "{}")?.rol === "admin" && (
+              <button className="btn-logout-header" onClick={() => navigate("/admin/usuarios")}>
+                <FaUser className="header-icon" />
+                <span>Crear usuario</span>
+              </button>
+            )}
             <button className="icon-btn" aria-label="Notificaciones">
               <FaBell className="header-icon" />
               <span className="notification-badge">3</span>
