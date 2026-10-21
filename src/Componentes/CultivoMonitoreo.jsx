@@ -4,12 +4,12 @@ import { apiFetch } from '../services/apiClient';
 import '../css componentes/CultivoMonitoreo.css';
 
 function LineChart({ data, field, color, unit, label }) {
-  const values = data.map(point => Number(point[field])).filter(Number.isFinite);
+  const values = data.map(point => point[field] == null ? NaN : Number(point[field])).filter(Number.isFinite);
   if (!values.length) return <div className="telemetry-empty">Aún no hay lecturas de {label.toLowerCase()}.</div>;
   const width = 720; const height = 220; const pad = { top: 20, right: 18, bottom: 36, left: 48 };
   const min = Math.min(...values); const max = Math.max(...values); const span = max - min || 1;
   const points = data.map((point, index) => ({
-    value: Number(point[field]), observedAt: point.observed_at || point.timestamp,
+    value: point[field] == null ? NaN : Number(point[field]), observedAt: point.observed_at || point.timestamp,
     x: pad.left + (data.length < 2 ? (width - pad.left - pad.right) / 2 : index * (width - pad.left - pad.right) / (data.length - 1)),
   })).filter(point => Number.isFinite(point.value)).map(point => ({ ...point, y: pad.top + (max - point.value) / span * (height - pad.top - pad.bottom) }));
   const line = points.map(point => `${point.x},${point.y}`).join(' ');
