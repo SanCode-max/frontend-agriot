@@ -1,18 +1,45 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { apiFetch } from '../services/apiClient';
 import '../css componentes/CultivoMonitoreo.css';
 
-const pH = 5.2;
-const humedad = 68.5;
-const tanque = 72;
+function LineChart({ data, field, color, unit, label }) {
+  const values = data.map(point => Number(point[field])).filter(Number.isFinite);
+  if (!values.length) return <div className="telemetry-empty">Aún no hay lecturas de {label.toLowerCase()}.</div>;
+  const width = 720; const height = 220; const pad = { top: 20, right: 18, bottom: 36, left: 48 };
+  const min = Math.min(...values); const max = Math.max(...values); const span = max - min || 1;
+  const points = data.map((point, index) => ({
+    value: Number(point[field]), observedAt: point.observed_at || point.timestamp,
+    x: pad.left + (data.length < 2 ? (width - pad.left - pad.right) / 2 : index * (width - pad.left - pad.right) / (data.length - 1)),
+  })).filter(point => Number.isFinite(point.value)).map(point => ({ ...point, y: pad.top + (max - point.value) / span * (height - pad.top - pad.bottom) }));
+  const line = points.map(point => `${point.x},${point.y}`).join(' ');
+  const latest = values[values.length - 1];
+  const formatTime = value => new Date(value).toLocaleString([], { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  return <div className="telemetry-chart-wrap">
+    <div className="telemetry-current"><strong>{latest.toFixed(1)}</strong><span>{unit}</span></div>
+    <svg className="telemetry-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${label} a través del tiempo`}>
+      {[0, 1, 2, 3].map(tick => { const y = pad.top + tick * (height - pad.top - pad.bottom) / 3; const value = max - tick * span / 3; return <g key={tick}><line x1={pad.left} x2={width - pad.right} y1={y} y2={y} stroke="#e9eee8"/><text x={pad.left - 9} y={y + 4} textAnchor="end" fill="#819086" fontSize="11">{value.toFixed(1)}</text></g>; })}
+      <polyline points={line} fill="none" stroke={color} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round"/>
+      {points.map((point, index) => <circle key={index} cx={point.x} cy={point.y} r="3.5" fill="white" stroke={color} strokeWidth="2"><title>{`${formatTime(point.observedAt)}: ${point.value} ${unit}`}</title></circle>)}
+      {points.length > 0 && <><text x={pad.left} y={height - 8} fill="#819086" fontSize="11">{formatTime(data[0]?.observed_at || data[0]?.timestamp)}</text><text x={width - pad.right} y={height - 8} textAnchor="end" fill="#819086" fontSize="11">{formatTime(data[data.length - 1]?.observed_at || data[data.length - 1]?.timestamp)}</text></>}
+    </svg>
+  </div>;
+}
 
 export default function CultivoMonitoreo() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [cultivo, setCultivo] = useState(null);
-  const [error, setError] = useState('');
+  const { id } = useParams(); const navigate = useNavigate(); const location = useLocation();
+  const [cultivo, setCultivo] = useState(null); const [telemetria, setTelemetria] = useState([]);
+  const [error, setError] = useState(''); const [telemetryError, setTelemetryError] = useState(''); const [updatedAt, setUpdatedAt] = useState(null);
+  const loadTelemetry = useCallback(async () => {
+    try {
+      const response = await apiFetch(`/v1/cultivos/${id}/telemetria?limit=500`);
+      const data = await response.json();
+      if (response.status === 403 && data.must_change_password) { navigate('/cambiar-password', { replace: true }); return; }
+      if (response.status === 401) { navigate('/login', { replace: true }); return; }
+      if (!response.ok) throw new Error(data.detail || 'No se pudo actualizar la telemetría.');
+      setTelemetria(data.telemetria || []); setUpdatedAt(new Date()); setTelemetryError('');
+    } catch (e) { setTelemetryError(e.message); }
+  }, [id, navigate]);
 
   useEffect(() => {
     let mounted = true;
@@ -26,20 +53,22 @@ export default function CultivoMonitoreo() {
     return () => { mounted = false; };
   }, [id, navigate]);
 
-  const user = JSON.parse(localStorage.getItem('usuario') || '{}');
+  useEffect(() => {
+    loadTelemetry();
+    const timer = window.setInterval(loadTelemetry, 15000);
+    return () => window.clearInterval(timer);
+  }, [loadTelemetry]);
+  const user = useMemo(() => JSON.parse(localStorage.getItem('usuario') || '{}'), []);
   if (error) return <main className="monitor-page"><button className="monitor-back" onClick={() => navigate(-1)}>← Volver</button><section className="monitor-error"><h1>Cultivo no disponible</h1><p>{error}</p></section></main>;
   if (!cultivo) return <main className="monitor-page"><div className="monitor-loading">Cargando datos del cultivo…</div></main>;
 
   return <main className="monitor-page">
-    <header className="monitor-topbar"><button className="monitor-back" onClick={() => navigate(location.state?.from || (user.rol === 'user' ? '/dashboard/usuario' : '/Inicio'))}>← Mis cultivos</button><span className="monitor-brand">Agr<span>IoT</span></span><span className="monitor-live"><i/>Gateway conectado</span></header>
+    <header className="monitor-topbar"><button className="monitor-back" onClick={() => navigate(location.state?.from || (user.rol === 'user' ? '/dashboard/usuario' : '/Inicio'))}>← Mis cultivos</button><span className="monitor-brand">Agr<span>IoT</span></span><span className="monitor-live"><i/>Actualización cada 15 s</span></header>
     <section className="monitor-heading"><div><span className="monitor-eyebrow">Sub-dashboard de monitoreo</span><h1>{cultivo.nombre}</h1><p>{cultivo.ubicacion} · Nodo <b>{cultivo.device_id}</b></p></div><span className="monitor-state">{cultivo.estado_actual}</span></section>
-    <section className="monitor-camera panel"><div className="panel-title"><div><span className="monitor-eyebrow">Visión del cultivo</span><h2>ESP32-CAM</h2></div><span className="camera-live"><i/>Vista simulada</span></div><div className="camera-scene"><div className="camera-sun"/><div className="camera-hill camera-hill-back"/><div className="camera-hill camera-hill-front"/><div className="camera-rows">{Array.from({length: 6}, (_, i) => <span key={i}/>)}</div><div className="camera-overlay">TRANSMISIÓN SIMULADA · {cultivo.device_id}</div></div><div className="camera-meta"><span>Resolución<strong>1280 × 720</strong></span><span>Frecuencia<strong>15 FPS</strong></span><span>Panel solar<strong className="solar-ok">● Cargando</strong></span></div></section>
-    <section className="monitor-metrics">
-      <article className="panel metric-card"><div className="panel-title"><div><span className="monitor-eyebrow">Sustrato / solución</span><h2>pH actual</h2></div><span className="metric-icon">◉</span></div><div className="ph-meter" style={{'--ph-angle': `${((pH - 0) / 14) * 100}%`}}><div><strong>{pH.toFixed(1)}</strong><span>pH</span></div></div><p className="metric-note"><b>Rango objetivo:</b> 4.8 – 5.5 pH</p><div className="metric-scale"><span>Ácido</span><span>Óptimo</span><span>Alcalino</span></div></article>
-      <article className="panel metric-card"><div className="panel-title"><div><span className="monitor-eyebrow">Temperatura edafoclimática</span><h2>Bulbo radicular</h2></div><span className="metric-icon warm">☀</span></div><div className="temperature-reading"><strong>18.7</strong><span>°C</span><small>En rango óptimo</small></div><svg className="thermal-chart" viewBox="0 0 360 112" role="img" aria-label="Curva térmica diaria simulada"><defs><linearGradient id="thermalFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#f59e0b" stopOpacity=".3"/><stop offset="1" stopColor="#f59e0b" stopOpacity="0"/></linearGradient></defs><path d="M0 82 C35 75 42 45 78 51 S123 79 155 55 S208 30 235 43 S286 72 310 37 S341 25 360 18 V112 H0Z" fill="url(#thermalFill)"/><path d="M0 82 C35 75 42 45 78 51 S123 79 155 55 S208 30 235 43 S286 72 310 37 S341 25 360 18" fill="none" stroke="#e99431" strokeWidth="3" strokeLinecap="round"/></svg><div className="chart-axis"><span>06:00</span><span>10:00</span><span>14:00</span><span>18:00</span></div></article>
-      <article className="panel metric-card"><div className="panel-title"><div><span className="monitor-eyebrow">Agua disponible</span><h2>Humedad del suelo</h2></div><span className="metric-icon blue">≈</span></div><div className="vwc-reading"><strong>{humedad}</strong><span>% VWC</span></div><div className="vwc-track"><span style={{width: `${humedad}%`}}/></div><div className="vwc-markers"><span><i className="field-capacity"/>Capacidad de campo <b>60%</b></span><span><i className="drainage"/>Drenaje <b>85%</b></span></div><p className="metric-note">Humedad adecuada para el desarrollo radicular.</p></article>
+    <section className="telemetry-grid">
+      <article className="panel telemetry-panel"><div className="panel-title"><div><span className="monitor-eyebrow">Agua disponible</span><h2>Humedad del suelo (%)</h2></div><span className="telemetry-dot humidity"/></div><LineChart data={telemetria} field="humedad_relativa_calibrada_pct" color="#3c9b7a" unit="%" label="Humedad del suelo"/></article>
+      <article className="panel telemetry-panel"><div className="panel-title"><div><span className="monitor-eyebrow">Temperatura edáfica</span><h2>Temperatura del suelo (°C)</h2></div><span className="telemetry-dot temperature"/></div><LineChart data={telemetria} field="temperatura_suelo_C" color="#e99431" unit="°C" label="Temperatura del suelo"/></article>
     </section>
-    <section className="panel tank-panel"><div className="panel-title"><div><span className="monitor-eyebrow">Sistema central de fertirriego</span><h2>Tanque de reserva</h2></div><span className="tank-autonomy">Autonomía estimada<strong>4.8 días</strong></span></div><div className="tank-content"><div className="tank-visual"><div className="tank-shell"><div className="tank-water" style={{height: `${tanque}%`}}/><div className="tank-percent">{tanque}%</div></div><div className="tank-capacity"><strong>7,200 L</strong><span>de 10,000 L</span></div></div><div className="tank-statuses"><div><span>Electroválvula</span><strong className="status-online"><i/>Abierta</strong></div><div><span>Bomba principal</span><strong className="status-online"><i/>Operativa</strong></div><div><span>Última actualización</span><strong>Hace 30 segundos</strong></div></div></div></section>
-    <p className="simulation-note">Las lecturas de sensores y cámara son simuladas mientras se integra el nodo físico.</p>
+    <div className="telemetry-footer"><span>{telemetryError ? `Error de actualización: ${telemetryError}` : updatedAt ? `Última actualización: ${updatedAt.toLocaleTimeString()}` : 'Consultando lecturas…'}</span><span>{telemetria.length} lecturas históricas</span></div>
   </main>;
 }
