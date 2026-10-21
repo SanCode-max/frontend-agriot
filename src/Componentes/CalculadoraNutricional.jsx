@@ -1,15 +1,17 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, AlertTriangle, Beaker, Droplets, Download, Leaf, Sprout } from 'lucide-react';
+import { Activity, AlertTriangle, Beaker, Droplets, Download, FileDown, Leaf, Sprout } from 'lucide-react';
 import { apiFetch } from '../services/apiClient';
 import '../css componentes/CalculadoraNutricional.css';
+import '../css componentes/CalculadoraReporte.css';
 
 const ETAPAS = [
   ['vegetativo', 'Vegetativo'], ['floracion', 'Floración'],
   ['fructificacion', 'Fructificación'], ['cosecha', 'Cosecha'],
 ];
+const TELEMETRY_DEVICE_ID = process.env.REACT_APP_IOT_DEVICE_ID || 'ESP32_AGRIOT_01';
 const INITIAL = {
-  cultivo_id: '', etapa: 'vegetativo', ph: '', n: '', p: '', k: '', humedad_suelo: '', agua_litros: '',
+  cultivo_id: '', etapa: 'vegetativo', ph: '', n: '', p: '', k: '', humedad_suelo: '', temperatura_suelo: '', conductividad_electrica: '', agua_litros: '',
   fertilizantes: { n_percent: '21', p2o5_percent: '52', k2o_percent: '50' }, acido_ml_litro_titulado: '',
 };
 
@@ -30,6 +32,10 @@ export default function CalculadoraNutricional({ embedded = false }) {
   const [cargando, setCargando] = useState(true);
   const [calculando, setCalculando] = useState(false);
   const [error, setError] = useState('');
+  const [lecturaSensor, setLecturaSensor] = useState(null);
+  const [errorSensor, setErrorSensor] = useState('');
+  const camposSensorEditados = useRef({ humedad_suelo: false, temperatura_suelo: false });
+  const ultimosValoresSensor = useRef({ humedad_suelo: null, temperatura_suelo: null });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,6 +55,8 @@ export default function CalculadoraNutricional({ embedded = false }) {
   const cultivoSeleccionado = useMemo(() => cultivos.find(c => String(c.id) === form.cultivo_id), [cultivos, form.cultivo_id]);
   useEffect(() => {
     if (!cultivoSeleccionado) return;
+    camposSensorEditados.current = { humedad_suelo: false, temperatura_suelo: false };
+    ultimosValoresSensor.current = { humedad_suelo: null, temperatura_suelo: null };
     setForm(current => ({
       ...current,
       ph: sensorValue(cultivoSeleccionado, ['ph', 'ph_suelo', 'ph_sustrato']),
@@ -56,9 +64,51 @@ export default function CalculadoraNutricional({ embedded = false }) {
       p: sensorValue(cultivoSeleccionado, ['p', 'fosforo', 'phosphorus', 'p_ppm']),
       k: sensorValue(cultivoSeleccionado, ['k', 'potasio', 'potassium', 'k_ppm']),
       humedad_suelo: sensorValue(cultivoSeleccionado, ['humedad_suelo', 'humedad', 'soil_moisture']),
+      temperatura_suelo: '',
+      conductividad_electrica: '',
     }));
+    setLecturaSensor(null);
+    setErrorSensor('');
     setResultado(null);
   }, [cultivoSeleccionado]);
+
+  useEffect(() => {
+    if (!cultivoSeleccionado) return undefined;
+    let active = true;
+    const deviceId = TELEMETRY_DEVICE_ID;
+    const loadLatest = async () => {
+      try {
+        const query = new URLSearchParams({ device_id: deviceId, limit: '1' });
+        const response = await apiFetch(`/v1/cultivos/${cultivoSeleccionado.id}/telemetria?${query}`);
+        const data = await response.json();
+        if (response.status === 401) { navigate('/login', { replace: true }); return; }
+        if (!response.ok) throw new Error(data.message || data.detail || 'No se pudo consultar la lectura del ESP32.');
+        const rows = data.telemetria || data.data?.telemetria || [];
+        const latest = rows[rows.length - 1];
+        if (!active) return;
+        if (!latest) { setLecturaSensor(null); return; }
+        const humidity = latest.humedad_relativa_calibrada_pct ?? latest.humedad_suelo_pct;
+        const temperature = latest.temperatura_suelo_C ?? latest.temperatura_suelo;
+        const changed = (humidity != null && !camposSensorEditados.current.humedad_suelo && String(humidity) !== ultimosValoresSensor.current.humedad_suelo)
+          || (temperature != null && !camposSensorEditados.current.temperatura_suelo && String(temperature) !== ultimosValoresSensor.current.temperatura_suelo);
+        if (humidity != null) ultimosValoresSensor.current.humedad_suelo = String(humidity);
+        if (temperature != null) ultimosValoresSensor.current.temperatura_suelo = String(temperature);
+        if (changed) setResultado(null);
+        setLecturaSensor({ deviceId, observedAt: latest.observed_at || latest.timestamp || latest.created_at });
+        setForm(current => ({
+          ...current,
+          ...(humidity != null && !camposSensorEditados.current.humedad_suelo ? { humedad_suelo: String(humidity) } : {}),
+          ...(temperature != null && !camposSensorEditados.current.temperatura_suelo ? { temperatura_suelo: String(temperature) } : {}),
+        }));
+        setErrorSensor('');
+      } catch (e) {
+        if (active) setErrorSensor(e.message);
+      }
+    };
+    loadLatest();
+    const timer = window.setInterval(loadLatest, 15000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [cultivoSeleccionado, navigate]);
 
   const update = (key, value) => setForm(current => ({ ...current, [key]: value }));
   const updateGrade = (key, value) => setForm(current => ({ ...current, fertilizantes: { ...current.fertilizantes, [key]: value } }));
@@ -71,6 +121,8 @@ export default function CalculadoraNutricional({ embedded = false }) {
         cultivo_id: Number(form.cultivo_id),
         ph: Number(form.ph), n: Number(form.n), p: Number(form.p), k: Number(form.k),
         humedad_suelo: form.humedad_suelo === '' ? null : Number(form.humedad_suelo),
+        temperatura_suelo: form.temperatura_suelo === '' ? null : Number(form.temperatura_suelo),
+        conductividad_electrica: form.conductividad_electrica === '' ? null : Number(form.conductividad_electrica),
         agua_litros: Number(form.agua_litros),
         fertilizantes: Object.fromEntries(Object.entries(form.fertilizantes).map(([key, value]) => [key, Number(value)])),
         acido_ml_litro_titulado: form.acido_ml_litro_titulado === '' ? null : Number(form.acido_ml_litro_titulado),
@@ -93,11 +145,17 @@ export default function CalculadoraNutricional({ embedded = false }) {
       ['K actual (mg/L)', resultado.nutrientes.k.actual_mg_l], ['K fertilizante equivalente (g)', resultado.dosis.k_g],
       ['Agua (L)', resultado.agua_litros], ['Corrector ácido (mL)', resultado.ph.corrector?.cantidad_ml ?? 'Requiere titulación'],
       ['Humedad suelo (%)', resultado.humedad_suelo?.actual_porcentaje ?? 'Sin lectura'],
+      ['Temperatura suelo (°C)', resultado.temperatura_suelo?.actual_c ?? 'Sin lectura'],
+      ['Conductividad eléctrica (dS/m)', resultado.conductividad_electrica?.actual_ds_m ?? 'Sin lectura'],
       ['Aviso', resultado.aviso_agronomico],
     ];
     const csv = rows.map(row => row.map(cell => `"${String(cell ?? '').replaceAll('"', '""')}"`).join(',')).join('\r\n');
     const url = URL.createObjectURL(new Blob(['\ufeff', csv], { type: 'text/csv;charset=utf-8' }));
     const anchor = document.createElement('a'); anchor.href = url; anchor.download = `agriot-dosis-${resultado.cultivo.id}.csv`; anchor.click(); URL.revokeObjectURL(url);
+  }
+
+  function descargarReportePdf() {
+    if (resultado) window.print();
   }
 
   const statusLabel = value => ({ optimo: 'Óptimo', deficiente: 'Deficiente', excesivo: 'Excesivo', bajo: 'Bajo', alto: 'Alto', baja: 'Baja', excesiva: 'Excesiva', alta: 'Alta' }[value] || value);
@@ -109,8 +167,9 @@ export default function CalculadoraNutricional({ embedded = false }) {
         <label className="nutri-field"><span>Cultivo asignado</span><select required value={form.cultivo_id} onChange={e => update('cultivo_id', e.target.value)} disabled={cargando || !cultivos.length}><option value="">{cargando ? 'Cargando cultivos…' : 'Selecciona un cultivo'}</option>{cultivos.map(c => <option key={c.id} value={c.id}>{c.nombre} · {c.device_id || 'Sin nodo'}</option>)}</select></label>
         {!cargando && !cultivos.length && <p className="nutri-inline-note">No hay cultivos asignados disponibles para tu cuenta.</p>}
         <div className="nutri-field-grid"><label className="nutri-field"><span>Etapa fenológica</span><select value={form.etapa} onChange={e => update('etapa', e.target.value)}>{ETAPAS.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label><label className="nutri-field"><span>Agua de riego (L)</span><input required type="number" min="0.1" step="any" placeholder="Ej. 500" value={form.agua_litros} onChange={e => update('agua_litros', e.target.value)} /></label></div>
-        <div className="nutri-section-label"><Activity size={17}/><span>Lecturas del cultivo</span><small>{cultivoSeleccionado?.device_id ? `Nodo ${cultivoSeleccionado.device_id}` : 'Ingreso manual'}</small></div>
-        <div className="nutri-field-grid nutri-three"><label className="nutri-field"><span>pH actual</span><div className="nutri-input-unit"><input required type="number" min="0" max="14" step="any" placeholder="5.2" value={form.ph} onChange={e => update('ph', e.target.value)}/><b>pH</b></div></label><label className="nutri-field"><span>Nitrógeno (N)</span><div className="nutri-input-unit"><input required type="number" min="0" step="any" placeholder="mg/L" value={form.n} onChange={e => update('n', e.target.value)}/><b>mg/L</b></div></label><label className="nutri-field"><span>Fósforo (P)</span><div className="nutri-input-unit"><input required type="number" min="0" step="any" placeholder="mg/L" value={form.p} onChange={e => update('p', e.target.value)}/><b>mg/L</b></div></label><label className="nutri-field"><span>Potasio (K)</span><div className="nutri-input-unit"><input required type="number" min="0" step="any" placeholder="mg/L" value={form.k} onChange={e => update('k', e.target.value)}/><b>mg/L</b></div></label><label className="nutri-field"><span>Humedad del suelo</span><div className="nutri-input-unit"><input type="number" min="0" max="100" step="any" placeholder="Opcional" value={form.humedad_suelo} onChange={e => update('humedad_suelo', e.target.value)}/><b>%</b></div></label></div>
+        <div className="nutri-section-label"><Activity size={17}/><span>Lecturas del cultivo</span><small>{lecturaSensor ? `ESP32 ${lecturaSensor.deviceId} · actualizado ${lecturaSensor.observedAt ? new Date(lecturaSensor.observedAt).toLocaleTimeString() : 'ahora'}` : 'pH, N, P, K y CE: ingreso manual'}</small></div>
+        {errorSensor && <p className="nutri-inline-note">No se pudo actualizar el ESP32: {errorSensor}. Puedes completar temperatura y humedad manualmente.</p>}
+        <div className="nutri-field-grid nutri-three"><label className="nutri-field"><span>pH actual</span><div className="nutri-input-unit"><input required type="number" min="0" max="14" step="any" placeholder="5.2" value={form.ph} onChange={e => update('ph', e.target.value)}/><b>pH</b></div></label><label className="nutri-field"><span>Nitrógeno (N)</span><div className="nutri-input-unit"><input required type="number" min="0" step="any" placeholder="mg/L" value={form.n} onChange={e => update('n', e.target.value)}/><b>mg/L</b></div></label><label className="nutri-field"><span>Fósforo (P)</span><div className="nutri-input-unit"><input required type="number" min="0" step="any" placeholder="mg/L" value={form.p} onChange={e => update('p', e.target.value)}/><b>mg/L</b></div></label><label className="nutri-field"><span>Potasio (K)</span><div className="nutri-input-unit"><input required type="number" min="0" step="any" placeholder="mg/L" value={form.k} onChange={e => update('k', e.target.value)}/><b>mg/L</b></div></label><label className="nutri-field"><span>Humedad del suelo</span><div className="nutri-input-unit"><input type="number" min="0" max="100" step="any" placeholder="ESP32 / manual" value={form.humedad_suelo} onChange={e => { camposSensorEditados.current.humedad_suelo = true; update('humedad_suelo', e.target.value); }}/><b>%</b></div></label><label className="nutri-field"><span>Temperatura del suelo</span><div className="nutri-input-unit"><input type="number" min="-55" max="125" step="any" placeholder="ESP32 / manual" value={form.temperatura_suelo} onChange={e => { camposSensorEditados.current.temperatura_suelo = true; update('temperatura_suelo', e.target.value); }}/><b>°C</b></div></label><label className="nutri-field"><span>Conductividad eléctrica (CE)</span><div className="nutri-input-unit"><input type="number" min="0" max="20" step="any" placeholder="Medición manual" value={form.conductividad_electrica} onChange={e => update('conductividad_electrica', e.target.value)}/><b>dS/m</b></div></label></div>
         <details className="nutri-advanced"><summary>Análisis de etiqueta y calibración del ácido</summary><p>Usa el porcentaje indicado en cada producto. El ácido requiere una prueba de titulación con el agua real de riego.</p><div className="nutri-field-grid nutri-three"><label className="nutri-field"><span>Producto fuente de N (%)</span><input type="number" min="0.01" max="100" step="any" required value={form.fertilizantes.n_percent} onChange={e => updateGrade('n_percent', e.target.value)}/></label><label className="nutri-field"><span>Producto fuente de P₂O₅ (%)</span><input type="number" min="0.01" max="100" step="any" required value={form.fertilizantes.p2o5_percent} onChange={e => updateGrade('p2o5_percent', e.target.value)}/></label><label className="nutri-field"><span>Producto fuente de K₂O (%)</span><input type="number" min="0.01" max="100" step="any" required value={form.fertilizantes.k2o_percent} onChange={e => updateGrade('k2o_percent', e.target.value)}/></label><label className="nutri-field nutri-acid-field"><span>Ácido titulado (mL/L)</span><input type="number" min="0" step="any" placeholder="Opcional, según prueba" value={form.acido_ml_litro_titulado} onChange={e => update('acido_ml_litro_titulado', e.target.value)}/></label></div></details>
         <button type="submit" className="nutri-submit" disabled={calculando || !cultivos.length}><Beaker size={18}/>{calculando ? 'Calculando dosis…' : 'Calcular dosis de fertirriego'}</button>
         {error && <p className="nutri-error" role="alert">{error}</p>}
@@ -118,10 +177,12 @@ export default function CalculadoraNutricional({ embedded = false }) {
 
       <section className="nutri-results" aria-live="polite">
         {!resultado ? <div className="nutri-empty"><div><Leaf size={28}/></div><h2>Diagnóstico del lote</h2><p>Completa las lecturas y calcula para consultar el estado nutricional y la recomendación de dosis.</p><div className="nutri-range"><span>Rango de pH objetivo</span><strong>4.5 – 5.5</strong></div></div> : <>
-          <div className="nutri-result-heading"><div><span className="nutri-eyebrow">Resultado · {resultado.etapa}</span><h2>{resultado.cultivo.nombre}</h2><p>Nodo {resultado.cultivo.device_id || 'sin identificar'} · {format(resultado.agua_litros, 0)} L de riego</p></div><button type="button" className="nutri-export" onClick={exportarCsv}><Download size={17}/> Exportar CSV</button></div>
-          <div className="nutri-diagnosis-grid"><article className={`nutri-diagnosis status-${resultado.ph.estado}`}><span>pH del sustrato</span><strong>{format(resultado.ph.actual, 1)}</strong><em>{statusLabel(resultado.ph.estado)}</em><small>Objetivo 4.5–5.5</small></article>{[['n','Nitrógeno'],['p','Fósforo'],['k','Potasio']].map(([key,label]) => <article key={key} className={`nutri-diagnosis status-${resultado.nutrientes[key].estado}`}><span>{label} ({key.toUpperCase()})</span><strong>{format(resultado.nutrientes[key].actual_mg_l, 1)} <small>mg/L</small></strong><em>{statusLabel(resultado.nutrientes[key].estado)}</em><small>Objetivo {format(resultado.nutrientes[key].objetivo_mg_l, 1)} mg/L</small></article>)}{resultado.humedad_suelo && <article className={`nutri-diagnosis status-${resultado.humedad_suelo.estado === 'optima' ? 'optimo' : 'deficiente'}`}><span>Humedad del suelo</span><strong>{format(resultado.humedad_suelo.actual_porcentaje, 1)}%</strong><em>{statusLabel(resultado.humedad_suelo.estado)}</em><small>Lectura reportada</small></article>}</div>
+          <div className="nutri-result-heading"><div><span className="nutri-eyebrow">Resultado · {resultado.etapa}</span><h2>{resultado.cultivo.nombre}</h2><p>Nodo {resultado.cultivo.device_id || 'sin identificar'} · {format(resultado.agua_litros, 0)} L de riego</p></div><div className="nutri-actions"><button type="button" className="nutri-export" onClick={exportarCsv}><Download size={17}/> Exportar CSV</button><button type="button" className="nutri-export nutri-pdf-button" onClick={descargarReportePdf}><FileDown size={17}/> Generar y descargar PDF</button></div></div>
+          <div className="nutri-diagnosis-grid"><article className={`nutri-diagnosis status-${resultado.ph.estado}`}><span>pH del sustrato</span><strong>{format(resultado.ph.actual, 1)}</strong><em>{statusLabel(resultado.ph.estado)}</em><small>Objetivo 4.5–5.5</small></article>{[['n','Nitrógeno'],['p','Fósforo'],['k','Potasio']].map(([key,label]) => <article key={key} className={`nutri-diagnosis status-${resultado.nutrientes[key].estado}`}><span>{label} ({key.toUpperCase()})</span><strong>{format(resultado.nutrientes[key].actual_mg_l, 1)} <small>mg/L</small></strong><em>{statusLabel(resultado.nutrientes[key].estado)}</em><small>Objetivo {format(resultado.nutrientes[key].objetivo_mg_l, 1)} mg/L</small></article>)}{resultado.humedad_suelo && <article className={`nutri-diagnosis status-${resultado.humedad_suelo.estado === 'optima' ? 'optimo' : 'deficiente'}`}><span>Humedad del suelo</span><strong>{format(resultado.humedad_suelo.actual_porcentaje, 1)}%</strong><em>{statusLabel(resultado.humedad_suelo.estado)}</em><small>Lectura reportada</small></article>}{resultado.temperatura_suelo && <article className={`nutri-diagnosis status-${resultado.temperatura_suelo.estado === 'referencia' ? 'optimo' : 'bajo'}`}><span>Temperatura del suelo</span><strong>{format(resultado.temperatura_suelo.actual_c, 1)} °C</strong><em>{statusLabel(resultado.temperatura_suelo.estado)}</em><small>Lectura ESP32 / manual</small></article>}{resultado.conductividad_electrica && <article className={`nutri-diagnosis status-${resultado.conductividad_electrica.estado === 'referencia' ? 'optimo' : 'alto'}`}><span>Conductividad eléctrica</span><strong>{format(resultado.conductividad_electrica.actual_ds_m, 2)} <small>dS/m</small></strong><em>{statusLabel(resultado.conductividad_electrica.estado)}</em><small>Referencia indicativa</small></article>}</div>
           <div className="nutri-dose-card"><div className="nutri-dose-title"><Droplets size={19}/><div><h3>Dosis variable estimada</h3><p>Equivalentes por producto según concentración declarada</p></div></div><div className="nutri-dose-grid"><div><span>Fuente de N</span><strong>{format(resultado.dosis.n_g)} <small>g</small></strong></div><div><span>Fuente de P</span><strong>{format(resultado.dosis.p_g)} <small>g</small></strong></div><div><span>Fuente de K</span><strong>{format(resultado.dosis.k_g)} <small>g</small></strong></div><div><span>Corrector de pH</span><strong>{resultado.ph.corrector ? `${format(resultado.ph.corrector.cantidad_ml)} ml` : '—'}</strong></div></div>{resultado.ph.requiere_titulacion && <p className="nutri-warning"><AlertTriangle size={16}/> El pH está alto. Ingresa el resultado de una titulación para estimar la cantidad de ácido.</p>}<p className="nutri-caveat">{resultado.dosis.nota}</p></div>
           {resultado.alertas.length > 0 && <div className="nutri-alerts"><h3><AlertTriangle size={17}/> Revisión requerida</h3>{resultado.alertas.map((alert, i) => <p key={i}>{alert}</p>)}</div>}
+          <div className="nutri-alerts nutri-recommendations"><h3><Leaf size={17}/> Recomendaciones prácticas</h3>{(resultado.recomendaciones || []).map((recommendation, i) => <p key={i}>{recommendation}</p>)}</div>
+          <article className="nutri-print-report"><span className="nutri-eyebrow">AgrIoT · Reporte agronómico</span><h1>Diagnóstico de suelo y fertirriego</h1><p>Generado: {new Date().toLocaleString('es-CO')} · Lote: {resultado.cultivo.nombre} · Etapa: {resultado.etapa}</p><h2>Condiciones registradas</h2><ul><li>Humedad: {form.humedad_suelo === '' ? 'Sin lectura' : `${form.humedad_suelo} %`}</li><li>Temperatura radicular: {form.temperatura_suelo === '' ? 'Sin lectura' : `${form.temperatura_suelo} °C`}</li><li>CE: {form.conductividad_electrica === '' ? 'Sin lectura' : `${form.conductividad_electrica} dS/m`}</li><li>pH: {resultado.ph.actual} · N: {resultado.nutrientes.n.actual_mg_l} mg/L · P: {resultado.nutrientes.p.actual_mg_l} mg/L · K: {resultado.nutrientes.k.actual_mg_l} mg/L</li><li>Agua de riego: {format(resultado.agua_litros, 0)} L</li></ul><h2>Diagnóstico</h2><p>pH {statusLabel(resultado.ph.estado)}; N {statusLabel(resultado.nutrientes.n.estado)}; P {statusLabel(resultado.nutrientes.p.estado)}; K {statusLabel(resultado.nutrientes.k.estado)}{resultado.conductividad_electrica ? `; CE ${statusLabel(resultado.conductividad_electrica.estado)}` : ''}{resultado.temperatura_suelo ? `; temperatura ${statusLabel(resultado.temperatura_suelo.estado)}` : ''}.</p><h2>Dosis estimada</h2><p>N: {format(resultado.dosis.n_g)} g · P: {format(resultado.dosis.p_g)} g · K: {format(resultado.dosis.k_g)} g · Corrector pH: {resultado.ph.corrector ? `${format(resultado.ph.corrector.cantidad_ml)} mL` : 'requiere titulación o no aplica'}.</p><h2>Recomendaciones para el lote</h2><ul>{(resultado.recomendaciones || []).map((item, i) => <li key={i}>{item}</li>)}</ul><p className="nutri-report-caveat">Orientación inicial para arándano en Ubaté. Valide las lecturas con el método de análisis del lote, calidad del agua, drenaje y asesoría agronómica local antes de modificar dosis.</p></article>
           <p className="nutri-agronomic-note">{resultado.aviso_agronomico}</p>
         </>}
       </section>

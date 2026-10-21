@@ -14,6 +14,7 @@ import CultivoMonitoreo from './Componentes/CultivoMonitoreo';
 import MapaCultivos from './Componentes/MapaCultivos';
 import CalculadoraNutricional from './Componentes/CalculadoraNutricional';
 import AgendaNotas from './Componentes/AgendaNotas';
+import CentroAlertas from './Componentes/CentroAlertas';
 
 function RutaProtegida({ children }) {
   const token = localStorage.getItem('token');
@@ -39,6 +40,7 @@ function MyApp() {
         <Route path='/dashboard/usuario' element={<RutaProtegida><UsuarioDashboard/></RutaProtegida>}/>
         <Route path='/calculadora-nutricional' element={<RutaProtegida><CalculadoraNutricional/></RutaProtegida>}/>
         <Route path='/agenda' element={<RutaProtegida><AgendaNotas/></RutaProtegida>}/>
+        <Route path='/alertas' element={<RutaProtegida><CentroAlertas/></RutaProtegida>}/>
         <Route path='/cultivos/:id' element={<RutaProtegida><CultivoMonitoreo/></RutaProtegida>}/>
         <Route path='/mapa' element={<RutaProtegida><MapaCultivos/></RutaProtegida>}/>
         <Route path='/admin/usuarios' element={<RutaProtegida><CrearUsuario/></RutaProtegida>}/>
