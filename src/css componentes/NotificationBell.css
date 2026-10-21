@@ -1,0 +1,19 @@
+.agriot-notification{position:relative;display:flex;align-items:center;flex:none}
+.agriot-notification .agriot-notification-button{position:relative;width:42px;height:42px;display:grid;place-items:center;border:1px solid #dce6d8;border-radius:50%;background:#f4f7f2;color:#64758b;font-size:16px;cursor:pointer;flex:none}
+.agriot-notification .agriot-notification-button:hover,.agriot-notification .agriot-notification-button:focus-visible{border-color:#4f873e;color:#2e713e;outline:none}
+.agriot-notification-count{position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;padding:0 5px;display:grid;place-items:center;box-sizing:border-box;border:2px solid #fff;border-radius:999px;background:#e5484d;color:#fff;font:700 10px/1 Inter,system-ui,sans-serif}
+.agriot-notification-popover{position:absolute;z-index:1200;top:calc(100% + 12px);right:0;width:min(370px,calc(100vw - 28px));overflow:hidden;border:1px solid #e5ebe2;border-radius:16px;background:#fff;box-shadow:0 18px 50px #183c2c24;color:#203b2c;text-align:left}
+.agriot-notification-heading{display:flex;align-items:center;justify-content:space-between;padding:17px 18px 13px;border-bottom:1px solid #edf1eb}
+.agriot-notification-heading div{display:grid;gap:4px}.agriot-notification-heading strong{font-size:15px}.agriot-notification-heading span{color:#77847b;font-size:12px}
+.agriot-notification-heading>button{width:32px;height:32px;border:0;border-radius:9px;background:#f2f6f0;color:#4d7552;font-size:21px;cursor:pointer}
+.agriot-notification-list{max-height:min(440px,60vh);margin:0;padding:0;overflow:auto;list-style:none}
+.agriot-notification-list li+li{border-top:1px solid #f0f2ee}
+.agriot-notification-item{width:100%;display:flex;align-items:flex-start;gap:11px;padding:13px 16px;border:0;background:#fff;color:inherit;text-align:left;cursor:pointer;transition:background .15s}
+.agriot-notification-item:hover,.agriot-notification-item.is-unread{background:#f8fbf6}
+.agriot-notification-severity{width:9px;height:9px;margin-top:5px;border-radius:50%;background:#df9d2f;flex:none}.agriot-notification-severity.severity-alta,.agriot-notification-severity.severity-critica{background:#df514b}.agriot-notification-severity.severity-baja{background:#54a36b}
+.agriot-notification-item-content{min-width:0;display:grid;gap:4px;flex:1}.agriot-notification-item-title{overflow:hidden;color:#244532;font-size:13px;font-weight:750;text-overflow:ellipsis;white-space:nowrap}.agriot-notification-item-meta,.agriot-notification-item-date{color:#78847c;font-size:11px}.agriot-notification-item-recommendation{display:-webkit-box;overflow:hidden;color:#52685a;font-size:12px;line-height:1.45;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.agriot-notification-unread-dot{width:7px;height:7px;margin-top:6px;border-radius:50%;background:#e5484d;flex:none}
+.agriot-notification-message{margin:0;padding:22px 18px;color:#718078;font-size:13px;line-height:1.5}
+.agriot-notification-all{width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border:0;border-top:1px solid #edf1eb;background:#fbfcfa;color:#48763f;font:700 13px Inter,system-ui,sans-serif;text-align:left;cursor:pointer}.agriot-notification-all:hover{background:#f2f7ee}
+@media(max-width:760px){.agriot-notification .agriot-notification-button{width:38px;height:38px}}
+@media(max-width:520px){.agriot-notification-popover{position:fixed;top:76px;right:12px;width:min(370px,calc(100vw - 24px))}}

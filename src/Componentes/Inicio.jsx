@@ -12,6 +12,7 @@ import { apiFetch, buildMediaUrl } from "../services/apiClient";
 import CrearUsuario from "./CrearUsuario";
 import AgendaNotas from "./AgendaNotas";
 import CentroAlertas from "./CentroAlertas";
+import NotificationBell from "./NotificationBell";
 
 const esRolAdministrador = (rol) => ["admin", "administrador", "administrator"].includes(String(rol || "").toLowerCase());
 const esGestorCultivos = (rol) => esRolAdministrador(rol) || String(rol || "").toLowerCase() === "asistente";
@@ -434,10 +435,7 @@ export default function Inicio() {
           </div>
           
           <div className="header-right">
-            <button className="icon-btn" aria-label="Notificaciones">
-              <FaBell className="header-icon" />
-              <span className="notification-badge">3</span>
-            </button>
+            <NotificationBell onOpenAlerts={() => setActivo("alertas")} />
             <button type="button" className="header-profile-button" onClick={() => setMostrarPerfil(true)} aria-label="Abrir perfil" title="Mi perfil">
               <img src={foto ? buildMediaUrl(foto, Date.now()) : "/profile-icon.png"} alt="" className="header-profile-avatar" />
             </button>
