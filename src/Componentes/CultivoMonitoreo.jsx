@@ -3,6 +3,30 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { apiFetch } from '../services/apiClient';
 import '../css componentes/CultivoMonitoreo.css';
 
+function normalizeTelemetryResponse(responseData) {
+  const rows = Array.isArray(responseData)
+    ? responseData
+    : Array.isArray(responseData?.telemetria)
+      ? responseData.telemetria
+      : Array.isArray(responseData?.data?.telemetria)
+        ? responseData.data.telemetria
+        : Array.isArray(responseData?.data)
+          ? responseData.data
+          : [];
+
+  return rows.map(row => ({
+    ...row,
+    temperatura_suelo_C: row.temperatura_suelo_C ?? row.temperatura_suelo ?? row.temperature_c ?? row.temperature,
+    humedad_relativa_calibrada_pct: row.humedad_relativa_calibrada_pct ?? row.humedad_suelo_pct ?? row.humedad_suelo ?? row.soil_moisture_pct,
+    observed_at: row.observed_at ?? row.timestamp ?? row.created_at,
+  }));
+}
+
+function apiErrorMessage(data, fallback) {
+  const validationMessages = Object.values(data?.errors || {}).flat().filter(Boolean);
+  return data?.detail || data?.message || validationMessages.join(' ') || fallback;
+}
+
 function LineChart({ data, field, color, unit, label }) {
   const values = data.map(point => point[field] == null ? NaN : Number(point[field])).filter(Number.isFinite);
   if (!values.length) return <div className="telemetry-empty">Aún no hay lecturas de {label.toLowerCase()}.</div>;
@@ -14,7 +38,11 @@ function LineChart({ data, field, color, unit, label }) {
   })).filter(point => Number.isFinite(point.value)).map(point => ({ ...point, y: pad.top + (max - point.value) / span * (height - pad.top - pad.bottom) }));
   const line = points.map(point => `${point.x},${point.y}`).join(' ');
   const latest = values[values.length - 1];
-  const formatTime = value => new Date(value).toLocaleString([], { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const formatTime = value => {
+    if (!value) return 'Sin fecha';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? 'Fecha inválida' : date.toLocaleString([], { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  };
   return <div className="telemetry-chart-wrap">
     <div className="telemetry-current"><strong>{latest.toFixed(1)}</strong><span>{unit}</span></div>
     <svg className="telemetry-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${label} a través del tiempo`}>
@@ -36,8 +64,8 @@ export default function CultivoMonitoreo() {
       const data = await response.json();
       if (response.status === 403 && data.must_change_password) { navigate('/cambiar-password', { replace: true }); return; }
       if (response.status === 401) { navigate('/login', { replace: true }); return; }
-      if (!response.ok) throw new Error(data.detail || 'No se pudo actualizar la telemetría.');
-      setTelemetria(data.telemetria || []); setUpdatedAt(new Date()); setTelemetryError('');
+      if (!response.ok) throw new Error(apiErrorMessage(data, 'No se pudo actualizar la telemetría.'));
+      setTelemetria(normalizeTelemetryResponse(data)); setUpdatedAt(new Date()); setTelemetryError('');
     } catch (e) { setTelemetryError(e.message); }
   }, [id, navigate]);
 
@@ -47,17 +75,18 @@ export default function CultivoMonitoreo() {
       const data = await response.json();
       if (response.status === 403 && data.must_change_password) { navigate('/cambiar-password', { replace: true }); return; }
       if (response.status === 401) { navigate('/login', { replace: true }); return; }
-      if (!response.ok) throw new Error(response.status === 404 ? 'No tienes acceso a este cultivo o ya no existe.' : (data.detail || 'No se pudo cargar el cultivo.'));
+      if (!response.ok) throw new Error(response.status === 404 ? 'No tienes acceso a este cultivo o ya no existe.' : apiErrorMessage(data, 'No se pudo cargar el cultivo.'));
       if (mounted) setCultivo(data.cultivo);
     }).catch(e => mounted && setError(e.message));
     return () => { mounted = false; };
   }, [id, navigate]);
 
   useEffect(() => {
+    if (!cultivo) return undefined;
     loadTelemetry();
     const timer = window.setInterval(loadTelemetry, 15000);
     return () => window.clearInterval(timer);
-  }, [loadTelemetry]);
+  }, [cultivo, loadTelemetry]);
   const user = useMemo(() => JSON.parse(localStorage.getItem('usuario') || '{}'), []);
   if (error) return <main className="monitor-page"><button className="monitor-back" onClick={() => navigate(-1)}>← Volver</button><section className="monitor-error"><h1>Cultivo no disponible</h1><p>{error}</p></section></main>;
   if (!cultivo) return <main className="monitor-page"><div className="monitor-loading">Cargando datos del cultivo…</div></main>;
