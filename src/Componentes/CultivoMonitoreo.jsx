@@ -3,6 +3,10 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { apiFetch } from '../services/apiClient';
 import '../css componentes/CultivoMonitoreo.css';
 
+// This deployment currently has one ESP32. Set REACT_APP_IOT_DEVICE_ID in Vercel
+// when changing hardware or when each crop receives its own sensor node.
+const TELEMETRY_DEVICE_ID = process.env.REACT_APP_IOT_DEVICE_ID || 'ESP32_AGRIOT_01';
+
 function normalizeTelemetryResponse(responseData) {
   const rows = Array.isArray(responseData)
     ? responseData
@@ -60,7 +64,8 @@ export default function CultivoMonitoreo() {
   const [error, setError] = useState(''); const [telemetryError, setTelemetryError] = useState(''); const [updatedAt, setUpdatedAt] = useState(null);
   const loadTelemetry = useCallback(async () => {
     try {
-      const response = await apiFetch(`/v1/cultivos/${id}/telemetria?limit=500`);
+      const query = new URLSearchParams({ limit: '500', device_id: TELEMETRY_DEVICE_ID });
+      const response = await apiFetch(`/v1/cultivos/${id}/telemetria?${query.toString()}`);
       const data = await response.json();
       if (response.status === 403 && data.must_change_password) { navigate('/cambiar-password', { replace: true }); return; }
       if (response.status === 401) { navigate('/login', { replace: true }); return; }
@@ -93,7 +98,7 @@ export default function CultivoMonitoreo() {
 
   return <main className="monitor-page">
     <header className="monitor-topbar"><button className="monitor-back" onClick={() => navigate(location.state?.from || (user.rol === 'user' ? '/dashboard/usuario' : '/Inicio'))}>← Mis cultivos</button><span className="monitor-brand">Agr<span>IoT</span></span><span className="monitor-live"><i/>Actualización cada 15 s</span></header>
-    <section className="monitor-heading"><div><span className="monitor-eyebrow">Sub-dashboard de monitoreo</span><h1>{cultivo.nombre}</h1><p>{cultivo.ubicacion} · Nodo <b>{cultivo.device_id}</b></p></div><span className="monitor-state">{cultivo.estado_actual}</span></section>
+    <section className="monitor-heading"><div><span className="monitor-eyebrow">Sub-dashboard de monitoreo</span><h1>{cultivo.nombre}</h1><p>{cultivo.ubicacion} · Nodo <b>{cultivo.device_id}</b> · Fuente <b>{TELEMETRY_DEVICE_ID}</b></p></div><span className="monitor-state">{cultivo.estado_actual}</span></section>
     <section className="telemetry-grid">
       <article className="panel telemetry-panel"><div className="panel-title"><div><span className="monitor-eyebrow">Agua disponible</span><h2>Humedad del suelo (%)</h2></div><span className="telemetry-dot humidity"/></div><LineChart data={telemetria} field="humedad_relativa_calibrada_pct" color="#3c9b7a" unit="%" label="Humedad del suelo"/></article>
       <article className="panel telemetry-panel"><div className="panel-title"><div><span className="monitor-eyebrow">Temperatura edáfica</span><h2>Temperatura del suelo (°C)</h2></div><span className="telemetry-dot temperature"/></div><LineChart data={telemetria} field="temperatura_suelo_C" color="#e99431" unit="°C" label="Temperatura del suelo"/></article>
