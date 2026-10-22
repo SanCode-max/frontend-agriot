@@ -6,6 +6,7 @@ import '../css componentes/CultivoMonitoreo.css';
 // This deployment currently has one ESP32. Set REACT_APP_IOT_DEVICE_ID in Vercel
 // when changing hardware or when each crop receives its own sensor node.
 const TELEMETRY_DEVICE_ID = process.env.REACT_APP_IOT_DEVICE_ID || 'ESP32_AGRIOT_01';
+const NODE_OFFLINE_AFTER_MS = (Number(process.env.REACT_APP_NODE_OFFLINE_MINUTES) || 10) * 60 * 1000;
 
 function normalizeTelemetryResponse(responseData) {
   const rows = Array.isArray(responseData)
@@ -23,6 +24,7 @@ function normalizeTelemetryResponse(responseData) {
     temperatura_suelo_C: row.temperatura_suelo_C ?? row.temperatura_suelo ?? row.temperature_c ?? row.temperature,
     humedad_relativa_calibrada_pct: row.humedad_relativa_calibrada_pct ?? row.humedad_suelo_pct ?? row.humedad_suelo ?? row.soil_moisture_pct,
     observed_at: row.observed_at ?? row.timestamp ?? row.created_at,
+    received_at: row.received_at ?? row.created_at ?? row.observed_at ?? row.timestamp,
   }));
 }
 
@@ -62,6 +64,7 @@ export default function CultivoMonitoreo() {
   const { id } = useParams(); const navigate = useNavigate(); const location = useLocation();
   const [cultivo, setCultivo] = useState(null); const [telemetria, setTelemetria] = useState([]);
   const [error, setError] = useState(''); const [telemetryError, setTelemetryError] = useState(''); const [updatedAt, setUpdatedAt] = useState(null);
+  const [clockNow, setClockNow] = useState(Date.now());
   const loadTelemetry = useCallback(async () => {
     try {
       const query = new URLSearchParams({ limit: '500', device_id: TELEMETRY_DEVICE_ID });
@@ -92,13 +95,26 @@ export default function CultivoMonitoreo() {
     const timer = window.setInterval(loadTelemetry, 15000);
     return () => window.clearInterval(timer);
   }, [cultivo, loadTelemetry]);
+  useEffect(() => {
+    const timer = window.setInterval(() => setClockNow(Date.now()), 10000);
+    return () => window.clearInterval(timer);
+  }, []);
   const user = useMemo(() => JSON.parse(localStorage.getItem('usuario') || '{}'), []);
+  const latestReading = telemetria.reduce((latest, row) => {
+    const date = new Date(row.received_at || row.created_at || row.timestamp || row.observed_at).getTime();
+    if (!Number.isFinite(date)) return latest;
+    return !latest || date > latest.date ? { date, row } : latest;
+  }, null);
+  const lastSeenAge = latestReading ? clockNow - latestReading.date : Infinity;
+  const nodeOnline = Boolean(latestReading && lastSeenAge >= 0 && lastSeenAge <= NODE_OFFLINE_AFTER_MS);
+  const nodeLastSeen = latestReading ? new Date(latestReading.date) : null;
   if (error) return <main className="monitor-page"><button className="monitor-back" onClick={() => navigate(-1)}>← Volver</button><section className="monitor-error"><h1>Cultivo no disponible</h1><p>{error}</p></section></main>;
   if (!cultivo) return <main className="monitor-page"><div className="monitor-loading">Cargando datos del cultivo…</div></main>;
 
   return <main className="monitor-page">
-    <header className="monitor-topbar"><button className="monitor-back" onClick={() => navigate(location.state?.from || (user.rol === 'user' ? '/dashboard/usuario' : '/Inicio'))}>← Mis cultivos</button><span className="monitor-brand">Agr<span>IoT</span></span><span className="monitor-live"><i/>Actualización cada 15 s</span></header>
+    <header className="monitor-topbar"><button className="monitor-back" onClick={() => navigate(location.state?.from || (user.rol === 'user' ? '/dashboard/usuario' : '/Inicio'))}>← Mis cultivos</button><span className="monitor-brand">Agr<span>IoT</span></span><span className={`monitor-live ${nodeOnline ? 'is-online' : 'is-offline'}`}><i/>{nodeOnline ? 'Nodo Online' : 'Nodo Offline'}</span></header>
     <section className="monitor-heading"><div><span className="monitor-eyebrow">Sub-dashboard de monitoreo</span><h1>{cultivo.nombre}</h1><p>{cultivo.ubicacion} · Nodo <b>{cultivo.device_id}</b> · Fuente <b>{TELEMETRY_DEVICE_ID}</b></p></div><span className="monitor-state">{cultivo.estado_actual}</span></section>
+    {!nodeOnline && <div className="monitor-offline-notice" role="status"><strong>Nodo desconectado</strong><span>{nodeLastSeen ? `Último dato recibido: ${nodeLastSeen.toLocaleString('es-CO')}.` : 'Todavía no se han recibido lecturas de este nodo.'} Los datos mostrados pueden no estar en tiempo real.</span></div>}
     <section className="telemetry-grid">
       <article className="panel telemetry-panel"><div className="panel-title"><div><span className="monitor-eyebrow">Agua disponible</span><h2>Humedad del suelo (%)</h2></div><span className="telemetry-dot humidity"/></div><LineChart data={telemetria} field="humedad_relativa_calibrada_pct" color="#3c9b7a" unit="%" label="Humedad del suelo"/></article>
       <article className="panel telemetry-panel"><div className="panel-title"><div><span className="monitor-eyebrow">Temperatura edáfica</span><h2>Temperatura del suelo (°C)</h2></div><span className="telemetry-dot temperature"/></div><LineChart data={telemetria} field="temperatura_suelo_C" color="#e99431" unit="°C" label="Temperatura del suelo"/></article>

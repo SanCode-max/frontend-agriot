@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import ChatWidget from './Componentes/ChatWidget.jsx';
 import Principal from './Componentes/Principal';
 import PrincipioSesion from './Componentes/PrincipioSesion';
@@ -15,6 +16,52 @@ import MapaCultivos from './Componentes/MapaCultivos';
 import CalculadoraNutricional from './Componentes/CalculadoraNutricional';
 import AgendaNotas from './Componentes/AgendaNotas';
 import CentroAlertas from './Componentes/CentroAlertas';
+import { apiFetch } from './services/apiClient';
+
+const SESSION_IDLE_TIMEOUT_MS = 5 * 60 * 1000;
+
+function SessionInactivityGuard() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!localStorage.getItem('token')) return undefined;
+
+    let timeoutId;
+    let expired = false;
+    const expireSession = () => {
+      if (expired) return;
+      expired = true;
+      const logoutRequest = apiFetch('/logout', { method: 'POST' }).catch(() => {});
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      navigate('/login', { replace: true, state: { sessionExpired: true } });
+      return logoutRequest;
+    };
+    const resetTimer = () => {
+      window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(expireSession, SESSION_IDLE_TIMEOUT_MS);
+    };
+    const onStorage = event => {
+      if (event.key === 'token' && !event.newValue) {
+        localStorage.removeItem('usuario');
+        navigate('/login', { replace: true });
+      }
+    };
+    const activityEvents = ['mousemove', 'mousedown', 'keydown', 'click', 'scroll', 'touchstart', 'pointerdown'];
+    activityEvents.forEach(name => window.addEventListener(name, resetTimer, { passive: true }));
+    window.addEventListener('storage', onStorage);
+    resetTimer();
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      activityEvents.forEach(name => window.removeEventListener(name, resetTimer));
+      window.removeEventListener('storage', onStorage);
+    };
+  }, [location.pathname, navigate]);
+
+  return null;
+}
 
 function RutaProtegida({ children }) {
   const token = localStorage.getItem('token');
@@ -27,6 +74,7 @@ function RutaProtegida({ children }) {
 function MyApp() {
   return (
     <Router>
+      <SessionInactivityGuard />
       <ChatWidget />
       <Routes>
         <Route path='/' element={<Principal/>}/>

@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../css componentes/InicioSesion.css';
 import { FaEye, FaEyeSlash, FaEnvelope, FaLock, FaArrowLeft, FaShieldAlt } from "react-icons/fa";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { apiFetch } from '../services/apiClient';
 
 export default function InicioSesion() {
     const navigate = useNavigate();
+    const location = useLocation();
 
     // Estados del formulario
     const [Correo, setCorreo] = useState('');
@@ -16,11 +17,22 @@ export default function InicioSesion() {
     const [PasoMfa, setPasoMfa] = useState(false);
 
     // Estados de interfaz y mensajes
-    const [Mensaje, setMensaje] = useState('');
-    const [TipoMensaje, setTipoMensaje] = useState('');
-    const [Mostrar, setMostrar] = useState(false);
+    const [Mensaje, setMensaje] = useState(location.state?.sessionExpired ? 'Tu sesión expiró por inactividad. Inicia sesión de nuevo.' : '');
+    const [TipoMensaje, setTipoMensaje] = useState(location.state?.sessionExpired ? 'error' : '');
+    const [Mostrar, setMostrar] = useState(Boolean(location.state?.sessionExpired));
     const [VerContraseña, setVerContraseña] = useState(false);
     const [Cargando, setCargando] = useState(false);
+    const [showSessionExpiredNotice] = useState(Boolean(location.state?.sessionExpired));
+
+    useEffect(() => {
+        if (location.state?.sessionExpired) navigate('/login', { replace: true, state: null });
+    }, [location.state, navigate]);
+
+    useEffect(() => {
+        if (!showSessionExpiredNotice) return undefined;
+        const timeout = window.setTimeout(() => setMostrar(false), 4500);
+        return () => window.clearTimeout(timeout);
+    }, [showSessionExpiredNotice]);
 
     // PASO 1: Enviar credenciales y solicitar código de 6 dígitos
     const loginClick = async (e) => {
