@@ -173,7 +173,7 @@ export default function ReportesEstadisticas({ embedded = false }) {
       score: item.latest && observedAt(item.latest) && now.getTime() - observedAt(item.latest).getTime() <= 10 * 60 * 1000 ? stability(item.latest) : null,
     }));
     return {
-      activeCount: crops.length,
+      activeCount: cultivos.length,
       ph: average(latestPh),
       moisture: average(latestHumidity),
       moistureDelta: average(weekHumidity) !== null && average(priorHumidity) !== null ? average(weekHumidity) - average(priorHumidity) : null,
