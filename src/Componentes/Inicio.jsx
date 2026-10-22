@@ -13,6 +13,7 @@ import CrearUsuario from "./CrearUsuario";
 import AgendaNotas from "./AgendaNotas";
 import CentroAlertas from "./CentroAlertas";
 import NotificationBell from "./NotificationBell";
+import ReportesEstadisticas from "./ReportesEstadisticas";
 
 const esRolAdministrador = (rol) => ["admin", "administrador", "administrator"].includes(String(rol || "").toLowerCase());
 const esGestorCultivos = (rol) => esRolAdministrador(rol) || String(rol || "").toLowerCase() === "asistente";
@@ -600,12 +601,7 @@ export default function Inicio() {
           {activo === "alertas" && <CentroAlertas embedded />}
 
           {/* 5. VISTA REPORTES / ESTADÍSTICAS */}
-          {activo === "estadisticas" && (
-            <div className="seccion-placeholder">
-              <h2>Reportes y Estadísticas</h2>
-              <p>Módulo de analítica en desarrollo...</p>
-            </div>
-          )}
+          {activo === "estadisticas" && <ReportesEstadisticas embedded />}
 
           {activo === "usuarios" && esRolAdministrador(JSON.parse(localStorage.getItem("usuario") || "{}")?.rol) && (
             <CrearUsuario embedded />
