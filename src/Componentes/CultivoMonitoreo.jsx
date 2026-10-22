@@ -7,6 +7,13 @@ import '../css componentes/CultivoMonitoreo.css';
 // when changing hardware or when each crop receives its own sensor node.
 const TELEMETRY_DEVICE_ID = process.env.REACT_APP_IOT_DEVICE_ID || 'ESP32_AGRIOT_01';
 const NODE_OFFLINE_AFTER_MS = (Number(process.env.REACT_APP_NODE_OFFLINE_MINUTES) || 10) * 60 * 1000;
+// Keep these defaults aligned with AGRIOT-backend/config/nutritional_calculator.php.
+const AGRONOMIC_THRESHOLDS = {
+  humidityLow: Number(process.env.REACT_APP_MOISTURE_LOW_PCT) || 40,
+  humidityHigh: Number(process.env.REACT_APP_MOISTURE_HIGH_PCT) || 85,
+  temperatureLow: Number(process.env.REACT_APP_TEMPERATURE_LOW_C) || 8,
+  temperatureHigh: Number(process.env.REACT_APP_TEMPERATURE_HIGH_C) || 25,
+};
 
 function normalizeTelemetryResponse(responseData) {
   const rows = Array.isArray(responseData)
@@ -108,13 +115,40 @@ export default function CultivoMonitoreo() {
   const lastSeenAge = latestReading ? clockNow - latestReading.date : Infinity;
   const nodeOnline = Boolean(latestReading && lastSeenAge >= 0 && lastSeenAge <= NODE_OFFLINE_AFTER_MS);
   const nodeLastSeen = latestReading ? new Date(latestReading.date) : null;
+  const currentHumidity = latestReading?.row?.humedad_relativa_calibrada_pct == null ? null : Number(latestReading.row.humedad_relativa_calibrada_pct);
+  const currentTemperature = latestReading?.row?.temperatura_suelo_C == null ? null : Number(latestReading.row.temperatura_suelo_C);
+  const hasHumidity = Number.isFinite(currentHumidity);
+  const hasTemperature = Number.isFinite(currentTemperature);
+  const readingIssues = [];
+  if (hasHumidity && currentHumidity < AGRONOMIC_THRESHOLDS.humidityLow) readingIssues.push({ type: 'water', label: `Humedad baja (${currentHumidity}%)` });
+  if (hasHumidity && currentHumidity > AGRONOMIC_THRESHOLDS.humidityHigh) readingIssues.push({ type: 'water', label: `Humedad excesiva (${currentHumidity}%)` });
+  if (hasTemperature && currentTemperature < AGRONOMIC_THRESHOLDS.temperatureLow) readingIssues.push({ type: 'temperature', label: `Temperatura baja (${currentTemperature.toFixed(1)} °C)` });
+  if (hasTemperature && currentTemperature > AGRONOMIC_THRESHOLDS.temperatureHigh) readingIssues.push({ type: 'temperature', label: `Temperatura alta (${currentTemperature.toFixed(1)} °C)` });
+  const healthStatus = !nodeOnline
+    ? { title: 'Sin datos en tiempo real', detail: 'El nodo está desconectado.', tone: 'offline' }
+    : !hasHumidity || !hasTemperature
+      ? { title: 'Datos incompletos', detail: 'La última lectura no incluye valores válidos de sensores.', tone: 'warning' }
+      : readingIssues.length > 1
+        ? { title: 'Alertas múltiples', detail: readingIssues.map(issue => issue.label).join(' · '), tone: 'warning' }
+        : readingIssues.length === 1
+          ? { title: readingIssues[0].type === 'water' ? 'Alerta hídrica' : 'Alerta de temperatura', detail: readingIssues[0].label, tone: 'warning' }
+          : { title: 'Normal', detail: 'Las últimas lecturas están dentro de los umbrales configurados.', tone: 'normal' };
+  const timeSinceReading = nodeLastSeen && Number.isFinite(lastSeenAge)
+    ? lastSeenAge < 60000 ? 'hace menos de 1 min' : `hace ${Math.floor(lastSeenAge / 60000)} min`
+    : 'Sin lecturas recibidas';
   if (error) return <main className="monitor-page"><button className="monitor-back" onClick={() => navigate(-1)}>← Volver</button><section className="monitor-error"><h1>Cultivo no disponible</h1><p>{error}</p></section></main>;
   if (!cultivo) return <main className="monitor-page"><div className="monitor-loading">Cargando datos del cultivo…</div></main>;
 
   return <main className="monitor-page">
     <header className="monitor-topbar"><button className="monitor-back" onClick={() => navigate(location.state?.from || (user.rol === 'user' ? '/dashboard/usuario' : '/Inicio'))}>← Mis cultivos</button><span className="monitor-brand">Agr<span>IoT</span></span><span className={`monitor-live ${nodeOnline ? 'is-online' : 'is-offline'}`}><i/>{nodeOnline ? 'Nodo Online' : 'Nodo Offline'}</span></header>
     <section className="monitor-heading"><div><span className="monitor-eyebrow">Sub-dashboard de monitoreo</span><h1>{cultivo.nombre}</h1><p>{cultivo.ubicacion} · Nodo <b>{cultivo.device_id}</b> · Fuente <b>{TELEMETRY_DEVICE_ID}</b></p></div><span className="monitor-state">{cultivo.estado_actual}</span></section>
-    {!nodeOnline && <div className="monitor-offline-notice" role="status"><strong>Nodo desconectado</strong><span>{nodeLastSeen ? `Último dato recibido: ${nodeLastSeen.toLocaleString('es-CO')}.` : 'Todavía no se han recibido lecturas de este nodo.'} Los datos mostrados pueden no estar en tiempo real.</span></div>}
+    {!nodeOnline && <div className="monitor-offline-notice" role="alert"><strong>⚠ Nodo Desconectado / Sin conexión</strong><span>{nodeLastSeen ? `Último dato recibido: ${nodeLastSeen.toLocaleString('es-CO')}.` : 'Todavía no se han recibido lecturas de este nodo.'} Los datos mostrados pueden no estar en tiempo real.</span></div>}
+    <section className="monitor-kpis" aria-label="Indicadores actuales del cultivo">
+      <article className={`monitor-kpi monitor-kpi-health tone-${healthStatus.tone}`}><span className="monitor-kpi-label">Salud general</span><strong>{healthStatus.title}</strong><small>{healthStatus.detail}</small></article>
+      <article className={`monitor-kpi ${hasHumidity && (currentHumidity < AGRONOMIC_THRESHOLDS.humidityLow || currentHumidity > AGRONOMIC_THRESHOLDS.humidityHigh) ? 'tone-warning' : ''}`}><span className="monitor-kpi-label">Humedad del suelo</span><strong>{hasHumidity ? `${currentHumidity.toFixed(1)}%` : '—'}</strong><small>Rango de referencia: {AGRONOMIC_THRESHOLDS.humidityLow}–{AGRONOMIC_THRESHOLDS.humidityHigh}%</small></article>
+      <article className={`monitor-kpi ${hasTemperature && (currentTemperature < AGRONOMIC_THRESHOLDS.temperatureLow || currentTemperature > AGRONOMIC_THRESHOLDS.temperatureHigh) ? 'tone-warning' : ''}`}><span className="monitor-kpi-label">Temperatura del suelo</span><strong>{hasTemperature ? `${currentTemperature.toFixed(1)} °C` : '—'}</strong><small>Rango de referencia: {AGRONOMIC_THRESHOLDS.temperatureLow}–{AGRONOMIC_THRESHOLDS.temperatureHigh} °C</small></article>
+      <article className={`monitor-kpi ${nodeOnline ? 'tone-normal' : 'tone-offline'}`}><span className="monitor-kpi-label">Conexión del nodo</span><strong>{nodeOnline ? 'Online' : 'Offline'}</strong><small>{timeSinceReading} · Actualización cada 15 s</small></article>
+    </section>
     <section className="telemetry-grid">
       <article className="panel telemetry-panel"><div className="panel-title"><div><span className="monitor-eyebrow">Agua disponible</span><h2>Humedad del suelo (%)</h2></div><span className="telemetry-dot humidity"/></div><LineChart data={telemetria} field="humedad_relativa_calibrada_pct" color="#3c9b7a" unit="%" label="Humedad del suelo"/></article>
       <article className="panel telemetry-panel"><div className="panel-title"><div><span className="monitor-eyebrow">Temperatura edáfica</span><h2>Temperatura del suelo (°C)</h2></div><span className="telemetry-dot temperature"/></div><LineChart data={telemetria} field="temperatura_suelo_C" color="#e99431" unit="°C" label="Temperatura del suelo"/></article>
