@@ -5,6 +5,27 @@ import { useNavigate } from 'react-router-dom';
 import { apiFetch, buildMediaUrl } from '../services/apiClient';
 
 const MAX_FOTO_BYTES = 2 * 1024 * 1024;
+const TELEMETRY_FRESH_MS = 10 * 60 * 1000;
+
+function metricFromReading(row, keys) {
+  const payload = typeof row?.payload === 'string' ? (() => { try { return JSON.parse(row.payload); } catch (_) { return {}; } })() : (row?.payload || {});
+  const sources = [row, payload, payload.sensores, payload.sensor_data, payload.lecturas].filter(Boolean);
+  for (const source of sources) {
+    for (const key of keys) {
+      const value = source[key];
+      if (value !== undefined && value !== null && value !== '' && Number.isFinite(Number(value))) return Number(value);
+    }
+  }
+  return null;
+}
+
+function scoreMetric(key, value) {
+  if (key === 'ph') return value >= 4.5 && value <= 5.5 ? 100 : Math.max(0, 100 - (value < 4.5 ? 4.5 - value : value - 5.5) * 35);
+  if (key === 'humidity') return value < 40 ? Math.max(0, value / 40 * 100) : value > 85 ? Math.max(0, 100 - (value - 85) * 5) : 100;
+  if (key === 'temperature') return value < 8 ? Math.max(0, 100 - (8 - value) * 8) : value > 25 ? Math.max(0, 100 - (value - 25) * 6) : 100;
+  if (key === 'ec') return value < 1.5 ? 100 : value <= 2 ? 70 : Math.max(0, 70 - (value - 2) * 15);
+  return null;
+}
 
 function prepararFotoParaSubida(file) {
   if (!file || !file.type.startsWith('image/')) return Promise.reject(new Error('Selecciona un archivo de imagen válido.'));
@@ -36,6 +57,12 @@ const PerfilUsuario = ({ onProfileUpdated }) => {
   const navigate = useNavigate();
   const [perfil, setPerfil] = useState(null);
   const [cargando, setCargando] = useState(true);
+  const [cultivos, setCultivos] = useState([]);
+  const [cargandoCultivos, setCargandoCultivos] = useState(true);
+  const [errorCultivos, setErrorCultivos] = useState('');
+  const [estabilidad, setEstabilidad] = useState(null);
+  const [variablesEstabilidad, setVariablesEstabilidad] = useState({ disponibles: 0, posibles: 0 });
+  const [ultimaLectura, setUltimaLectura] = useState(null);
   const [modoEdicion, setModoEdicion] = useState(false);
 
   // Estados de carga e interacción para los botones
@@ -75,10 +102,6 @@ const PerfilUsuario = ({ onProfileUpdated }) => {
       ubicacion: "Ubaté, Cundinamarca",
       profesion: rolVisible,
       foto: null,
-      ultima_sesion: "Hoy",
-      proyectos_asignados: 2,
-      cultivos_seguimiento: 3,
-      estabilidad: 75
     };
 
     apiFetch(`/perfil/${usuario.correo}`)
@@ -107,6 +130,78 @@ const PerfilUsuario = ({ onProfileUpdated }) => {
       });
 
   }, [navigate, rolVisible]);
+
+  useEffect(() => {
+    let active = true;
+    apiFetch('/cultivos')
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || 'No se pudieron consultar los cultivos.');
+        if (active) setCultivos(Array.isArray(data.cultivos) ? data.cultivos : []);
+      })
+      .catch(error => active && setErrorCultivos(error.message))
+      .finally(() => active && setCargandoCultivos(false));
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!cultivos.length) {
+      setEstabilidad(null);
+      setVariablesEstabilidad({ disponibles: 0, posibles: 0 });
+      setUltimaLectura(null);
+      return undefined;
+    }
+
+    let active = true;
+    const loadStability = async () => {
+      const latestRows = await Promise.all(cultivos.map(async cultivo => {
+        if (!cultivo.device_id) return null;
+        try {
+          const query = new URLSearchParams({ device_id: cultivo.device_id, limit: '1' });
+          const response = await apiFetch(`/v1/cultivos/${cultivo.id}/telemetria?${query}`);
+          if (!response.ok) return null;
+          const data = await response.json();
+          const rows = data.telemetria || data.data?.telemetria || [];
+          return Array.isArray(rows) ? (rows[rows.length - 1] || null) : null;
+        } catch (_) { return null; }
+      }));
+
+      const now = Date.now();
+      const recentRows = latestRows.filter(row => {
+        if (!row) return false;
+        const seenAt = new Date(row.created_at || row.received_at || row.observed_at || row.timestamp).getTime();
+        return Number.isFinite(seenAt) && now >= seenAt && now - seenAt <= TELEMETRY_FRESH_MS;
+      });
+      const metricKeys = {
+        ph: ['ph', 'ph_suelo', 'ph_sustrato', 'ph_actual'],
+        humidity: ['humedad_relativa_calibrada_pct', 'humedad_suelo_pct', 'humedad_suelo', 'soil_moisture_pct'],
+        temperature: ['temperatura_suelo_C', 'temperatura_suelo', 'temperature_c', 'temperature'],
+        ec: ['conductividad_electrica', 'ce_ds_m', 'conductividad_ds_m', 'soil_ec_ds_m', 'ec_ds_m'],
+      };
+      const scores = [];
+      let available = 0;
+      let newest = null;
+      recentRows.forEach(row => {
+        const timestamp = new Date(row.created_at || row.received_at || row.observed_at || row.timestamp).getTime();
+        if (!newest || timestamp > newest.date) newest = { date: timestamp };
+        Object.entries(metricKeys).forEach(([key, keys]) => {
+          const value = metricFromReading(row, keys);
+          if (value === null) return;
+          available += 1;
+          scores.push(scoreMetric(key, value));
+        });
+      });
+
+      if (!active) return;
+      setVariablesEstabilidad({ disponibles: available, posibles: cultivos.length * 4 });
+      setEstabilidad(scores.length ? Math.round(scores.reduce((total, score) => total + score, 0) / scores.length) : null);
+      setUltimaLectura(newest ? new Date(newest.date) : null);
+    };
+
+    loadStability();
+    const timer = window.setInterval(loadStability, 15000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [cultivos]);
 
   // OBTENER UBICACIÓN AUTOMÁTICA
   const obtenerUbicacionActual = () => {
@@ -300,34 +395,42 @@ const PerfilUsuario = ({ onProfileUpdated }) => {
 
           <div className="actividad-grid">
             <div className="stats-text">
-              <div className="stat-block">
-                <span className="stat-label">Última sesión</span>
-                <span className="stat-value">{perfil.ultima_sesion || "Hoy"}</span>
+              <div className="stat-block profile-session-state">
+                <span className="stat-label">Estado de sesión</span>
+                <span className="profile-active-badge"><i aria-hidden="true" />Activo</span>
               </div>
 
-              <div className="stat-block">
-                <span className="stat-label">Proyectos asignados</span>
-                <span className="stat-value">{perfil.proyectos_asignados || 2}</span>
-              </div>
-
-              <div className="stat-block inline-stat">
-                <span className="stat-value">{perfil.cultivos_seguimiento || 3}</span>
-                <span className="stat-label-inline">cultivos en seguimiento</span>
+              <div className="stat-block profile-crops-block">
+                <span className="stat-label">Cultivos en seguimiento</span>
+                {cargandoCultivos ? <span className="profile-crops-hint">Cargando cultivos…</span>
+                  : errorCultivos ? <span className="profile-crops-hint profile-crops-error">No se pudieron cargar los cultivos.</span>
+                    : cultivos.length ? <ul className="profile-crops-list">{cultivos.map(cultivo => <li key={cultivo.id}>
+                      <span>{cultivo.nombre || `Cultivo #${cultivo.id}`}</span>
+                      {cultivo.device_id && <small>{cultivo.device_id}</small>}
+                    </li>)}</ul>
+                      : <span className="profile-crops-hint">No hay cultivos asociados.</span>}
               </div>
             </div>
 
             <div className="stats-grafico">
               <div
                 className="circulo-progreso"
+                role="img"
+                aria-label={estabilidad === null ? 'Sin lecturas recientes para calcular estabilidad' : `Estabilidad estimada de cultivos: ${estabilidad}%`}
+                title="Porcentaje estimado con las lecturas edafoclimáticas disponibles del ciclo actual; refresca cada 15 segundos."
                 style={{
-                  background: `conic-gradient(#4caf50 ${perfil.estabilidad || 75}%, #81c784 0%)`
+                  background: estabilidad === null ? '#e6ece7' : `conic-gradient(#4caf50 ${estabilidad}%, #81c784 0%)`
                 }}
               >
                 <div className="circulo-interior">
-                  <span className="porcentaje">{perfil.estabilidad || 75}%</span>
+                  <span className="porcentaje">{estabilidad === null ? '—' : `${estabilidad}%`}</span>
                 </div>
               </div>
               <p className="grafico-label">Estabilidad de los cultivos</p>
+              <p className="grafico-caption" title="El indicador se actualiza con las lecturas recientes del ESP32, cada 15 segundos.">
+                {estabilidad === null ? 'Sin lecturas recientes' : 'Lecturas recientes · ciclo actual'}
+              </p>
+              <small className="grafico-coverage">Variables disponibles: {variablesEstabilidad.disponibles}/{variablesEstabilidad.posibles || (cultivos.length * 4)}{ultimaLectura ? ` · ${ultimaLectura.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}` : ''}</small>
             </div>
           </div>
         </div>
