@@ -42,7 +42,13 @@ function apiErrorMessage(data, fallback) {
 
 function readTelemetryValue(row, field, section) {
   if (!row) return undefined;
-  return row[field] ?? row[section]?.[field] ?? row.telemetria?.[field] ?? row.data?.[field] ?? row.data?.[section]?.[field];
+  return row[field]
+    ?? row[section]?.[field]
+    ?? row.payload?.[field]
+    ?? row.payload?.[section]?.[field]
+    ?? row.telemetria?.[field]
+    ?? row.data?.[field]
+    ?? row.data?.[section]?.[field];
 }
 
 function isTelemetryActive(value) {
@@ -141,7 +147,7 @@ export default function CultivoMonitoreo() {
   const hasTankCm = Number.isFinite(tankCm);
   const hasVolume = Number.isFinite(volumeLiters);
   const hasFlow = Number.isFinite(flow);
-  const alertData = currentReading?.alertas ?? currentReading?.data?.alertas ?? {};
+  const alertData = currentReading?.alertas ?? currentReading?.payload?.alertas ?? currentReading?.data?.alertas ?? {};
   const emptyTank = isTelemetryActive(readTelemetryValue(currentReading, 'tanque_vacio', 'estado') ?? currentReading?.tanque_vacio ?? alertData.tanque_vacio);
   const lowTank = emptyTank || isTelemetryActive(alertData.tanque_bajo) || (hasTankPercent && tankPercent < 10);
   const pumpActive = readTelemetryValue(currentReading, 'bomba_activa', 'actuadores');
