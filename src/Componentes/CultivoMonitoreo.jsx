@@ -40,6 +40,15 @@ function apiErrorMessage(data, fallback) {
   return data?.detail || data?.message || validationMessages.join(' ') || fallback;
 }
 
+function readTelemetryValue(row, field, section) {
+  if (!row) return undefined;
+  return row[field] ?? row[section]?.[field] ?? row.telemetria?.[field] ?? row.data?.[field] ?? row.data?.[section]?.[field];
+}
+
+function isTelemetryActive(value) {
+  return value === true || value === 1 || value === '1' || value === 'true';
+}
+
 function LineChart({ data, field, color, unit, label }) {
   const values = data.map(point => point[field] == null ? NaN : Number(point[field])).filter(Number.isFinite);
   if (!values.length) return <div className="telemetry-empty">Aún no hay lecturas de {label.toLowerCase()}.</div>;
@@ -119,6 +128,25 @@ export default function CultivoMonitoreo() {
   const currentTemperature = latestReading?.row?.temperatura_suelo_C == null ? null : Number(latestReading.row.temperatura_suelo_C);
   const hasHumidity = Number.isFinite(currentHumidity);
   const hasTemperature = Number.isFinite(currentTemperature);
+  const currentReading = latestReading?.row;
+  const tankPercentValue = readTelemetryValue(currentReading, 'nivel_agua_tanque_pct', 'sensores');
+  const tankCmValue = readTelemetryValue(currentReading, 'nivel_agua_tanque_cm', 'sensores');
+  const volumeMlValue = readTelemetryValue(currentReading, 'volumen_total_consumido_ml', 'sensores');
+  const flowValue = readTelemetryValue(currentReading, 'caudal_actual_l_min', 'sensores');
+  const tankPercent = tankPercentValue == null ? null : Number(tankPercentValue);
+  const tankCm = tankCmValue == null ? null : Number(tankCmValue);
+  const volumeLiters = volumeMlValue == null ? null : Number(volumeMlValue) / 1000;
+  const flow = flowValue == null ? null : Number(flowValue);
+  const hasTankPercent = Number.isFinite(tankPercent);
+  const hasTankCm = Number.isFinite(tankCm);
+  const hasVolume = Number.isFinite(volumeLiters);
+  const hasFlow = Number.isFinite(flow);
+  const alertData = currentReading?.alertas ?? currentReading?.data?.alertas ?? {};
+  const emptyTank = isTelemetryActive(readTelemetryValue(currentReading, 'tanque_vacio', 'estado') ?? currentReading?.tanque_vacio ?? alertData.tanque_vacio);
+  const lowTank = emptyTank || isTelemetryActive(alertData.tanque_bajo) || (hasTankPercent && tankPercent < 10);
+  const pumpActive = readTelemetryValue(currentReading, 'bomba_activa', 'actuadores');
+  const valveOpen = readTelemetryValue(currentReading, 'electrovalvula_abierta', 'actuadores');
+  const irrigationActive = isTelemetryActive(pumpActive) && isTelemetryActive(valveOpen);
   const readingIssues = [];
   if (hasHumidity && currentHumidity < AGRONOMIC_THRESHOLDS.humidityLow) readingIssues.push({ type: 'water', label: `Humedad baja (${currentHumidity}%)` });
   if (hasHumidity && currentHumidity > AGRONOMIC_THRESHOLDS.humidityHigh) readingIssues.push({ type: 'water', label: `Humedad excesiva (${currentHumidity}%)` });
@@ -148,6 +176,26 @@ export default function CultivoMonitoreo() {
       <article className={`monitor-kpi ${hasHumidity && (currentHumidity < AGRONOMIC_THRESHOLDS.humidityLow || currentHumidity > AGRONOMIC_THRESHOLDS.humidityHigh) ? 'tone-warning' : ''}`}><span className="monitor-kpi-label">Humedad del suelo</span><strong>{hasHumidity ? `${currentHumidity.toFixed(1)}%` : '—'}</strong><small>Rango de referencia: {AGRONOMIC_THRESHOLDS.humidityLow}–{AGRONOMIC_THRESHOLDS.humidityHigh}%</small></article>
       <article className={`monitor-kpi ${hasTemperature && (currentTemperature < AGRONOMIC_THRESHOLDS.temperatureLow || currentTemperature > AGRONOMIC_THRESHOLDS.temperatureHigh) ? 'tone-warning' : ''}`}><span className="monitor-kpi-label">Temperatura del suelo</span><strong>{hasTemperature ? `${currentTemperature.toFixed(1)} °C` : '—'}</strong><small>Rango de referencia: {AGRONOMIC_THRESHOLDS.temperatureLow}–{AGRONOMIC_THRESHOLDS.temperatureHigh} °C</small></article>
       <article className={`monitor-kpi ${nodeOnline ? 'tone-normal' : 'tone-offline'}`}><span className="monitor-kpi-label">Conexión del nodo</span><strong>{nodeOnline ? 'Online' : 'Offline'}</strong><small>{timeSinceReading} · Actualización cada 15 s</small></article>
+    </section>
+    <section className="physical-telemetry" aria-label="Telemetría física del banco hidráulico">
+      <article className={`physical-card tank-card ${lowTank ? 'is-low' : ''}`}>
+        <div className="physical-card-heading"><div><span className="monitor-eyebrow">Sensor HC-SR04</span><h2>Nivel del tanque</h2></div><span className="physical-icon" aria-hidden="true">▤</span></div>
+        <div className="tank-reading"><strong>{hasTankPercent ? `${tankPercent.toFixed(1)}%` : '—'}</strong><span>{hasTankCm ? `${tankCm.toFixed(1)} cm` : 'Altura sin dato'}</span></div>
+        <div className="tank-track" role="progressbar" aria-label="Nivel de agua del tanque" aria-valuemin="0" aria-valuemax="100" aria-valuenow={hasTankPercent ? Math.max(0, Math.min(100, tankPercent)) : undefined}><span style={{ width: `${hasTankPercent ? Math.max(0, Math.min(100, tankPercent)) : 0}%` }}/></div>
+        <small>{hasTankPercent ? 'Agua disponible' : 'Esperando lectura de nivel'}</small>
+        {lowTank && <div className="tank-alert" role="alert"><strong>Tanque bajito</strong><span>{emptyTank ? 'El tanque aparece vacío.' : 'Nivel crítico: menos del 10% de agua disponible.'}</span></div>}
+      </article>
+      <article className="physical-card">
+        <div className="physical-card-heading"><div><span className="monitor-eyebrow">Caudalímetro YF-S201</span><h2>Consumo de agua</h2></div><span className="physical-icon water-icon" aria-hidden="true">↗</span></div>
+        <div className="water-reading"><strong>{hasVolume ? volumeLiters.toLocaleString('es-CO', { maximumFractionDigits: 2 }) : '—'}</strong><span>L</span></div>
+        <p className="physical-caption">Volumen total consumido en riegos</p>
+        <div className="flow-reading"><span>Caudal instantáneo</span><strong>{hasFlow ? `${flow.toFixed(2)} L/min` : '—'}</strong></div>
+      </article>
+      <article className={`physical-card irrigation-card ${irrigationActive ? 'is-active' : ''}`}>
+        <div className="physical-card-heading"><div><span className="monitor-eyebrow">Bomba + electroválvula</span><h2>Riego por goteo</h2></div><span className="physical-icon" aria-hidden="true">◉</span></div>
+        <div className="irrigation-status"><i/><strong>{irrigationActive ? 'Riego activado' : 'Riego desactivado'}</strong></div>
+        <div className="actuator-list"><span>Bomba <b>{isTelemetryActive(pumpActive) ? 'Activa' : 'Apagada'}</b></span><span>Electroválvula <b>{isTelemetryActive(valveOpen) ? 'Abierta' : 'Cerrada'}</b></span></div>
+      </article>
     </section>
     <section className="telemetry-grid">
       <article className="panel telemetry-panel"><div className="panel-title"><div><span className="monitor-eyebrow">Agua disponible</span><h2>Humedad del suelo (%)</h2></div><span className="telemetry-dot humidity"/></div><LineChart data={telemetria} field="humedad_relativa_calibrada_pct" color="#3c9b7a" unit="%" label="Humedad del suelo"/></article>
