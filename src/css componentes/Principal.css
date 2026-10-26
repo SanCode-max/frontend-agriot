@@ -504,14 +504,14 @@ body {
 
 .sensores-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 36px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
   margin-bottom: 50px;
 }
 
 .sensor-card {
   background: var(--bg-app);
-  padding: 40px 30px;
+  padding: 32px 24px;
   border-radius: var(--radius-card);
   border: 1px solid var(--border-light);
   text-align: center;
@@ -536,6 +536,16 @@ body {
   justify-content: center;
   margin-bottom: 24px;
   transition: transform 0.4s ease;
+}
+
+.sensor-icon {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 24px;
+  border-radius: 28px;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--dark-main);
+  font-size: 3rem;
 }
 
 .sensor-card:hover .sensor-img-wrapper {
@@ -765,6 +775,10 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .sensores-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .cultivo-imagen {
     height: 320px;
   }
@@ -775,6 +789,11 @@ body {
 }
 
 @media (max-width: 768px) {
+  .sensores-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
   .nav-menu {
     display: none;
   }

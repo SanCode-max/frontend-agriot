@@ -171,29 +171,29 @@ export default function Principal() {
               <p>Monitoreo continuo y preciso para el óptimo desarrollo de tu cultivo</p>
             </div>
             <div className="sensores-grid">
-              <div className="sensor-card">
-                <div className="sensor-img-wrapper">
-                  <img src="/Imagenes/npk.png" alt="Ilustración del sensor NPK" />
-                </div>
-                <h2>NPK</h2>
-                <p>El sensor NPK mide los niveles de nitrógeno (N), fósforo (P) y potasio (K) en el suelo.</p>
-              </div>
+              <article className="sensor-card">
+                <div className="sensor-img-wrapper sensor-icon" aria-hidden="true">💧</div>
+                <h2>Humedad del Suelo (YL-69)</h2>
+                <p>Sensor resistivo encargado de medir de forma continua la humedad del sustrato en las raíces de los arándanos para activar el riego por goteo automatizado.</p>
+              </article>
 
-              <div className="sensor-card">
-                <div className="sensor-img-wrapper">
-                  <img src="/Imagenes/ph.png" alt="Ilustración del sensor de pH" />
-                </div>
-                <h2>PH</h2>
-                <p>El sensor de pH mide la acidez o alcalinidad del suelo, lo cual es crucial para la salud de las plantas.</p>
-              </div>
+              <article className="sensor-card">
+                <div className="sensor-img-wrapper sensor-icon" aria-hidden="true">🌡️</div>
+                <h2>Temperatura de Suelo (DS18B20)</h2>
+                <p>Sonda térmica sumergible de alta precisión para monitorear la temperatura radicular y detectar preventivamente condiciones críticas por heladas.</p>
+              </article>
 
-              <div className="sensor-card">
-                <div className="sensor-img-wrapper">
-                  <img src="/Imagenes/flotador.png" alt="Ilustración del sensor flotador" />
-                </div>
-                <h2>Flotador</h2>
-                <p>Es el encargado de detectar el nivel del liquido dentro de un tanque o recipiente.</p>
-              </div>
+              <article className="sensor-card">
+                <div className="sensor-img-wrapper sensor-icon" aria-hidden="true">📡</div>
+                <h2>Nivel del Tanque (HC-SR04)</h2>
+                <p>Sensor ultrasónico de distancia instalado en el tanque de almacenamiento para calcular en tiempo real el porcentaje de agua disponible y evitar la cavitación de la bomba.</p>
+              </article>
+
+              <article className="sensor-card">
+                <div className="sensor-img-wrapper sensor-icon" aria-hidden="true">🔄</div>
+                <h2>Caudalímetro (YF-S201)</h2>
+                <p>Medidor de flujo por efecto Hall para registrar con exactitud el volumen total de agua consumido y el caudal instantáneo durante los ciclos de riego.</p>
+              </article>
             </div>
             <div className="sensor-cta">
               <button className="boton3">Conocer más</button>
